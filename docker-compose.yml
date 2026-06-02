@@ -1,0 +1,40 @@
+# Atlas OS — run the `atlas` CLI tools in a container.
+#
+# This compose file shows how to drive the pipeline scripts without installing
+# anything on the host. It mounts your markdown vault read-write and loads your
+# secrets from a local .env (never commit that file).
+#
+#   1. cp .env.example .env   &&   edit it
+#   2. Point the bind mount below at your real vault path
+#   3. docker compose run --rm atlas doctor
+#      docker compose run --rm atlas health
+#      docker compose run --rm atlas embed --full
+#      docker compose run --rm atlas commit --dry-run
+#
+# A local LLM (LM Studio / Ollama) running on the host is reachable from inside
+# the container at `host.docker.internal`. Set EMBED_HOST=host.docker.internal
+# (and LM_STUDIO_HOST=host.docker.internal) in your .env so RAG/trading work.
+
+services:
+  atlas:
+    build:
+      context: .
+      args:
+        # Use ".[all]" to bake in the optional trading + pdf extras.
+        EXTRAS: "."
+    image: atlas-os
+    # Secrets and config come from your local .env (git-ignored).
+    env_file:
+      - .env
+    environment:
+      # The vault is mounted at /vault below — override whatever .env says.
+      VAULT_PATH: /vault
+    volumes:
+      # ← change the host path to your real vault.
+      - "${VAULT_PATH:-./vault}:/vault"
+    # On Linux, uncomment so host.docker.internal resolves to the host LLM:
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+    # No long-running process — this is a CLI. Override the command per run:
+    #   docker compose run --rm atlas <command>
+    command: ["doctor"]

@@ -306,7 +306,8 @@ underlying script.
 | `atlas commit` | Auto-commit the vault with a categorised message | `--dry-run`, `--json` |
 | `atlas changelog` | Summarise vault changes over a window | `--since`, `--markdown`, `--json` |
 | `atlas health` | Full subsystem health probe | `--json`, `--quiet` |
-| `atlas email` | Send an email via SMTP (JSON payload) | — |
+| `atlas trading` | Generate a trading research briefing *(optional)* | `--ticker`, `--date`, `--dry-run` |
+| `atlas email` | Send an email via SMTP | `--to`, `--subject`, `--body`, `--text`, `--attach`, `--json` |
 | `atlas schemas` | Enforce per-folder frontmatter schemas | `--dry-run`, `--folder`, `--verbose` |
 
 ```bash
@@ -316,8 +317,13 @@ atlas embed --test 5                       # smoke-test the endpoint on 5 files
 atlas changelog --since "7 days ago" --markdown
 atlas commit --dry-run
 atlas skills --sync                        # regenerate Skills Catalog.md
-atlas email '{"to":"me@example.com","subject":"Hi","body_html":"<p>Hello</p>"}'
+atlas email -s "Hi" -b "<p>Hello</p>" --to me@example.com
+atlas email --json '{"to":"me@example.com","subject":"Hi","body_html":"<p>Hi</p>"}'
 ```
+
+Every command auto-loads `.env` and **validates its required env vars up front**,
+exiting with a clear message (and a non-zero code) if something is missing — so a
+half-configured optional feature fails fast instead of part-way through.
 
 Run `atlas --help` or `atlas <command> --help` for details. Complete per-command
 reference (flags, env vars consumed, outputs): [`docs/SCRIPTS.md`](docs/SCRIPTS.md).
@@ -553,6 +559,33 @@ repo. Details: [`dashboard/README.md`](dashboard/README.md).
 
 ---
 
+## Docker (optional)
+
+Prefer not to install Python tooling on the host? Run the `atlas` CLI in a
+container. The image (Python 3.11-slim + git) packages the command and the
+pipeline scripts; your vault is bind-mounted and secrets load from `.env`.
+
+```bash
+cp .env.example .env && $EDITOR .env      # for a host LLM: EMBED_HOST=host.docker.internal
+docker build -t atlas-os .                # add --build-arg EXTRAS=".[all]" for trading/pdf
+
+# run any subcommand against your mounted vault:
+VAULT_PATH=~/Documents/Obsidian/MyVault docker compose run --rm atlas doctor
+VAULT_PATH=~/Documents/Obsidian/MyVault docker compose run --rm atlas embed --full
+VAULT_PATH=~/Documents/Obsidian/MyVault docker compose run --rm atlas commit --dry-run
+```
+
+A local LLM (LM Studio / Ollama) on the host is reachable from inside the
+container at `host.docker.internal`. There is no long-running service to expose —
+this is a CLI, so use `docker compose run` per command. See the root
+[`Dockerfile`](Dockerfile) and [`docker-compose.yml`](docker-compose.yml).
+
+> The public repo ships only the static, single-file ops dashboard
+> (`templates/ops-dashboard.html`), so there's no web app to containerise — the
+> image is for the CLI tooling. Keep any full dashboard in its own repo (above).
+
+---
+
 ## Security & privacy
 
 Atlas OS distinguishes four data classes and keeps each in its place:
@@ -585,7 +618,7 @@ atlas-os/
 ├── atlas_os/        the `atlas` CLI package (init, doctor, skills, wrappers)
 ├── pyproject.toml   packaging — `uv tool install` / `pipx` / `pip install -e .`
 ├── scripts/         embed · graph · commit · changelog · email · health · trade
-├── tests/           pytest suite for the core scripts (hermetic, no network)
+├── tests/           pytest suite (scripts + CLI; hermetic, no network)
 ├── .github/         GitHub Actions CI (ruff · pytest · pip-audit)
 ├── skills/          9 scheduled-task SKILL.md prompts (templated)
 ├── schemas/         frontmatter schema enforcement + docs
@@ -593,6 +626,8 @@ atlas-os/
 ├── trading/         optional multi-agent research SDK
 ├── dashboard/       static ops dashboard + setup notes
 ├── docs/            setup, configuration, scripts, architecture, rebuild, FAQ, …
+├── Dockerfile       run the CLI in a container (Python 3.11-slim + git)
+├── docker-compose.yml   bind-mount your vault, load .env, run any subcommand
 ├── .env.example     every configurable variable, documented
 ├── CHANGELOG.md     release history (Keep a Changelog)
 ├── SECURITY.md · CONTRIBUTING.md · LICENSE

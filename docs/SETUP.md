@@ -2,6 +2,44 @@
 
 Step-by-step installation of Atlas OS from scratch.
 
+## Core vs optional features
+
+Atlas OS has a small **core** that works with nothing but Python, git, and a
+markdown vault. Everything else is **optional** and degrades gracefully — an
+unconfigured feature simply stays off; nothing else breaks.
+
+### Core (always available)
+
+| Feature | Command | Needs |
+|---|---|---|
+| Vault scaffolding & onboarding | `atlas init` | — |
+| Setup validation | `atlas doctor` | — |
+| Auto-commit the vault | `atlas commit` | git |
+| Vault changelog | `atlas changelog` | git |
+| Frontmatter schemas | `atlas schemas` | — |
+| Health probe | `atlas health` | — |
+| Skills catalog | `atlas skills` | — |
+
+Core install: `pip install -e .` (or `uv tool install …`). No extra deps, no
+network, no secrets.
+
+### Optional (opt-in, each isolated)
+
+| Feature | Command | Extra deps | Extra env vars |
+|---|---|---|---|
+| **Embeddings / RAG** | `atlas embed`, `atlas graph` | `pdfplumber` *(only for PDF notes — `pip install ".[pdf]"`)* | `EMBED_HOST`, `EMBED_PORT`, `EMBED_MODEL` (+ a running local LLM) |
+| **Trading research** | `atlas trading` | `yfinance` + the third-party TradingAgents package — `pip install ".[trading]"` | `LM_STUDIO_HOST`, `LM_STUDIO_PORT`, `LM_STUDIO_MODEL`, `TRADING_AGENTS_PATH`, `TRADING_TICKERS` |
+| **Email reports** | `atlas email` | — (stdlib `smtplib`) | `SENDER_EMAIL`, `SMTP_APP_PASSWORD`, `SMTP_SERVER`, `SMTP_PORT`, `USER_EMAIL` |
+| **LM Studio / Ollama** | (backs RAG + trading) | — | `EMBED_*` and/or `LM_STUDIO_*` |
+| **Dashboard** | static HTML | — (Node.js only if you build the full app) | `DASHBOARD_FRONTEND_PORT`, `DASHBOARD_BACKEND_PORT` |
+
+Install all optional Python extras at once: `pip install -e ".[all]"`.
+
+Every command validates its required env vars up front and exits with a clear
+message if something is missing — run `atlas doctor` any time to see which
+features are currently live. Full variable reference:
+[`CONFIGURATION.md`](CONFIGURATION.md).
+
 ## Prerequisites
 
 - **Claude Cowork** subscription (for skills, scheduled tasks, memory)
@@ -145,6 +183,24 @@ atlas health      # full subsystem probe   (or: python3 scripts/health_check.py)
 ```
 
 You should see each subsystem report UP / DEGRADED / DOWN.
+
+## Run in Docker (optional)
+
+If you'd rather not install Python tooling on the host, run the CLI in a
+container. The image packages the `atlas` command and the pipeline scripts; your
+vault is bind-mounted and secrets load from `.env`.
+
+```bash
+cp .env.example .env && $EDITOR .env     # set EMBED_HOST=host.docker.internal for a host LLM
+docker build -t atlas-os .               # add --build-arg EXTRAS=".[all]" for trading/pdf
+
+# one-shot commands (vault path comes from $VAULT_PATH or the compose default):
+VAULT_PATH=~/Documents/Obsidian/MyVault docker compose run --rm atlas doctor
+VAULT_PATH=~/Documents/Obsidian/MyVault docker compose run --rm atlas embed --full
+```
+
+The image is Python 3.11-slim + git only. See the root [`Dockerfile`](../Dockerfile)
+and [`docker-compose.yml`](../docker-compose.yml).
 
 ## Troubleshooting
 

@@ -11,6 +11,7 @@ Subcommands:
 * ``atlas changelog``— vault changelog        (wraps scripts/vault_changelog.py)
 * ``atlas health``   — full health probe      (wraps scripts/health_check.py)
 * ``atlas email``    — send an email          (wraps scripts/send_email.py)
+* ``atlas trading``  — trading research brief  (wraps scripts/trading_briefing.py)
 * ``atlas schemas``  — enforce frontmatter     (wraps schemas/enforce_schemas.py)
 
 Configuration is read from the environment; a ``.env`` in the current directory
@@ -19,6 +20,7 @@ or the repo root is auto-loaded on startup.
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
@@ -82,6 +84,20 @@ def _main(
 # ─────────────────────────────────────────────────────────────────────────────
 # Script wrappers
 # ─────────────────────────────────────────────────────────────────────────────
+def _require_env(*names: str) -> None:
+    """Exit with a clear error if any required environment variable is unset.
+
+    `.env` is auto-loaded at import time, so by the time a command runs the
+    values should already be present. This catches the common "forgot to set
+    VAULT_PATH" case *before* shelling out to the underlying script.
+    """
+    missing = [n for n in names if not os.environ.get(n)]
+    if missing:
+        _echo_fail(f"Missing required env var(s): {', '.join(missing)}")
+        typer.echo("  Set them in .env (see .env.example) or run `atlas init`.")
+        raise typer.Exit(code=2)
+
+
 def _run(path: Path, args: list[str]) -> None:
     if not path.exists():
         _echo_fail(f"Script not found: {path}")
@@ -92,24 +108,28 @@ def _run(path: Path, args: list[str]) -> None:
 @app.command(context_settings=_PASSTHROUGH)
 def embed(ctx: typer.Context) -> None:
     """Build/refresh the RAG vector store (--full | --incremental | --test N | …)."""
+    _require_env("VAULT_PATH")
     _run(scripts_dir() / "embed_vault.py", ctx.args)
 
 
 @app.command(context_settings=_PASSTHROUGH)
 def graph(ctx: typer.Context) -> None:
     """Rebuild the wikilink knowledge graph."""
+    _require_env("VAULT_PATH")
     _run(scripts_dir() / "build_graph.py", ctx.args)
 
 
 @app.command(context_settings=_PASSTHROUGH)
 def commit(ctx: typer.Context) -> None:
     """Auto-commit the vault with a categorised message (--dry-run | --json)."""
+    _require_env("VAULT_PATH")
     _run(scripts_dir() / "vault_commit.py", ctx.args)
 
 
 @app.command(context_settings=_PASSTHROUGH)
 def changelog(ctx: typer.Context) -> None:
     """Summarise vault changes over a window (--since | --markdown | --json)."""
+    _require_env("VAULT_PATH")
     _run(scripts_dir() / "vault_changelog.py", ctx.args)
 
 
@@ -120,14 +140,53 @@ def health(ctx: typer.Context) -> None:
 
 
 @app.command(context_settings=_PASSTHROUGH)
-def email(ctx: typer.Context) -> None:
-    """Send an email via SMTP. Pass a JSON payload as the argument."""
-    _run(scripts_dir() / "send_email.py", ctx.args)
+def trading(ctx: typer.Context) -> None:
+    """Generate a trading research briefing (--ticker | --date | --dry-run).
+
+    Optional component — needs the third-party TradingAgents package and a
+    running local LLM endpoint. Reads VAULT_PATH and LM_STUDIO_* from the env.
+    """
+    _require_env("VAULT_PATH")
+    _run(scripts_dir() / "trading_briefing.py", ctx.args)
+
+
+@app.command()
+def email(
+    to: str = typer.Option(None, "--to", help="Recipient address (defaults to USER_EMAIL)."),
+    subject: str = typer.Option(None, "--subject", "-s", help="Email subject line."),
+    body: str = typer.Option(None, "--body", "-b", help="Email body (HTML or plain text)."),
+    text: bool = typer.Option(
+        False, "--text", help="Send --body as plain text instead of HTML."
+    ),
+    attach: list[str] = typer.Option(
+        None, "--attach", "-a", help="File to attach (repeatable)."
+    ),
+    payload: str = typer.Option(
+        None, "--json", help="Raw JSON payload (overrides the flags above)."
+    ),
+) -> None:
+    """Send an email via SMTP, from --subject/--body flags or a raw --json payload."""
+    _require_env("SENDER_EMAIL", "SMTP_APP_PASSWORD")
+    if payload is None:
+        recipient = to or os.environ.get("USER_EMAIL")
+        if not recipient:
+            _echo_fail("No recipient: pass --to, or set USER_EMAIL in .env.")
+            raise typer.Exit(code=2)
+        if not subject or not body:
+            _echo_fail("Both --subject and --body are required (or use --json).")
+            raise typer.Exit(code=2)
+        data: dict[str, object] = {"to": recipient, "subject": subject}
+        data["body_text" if text else "body_html"] = body
+        if attach:
+            data["attachments"] = list(attach)
+        payload = json.dumps(data)
+    _run(scripts_dir() / "send_email.py", [payload])
 
 
 @app.command(context_settings=_PASSTHROUGH)
 def schemas(ctx: typer.Context) -> None:
     """Enforce per-folder frontmatter schemas (--dry-run | --folder | --verbose)."""
+    _require_env("VAULT_PATH")
     _run(schemas_dir() / "enforce_schemas.py", ctx.args)
 
 

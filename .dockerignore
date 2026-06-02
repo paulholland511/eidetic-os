@@ -1,0 +1,37 @@
+# Keep the build context small and free of secrets / local state.
+
+# Secrets & local config
+.env
+.env.*
+!.env.example
+
+# Python caches & build artefacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.rag/
+
+# Tests & CI (not needed at runtime)
+tests/
+.github/
+
+# VCS & editor cruft
+.git/
+.gitignore
+.DS_Store
+*.swp
+
+# Docs are large and not needed in the image
+docs/
+*.md
+!README.md

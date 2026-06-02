@@ -7,6 +7,26 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **`atlas trading`** — wraps `scripts/trading_briefing.py` (`--ticker`,
+  `--date`, `--dry-run`); the last optional pipeline script to gain a first-class
+  subcommand, so the whole system is now reachable through one `atlas` command.
+- **Up-front env validation.** Every vault/optional command checks its required
+  environment variables before shelling out and exits with a clear message and a
+  non-zero code if any are missing — a half-configured feature fails fast instead
+  of part-way through.
+- **`atlas email` flags.** Send mail with `--to` / `--subject` / `--body`
+  (`--text` for plain text, repeatable `--attach`), or the original raw payload
+  via `--json`.
+- **Docker support.** A minimal [`Dockerfile`](Dockerfile) (Python 3.11-slim +
+  git) that packages the `atlas` CLI, a [`docker-compose.yml`](docker-compose.yml)
+  that bind-mounts your vault and loads `.env`, and a `.dockerignore`. Run any
+  subcommand in a container without installing Python tooling on the host.
+- **CLI tests** ([`tests/test_cli.py`](tests/test_cli.py)) covering `--version`,
+  every registered subcommand, and the env-validation guards.
+- **Core vs optional** section in [`docs/SETUP.md`](docs/SETUP.md) separating the
+  always-available core (vault, commit, changelog, schemas, health) from opt-in
+  features (RAG/embeddings, trading, email, LM Studio, dashboard) with each one's
+  extra deps and env vars, plus a Docker quick-start.
 - **Automated test suite** in [`tests/`](tests/) — 74 hermetic `pytest` tests
   covering the core scripts (`embed_vault`, `build_graph`, `health_check`,
   `send_email`, `vault_commit`, `vault_changelog`, `trading_briefing`). They stub
@@ -23,6 +43,10 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   local RAG search, knowledge graph, git automation, scheduled tasks & skills
   catalog, email reports, trading SDK, and health check & dashboard. Linked from
   the README and the docs index.
+
+### Changed
+- README: documented `atlas trading`, the new `atlas email` flags, env-validation
+  behaviour, a Docker section, and the Docker files in the repo-layout diagram.
 
 ## [0.3.0] — 2026-06-02
 
