@@ -5,12 +5,38 @@ it, every flag, the environment variables it reads, and what it writes. All
 scripts read configuration from the environment — see
 [`CONFIGURATION.md`](CONFIGURATION.md).
 
-Run any of them after loading your env:
+## Two ways to run
+
+If you installed the package (`uv tool install` / `pipx` / `pip install -e .`),
+the **`atlas` CLI** wraps every script and auto-loads your `.env` — no manual
+`source` needed. Each subcommand forwards its flags straight through:
+
+```bash
+atlas embed --full --batch-size 16      # == python3 scripts/embed_vault.py --full --batch-size 16
+atlas commit --dry-run
+atlas schemas --folder projects
+```
+
+| CLI command | Wraps |
+|---|---|
+| `atlas embed` | `scripts/embed_vault.py` |
+| `atlas graph` | `scripts/build_graph.py` |
+| `atlas commit` | `scripts/vault_commit.py` |
+| `atlas changelog` | `scripts/vault_changelog.py` |
+| `atlas health` | `scripts/health_check.py` |
+| `atlas email` | `scripts/send_email.py` |
+| `atlas schemas` | `schemas/enforce_schemas.py` |
+
+(`atlas init` and `atlas doctor` are CLI-only — see [SETUP.md](SETUP.md).)
+
+To run the scripts **directly** instead, load your env first:
 
 ```bash
 set -a; source .env; set +a
 python3 scripts/<name>.py [flags]
 ```
+
+The flags below are identical whether you call `atlas <cmd>` or the script.
 
 | Script | One-liner |
 |---|---|

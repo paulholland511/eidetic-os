@@ -14,33 +14,62 @@ Step-by-step installation of Atlas OS from scratch.
   but the vault, schemas, git, and reporting still work.
 - *(Optional)* **Node.js** if you build the full dashboard.
 
-## 1. Clone
+## Option A — install the package (recommended)
+
+The fastest path. Installs a global `atlas` command and walks you through setup.
 
 ```bash
-git clone https://github.com/<your-username>/atlas-os.git ~/code/atlas-os
+uv tool install "git+https://github.com/paulholland511/atlas-os"
+#   or:  pipx install "git+https://github.com/paulholland511/atlas-os"
+#   trading/PDF extras:  uv tool install "atlas-os[trading,pdf] @ git+https://github.com/paulholland511/atlas-os"
+
+atlas init        # detect your LLM, write .env, scaffold the vault, init git
+atlas doctor      # verify
+```
+
+`atlas init` is interactive (auto-detects LM Studio / Ollama on the usual ports,
+prompts for your vault path, and optionally configures email). Use `atlas init
+--yes` for a non-interactive run with defaults, `--vault PATH` to set the vault
+without prompting, and `--force` to overwrite an existing `.env`.
+
+Then jump to [step 6](#6-build-the-rag-index-requires-a-local-llm) to build the
+index. The CLI auto-loads `.env`, so you can skip the manual `source` steps
+below.
+
+## Option B — run from a source checkout
+
+### 1. Clone
+
+```bash
+git clone https://github.com/paulholland511/atlas-os.git ~/code/atlas-os
 cd ~/code/atlas-os
 ```
 
-## 2. Python environment
+### 2. Python environment
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
-pip install requests pyyaml pdfplumber          # core
-pip install yfinance                            # only for the trading module
+pip install -e .                  # installs the `atlas` CLI + core deps
+pip install -e ".[trading,pdf]"   # optional extras
 ```
 
-## 3. Configure
+> On Python 3.14 the editable `atlas` console script can be flaky; if so, use
+> `python -m atlas_os <command>`, which always works from the checkout.
+
+### 3. Configure
 
 ```bash
-cp .env.example .env
-$EDITOR .env
+atlas init        # the easy way — writes .env for you
+# — or by hand —
+cp .env.example .env && $EDITOR .env
 ```
 
 Set at minimum `VAULT_PATH`. If you have a local LLM, set `EMBED_HOST`/
 `EMBED_PORT`/`EMBED_MODEL`. For email reports set `SENDER_EMAIL`,
-`USER_EMAIL`, and `SMTP_APP_PASSWORD`.
+`USER_EMAIL`, and `SMTP_APP_PASSWORD`. Full reference:
+[`CONFIGURATION.md`](CONFIGURATION.md).
 
-Load it into your shell (or use a tool like `direnv`):
+If you wrote `.env` by hand, load it into your shell (or use `direnv`):
 
 ```bash
 set -a; source .env; set +a
@@ -74,15 +103,15 @@ cd -
 ## 5. Frontmatter schemas (optional but recommended)
 
 ```bash
-python3 schemas/enforce_schemas.py --dry-run     # preview
-python3 schemas/enforce_schemas.py               # apply
+atlas schemas --dry-run     # preview   (or: python3 schemas/enforce_schemas.py --dry-run)
+atlas schemas               # apply
 ```
 
 ## 6. Build the RAG index (requires a local LLM)
 
 ```bash
-python3 scripts/embed_vault.py --test 5          # smoke test on 5 files
-python3 scripts/embed_vault.py --full            # full index
+atlas embed --test 5        # smoke test on 5 files
+atlas embed --full          # full index (also rebuilds the graph)
 ```
 
 ## 7. Install the CLAUDE.md and memory
@@ -103,7 +132,8 @@ placeholder list.
 ## 9. Verify
 
 ```bash
-python3 scripts/health_check.py
+atlas doctor      # quick setup validation (OK / WARN / FAIL)
+atlas health      # full subsystem probe   (or: python3 scripts/health_check.py)
 ```
 
 You should see each subsystem report UP / DEGRADED / DOWN.

@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "atlas-os"
+version = "0.2.0"
+description = "A local-first personal AI operating system built on Claude Cowork: knowledge vault, local RAG, git automation, and scheduled agents."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+keywords = ["ai", "rag", "obsidian", "knowledge-management", "local-first", "claude", "automation"]
+authors = [{ name = "Paul Holland" }]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Office/Business",
+  "Topic :: Utilities",
+]
+dependencies = [
+  "requests>=2.28",
+  "pyyaml>=6.0",
+  "typer>=0.12",
+  "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+pdf = ["pdfplumber>=0.10"]
+trading = ["yfinance>=0.2"]
+all = ["pdfplumber>=0.10", "yfinance>=0.2"]
+
+[project.urls]
+Homepage = "https://github.com/paulholland511/atlas-os"
+Documentation = "https://github.com/paulholland511/atlas-os/tree/main/docs"
+Repository = "https://github.com/paulholland511/atlas-os"
+Changelog = "https://github.com/paulholland511/atlas-os/blob/main/CHANGELOG.md"
+
+[project.scripts]
+atlas = "atlas_os.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["atlas_os"]
+
+# Bundle the scripts, schemas, and templates into the wheel so an installed
+# `atlas` command works without the source checkout. These go into a top-level
+# `atlas_os_data/` dir (NOT the `atlas_os` package) so they can never shadow the
+# importable package in an editable install. In a source checkout the CLI uses
+# the live repo files instead (see atlas_os/_paths.py).
+[tool.hatch.build.targets.wheel.force-include]
+"scripts" = "atlas_os_data/scripts"
+"schemas" = "atlas_os_data/schemas"
+"templates" = "atlas_os_data/templates"
+
+[tool.ruff]
+line-length = 100

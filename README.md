@@ -53,10 +53,26 @@ Eight composable systems:
 
 ## Quick start
 
-```bash
-git clone https://github.com/<your-username>/atlas-os.git ~/code/atlas-os
-cd ~/code/atlas-os
+Install the `atlas` command, then let it set everything up:
 
+```bash
+uv tool install "git+https://github.com/paulholland511/atlas-os"   # or: pipx install …
+
+atlas init       # detects your local LLM, writes .env, scaffolds the vault
+atlas doctor     # verify the setup (OK / WARN / FAIL per subsystem)
+atlas embed --full   # build the RAG index (needs a local LLM)
+```
+
+That's it. `atlas init` is interactive (auto-detects LM Studio / Ollama, prompts
+for your vault path and email); add `--yes` for a non-interactive run with
+defaults. Extras: `atlas-os[trading]` (yfinance), `atlas-os[pdf]` (pdfplumber).
+
+<details>
+<summary>Prefer to run the scripts directly (no install)?</summary>
+
+```bash
+git clone https://github.com/paulholland511/atlas-os.git ~/code/atlas-os
+cd ~/code/atlas-os
 python3 -m venv .venv && source .venv/bin/activate
 pip install requests pyyaml pdfplumber
 
@@ -66,8 +82,30 @@ set -a; source .env; set +a
 python3 scripts/health_check.py        # see what's up
 python3 scripts/embed_vault.py --full  # build the RAG index (needs a local LLM)
 ```
+</details>
 
 Full walkthrough: [`docs/SETUP.md`](docs/SETUP.md).
+
+## The `atlas` CLI
+
+One command wraps the whole system. Configuration is read from the environment;
+a `.env` in the current directory or repo root is auto-loaded — no manual
+`source` needed.
+
+| Command | What it does |
+|---|---|
+| `atlas init` | Guided onboarding — detect LLM, write `.env`, scaffold vault, install templates |
+| `atlas doctor` | Validate the setup; report OK / WARN / FAIL per subsystem |
+| `atlas embed` | Build/refresh the RAG index (`--full`, `--incremental`, `--test N`, …) |
+| `atlas graph` | Rebuild the wikilink knowledge graph |
+| `atlas commit` | Auto-commit the vault with a categorised message |
+| `atlas changelog` | Summarise what changed over a window |
+| `atlas health` | Full subsystem health probe (`--json`, `--quiet`) |
+| `atlas email` | Send an email via SMTP (JSON payload) |
+| `atlas schemas` | Enforce per-folder frontmatter schemas |
+
+Run `atlas --help` or `atlas <command> --help` for details, or see
+[`docs/SCRIPTS.md`](docs/SCRIPTS.md).
 
 ## Prerequisites
 
@@ -97,6 +135,8 @@ Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ```
 atlas-os/
+├── atlas_os/     the `atlas` CLI package (init, doctor, command wrappers)
+├── pyproject.toml  packaging — `uv tool install` / `pipx` / `pip install -e .`
 ├── scripts/      RAG, graph, git, email, health-check, trading briefing
 ├── skills/       9 scheduled-task SKILL.md prompts (templated)
 ├── schemas/      frontmatter schema enforcement + docs
