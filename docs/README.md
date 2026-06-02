@@ -19,6 +19,9 @@ the source — see [**features/**](features/README.md):
 
 ## Getting started
 
+- [**QUICKSTART.md**](QUICKSTART.md) — zero to working setup in 5 minutes.
+- [**EXAMPLES.md**](EXAMPLES.md) — copy-paste walkthroughs: Gmail SMTP, LM Studio,
+  first scheduled task, first RAG embed.
 - [**SETUP.md**](SETUP.md) — step-by-step installation from scratch.
 - [**CONFIGURATION.md**](CONFIGURATION.md) — every environment variable: purpose,
   default, required/optional, and which scripts read it.

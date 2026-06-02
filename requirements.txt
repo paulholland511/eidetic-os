@@ -1,0 +1,26 @@
+# Atlas OS — Python dependencies (pinned)
+#
+# These are the ONLY third-party packages Atlas OS imports directly. Pins reflect
+# the versions tested against the current release. Transitive dependencies (e.g.
+# numpy, pandas, certifi) are resolved automatically by pip — they are not listed
+# here because nothing in Atlas OS imports them directly.
+#
+# Install everything:           pip install -r requirements.txt
+# Or use the packaged extras:   pip install ".[trading,pdf]"
+#
+# Prefer `uv`?  uv pip install -r requirements.txt
+
+# ── Core (required by the CLI and every script) ──────────────────────────────
+requests==2.34.2          # HTTP — embeddings, chat, SMTP probes, trading APIs
+pyyaml==6.0.3             # frontmatter parsing / schema enforcement
+typer==0.26.6             # the `atlas` CLI
+python-dotenv==1.2.2      # auto-load .env
+
+# ── Trading research SDK (optional — `pip install ".[trading]"`) ─────────────
+yfinance==1.4.1           # market data for trading_briefing.py / trading/
+
+# ── PDF embedding (optional — `pip install ".[pdf]"`) ────────────────────────
+pdfplumber==0.11.9        # extract text from PDFs for the RAG index
+
+# ── Cloud model step (optional — only the opt-in trading Portfolio Manager) ──
+anthropic==0.105.2        # used only if you enable the cloud step in trading/

@@ -35,10 +35,12 @@ account.
 
 ## Table of contents
 
+- [Quick start](#quick-start)
 - [Why Atlas OS](#why-atlas-os)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
+- [Dependencies](#dependencies)
 - [First run (walkthrough)](#first-run-walkthrough)
 - [The `atlas` CLI](#the-atlas-cli)
 - [Configuration](#configuration)
@@ -56,6 +58,27 @@ account.
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License & disclaimer](#license--disclaimer)
+
+---
+
+## Quick start
+
+New here? Get a working setup in **5 minutes** — clone, set three env vars,
+scaffold a vault, and run your first task:
+
+👉 **[docs/QUICKSTART.md](docs/QUICKSTART.md)**
+
+```bash
+git clone https://github.com/paulholland511/atlas-os.git && cd atlas-os
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt && pip install -e .
+cp .env.example .env          # set VAULT_PATH, USER_EMAIL, SMTP_APP_PASSWORD
+atlas init --yes              # scaffold + git-init your vault
+atlas doctor                  # verify
+```
+
+For step-by-step integration walkthroughs (Gmail SMTP, LM Studio, first
+scheduled task, first RAG embed) see **[docs/EXAMPLES.md](docs/EXAMPLES.md)**.
 
 ---
 
@@ -188,6 +211,32 @@ python3 scripts/health_check.py
 uv tool upgrade atlas-os        # or: pipx upgrade atlas-os
 uv tool uninstall atlas-os      # or: pipx uninstall atlas-os
 ```
+
+---
+
+## Dependencies
+
+Atlas OS is deliberately dependency-light. The full, pinned list lives in
+[`requirements.txt`](requirements.txt):
+
+```bash
+pip install -r requirements.txt      # core, pinned to tested versions
+# or, via the packaged extras:
+pip install ".[trading,pdf]"
+```
+
+| Package | Pin | Needed for |
+|---|---|---|
+| `requests` | `2.34.2` | HTTP — embeddings, chat, SMTP probes, trading APIs (**core**) |
+| `pyyaml` | `6.0.3` | frontmatter parsing / schema enforcement (**core**) |
+| `typer` | `0.26.6` | the `atlas` CLI (**core**) |
+| `python-dotenv` | `1.2.2` | auto-loading `.env` (**core**) |
+| `yfinance` | `1.4.1` | market data — trading SDK *(optional `[trading]`)* |
+| `pdfplumber` | `0.11.9` | PDF text extraction for RAG *(optional `[pdf]`)* |
+| `anthropic` | `0.105.2` | the opt-in cloud trading step only *(optional)* |
+
+Everything else (numpy, pandas, certifi, …) is a transitive dependency resolved
+automatically — Atlas OS imports none of it directly.
 
 ---
 
