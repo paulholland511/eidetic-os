@@ -1,0 +1,67 @@
+# CLAUDE.md
+
+This file provides guidance to Claude / Claude Cowork when working in this
+environment. Copy it to the root you work from (e.g. your home directory or a
+project root) and fill in the bracketed placeholders.
+
+## Environment Overview
+
+This is `[YOUR NAME]`'s working environment built on **Atlas OS** — a personal
+AI operating system for Claude Cowork. It contains a markdown knowledge vault, a
+local RAG search index, scheduled automations, and an optional dashboard.
+
+**User:** `[YOUR NAME]` | **Timezone:** `[Europe/London]` | **Git identity:** `[Atlas]`
+
+## Key Directories
+
+- `[~/Documents/Obsidian/MyVault]` — the knowledge vault (notes, wiki, memory)
+- `[~/code/atlas-os]` — the Atlas OS repo (scripts, skills, schemas, docs)
+- `[~/Documents/Claude/Scheduled]` — scheduled-task skills (one folder per task)
+- `[~/.local/bin]` — small wrapper scripts (search, reindex, TTS, etc.)
+
+## Configuration
+
+All paths, hosts, and credentials come from environment variables. See
+`atlas-os/.env.example` and copy it to `.env`. Never hardcode secrets or
+personal paths in scripts or notes that get committed.
+
+Key variables: `VAULT_PATH`, `EMBED_HOST`/`EMBED_PORT`, `USER_EMAIL`,
+`SENDER_EMAIL`, `SMTP_APP_PASSWORD`.
+
+## Coding Standards (for Python work)
+
+- **Language:** Python 3.13
+- **Package manager:** `uv` (or `pip` in a venv)
+- **Type checker:** strict mode (e.g. `basedpyright` / `pyright`)
+- **Linter / formatter:** `ruff`
+- **Testing:** `pytest`
+- Strictly-typed, self-describing code; pure functions with injectable side effects
+- Descriptive, non-abbreviated names; type signatures convey purpose
+- No new external dependencies without a clear reason
+
+## Vault RAG Search
+
+The vault is searchable via local semantic RAG. Search before answering
+questions about past decisions, projects, or documented context.
+
+```bash
+VAULT_PATH=$VAULT_PATH python3 atlas-os/scripts/embed_vault.py --incremental   # update index
+# (wrap search in your own helper, or use the search() function in embed_vault.py)
+```
+
+## User Preferences
+
+Customise to taste. Example baseline:
+
+- No fluff or performative helpfulness — just help
+- Bullet lists over tables for chat output
+- Local-first, privacy-focused — no data leaves the machine unless explicitly approved
+- Prefer recoverable deletes (`trash`) over `rm`
+- Ask before any external/public action (emails, posts, messages, commits to public repos)
+
+## Active Projects
+
+List your own. Example:
+
+- `[Project A]` — short description
+- `[Project B]` — short description

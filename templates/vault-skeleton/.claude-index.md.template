@@ -1,0 +1,40 @@
+---
+type: index
+title: Vault Index
+updated: 2026-01-01
+total_notes: 0
+---
+
+# Vault Index
+
+A machine-maintained map of the vault. The `nightly-obsidian-index` scheduled
+task keeps this current: it adds entries for new notes, refreshes summaries for
+modified ones, and updates the stats below.
+
+**Last indexed:** _never (new vault)_
+**Total notes:** 0
+
+## Folders
+
+<!-- One section per top-level folder. The indexer fills these in. -->
+
+### research
+_No notes yet._
+
+### projects
+_No notes yet._
+
+### decisions
+_No notes yet._
+
+### memory
+_No notes yet._
+
+### wiki
+_No notes yet._
+
+## Stats
+
+| Folder | Notes |
+|---|---|
+| (populated by the indexer) | 0 |

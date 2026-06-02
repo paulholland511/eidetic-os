@@ -1,0 +1,19 @@
+---
+type: reference
+title: Hot Cache — Modification Log
+created: 2026-01-01
+updated: 2026-01-01
+tags: [wiki, hot, log]
+status: seed
+---
+
+# Hot Cache
+
+An **append-only** running log of vault changes. The nightly indexer PREPENDS a
+new dated section here every run and **never truncates** older entries — this is
+your permanent modification history.
+
+<!-- New entries are added above this line, newest first. -->
+
+## 2026-01-01 — Vault initialised
+No changes yet. The first nightly index run will start logging here.

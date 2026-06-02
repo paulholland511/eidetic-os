@@ -1,0 +1,17 @@
+---
+type: reference
+title: Sync Log
+created: 2026-01-01
+updated: 2026-01-01
+tags: [wiki, log]
+status: seed
+---
+
+# Sync Log
+
+A terse log of indexer/sync runs — one line per run. Useful for confirming the
+scheduled tasks are firing.
+
+| Date | Run | Notes added | Notes modified | Coverage |
+|---|---|---|---|---|
+| 2026-01-01 | init | 0 | 0 | — |

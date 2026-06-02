@@ -1,0 +1,26 @@
+---
+type: reference
+title: Wiki Index
+created: 2026-01-01
+updated: 2026-01-01
+tags: [wiki, index]
+status: seed
+---
+
+# Wiki Index
+
+The complete catalogue of every note in the vault, organised by topic. The
+nightly indexer targets **100% coverage** — every `.md` file should appear here
+with a one-line description and a `[[wikilink]]`.
+
+> Files: 0 indexed
+
+## Topics
+
+<!-- The indexer creates and maintains sections here. Example shape: -->
+
+### Getting Started
+- [[example-note]] — what this note is about
+
+### Reference
+_No entries yet._

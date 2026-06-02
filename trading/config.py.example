@@ -1,0 +1,71 @@
+"""
+Configuration for the TradingAgents SDK.
+
+Single source of truth for constants, endpoints, and paths.
+
+SETUP: copy this file to `config.py` and adjust the values, or rely on the
+environment variables (recommended — keeps secrets out of the repo).
+
+    cp config.py.example config.py
+
+Nothing here is financial advice. The asset lists below are illustrative
+defaults only — edit them to whatever you want to analyse.
+"""
+from __future__ import annotations
+
+import os
+from pathlib import Path
+
+# ── Asset universe (illustrative defaults — edit freely) ───────────────────────
+ASSETS: list[str] = [
+    "BTC-USD",
+    "ETH-USD",
+    "SOL-USD",
+    "ADA-USD",
+    "AVAX-USD",
+]
+
+# CoinGecko ID mapping for crypto assets (used by the fundamentals agent)
+CRYPTO_COINGECKO_IDS: dict[str, str] = {
+    "BTC-USD": "bitcoin",
+    "ETH-USD": "ethereum",
+    "SOL-USD": "solana",
+    "ADA-USD": "cardano",
+    "AVAX-USD": "avalanche-2",
+}
+
+# ── Local LLM endpoint (OpenAI-compatible: LM Studio, Ollama, etc.) ────────────
+LM_STUDIO_HOST: str = os.environ.get("LM_STUDIO_HOST", "localhost")
+LM_STUDIO_PORT: str = os.environ.get("LM_STUDIO_PORT", "5555")
+LM_STUDIO_ENDPOINT: str = os.environ.get(
+    "LM_STUDIO_ENDPOINT", f"http://{LM_STUDIO_HOST}:{LM_STUDIO_PORT}"
+)
+LM_STUDIO_MODEL: str = os.environ.get("LM_STUDIO_MODEL", "local-model")
+
+# ── Cloud LLM (optional, for the Portfolio Manager step) ───────────────────────
+# The API key is read from the environment ONLY. Never hardcode it.
+ANTHROPIC_MODEL: str = os.environ.get("ANTHROPIC_MODEL", "claude-opus-4-6")
+ANTHROPIC_API_KEY: str = os.environ.get("ANTHROPIC_API_KEY", "")
+
+# ── Paths ──────────────────────────────────────────────────────────────────────
+VAULT_PATH: Path = Path(os.path.expanduser(os.environ.get("VAULT_PATH", "."))).resolve()
+VAULT_BRIEFINGS_DIR: Path = VAULT_PATH / "wiki" / "sources"
+CACHE_DIR: Path = Path(__file__).parent / "cache"
+
+# ── Email (optional) ────────────────────────────────────────────────────────────
+# Recipient for trading reports. Set via env; do not hardcode personal addresses.
+EMAIL_TO: str = os.environ.get("USER_EMAIL", "your-email@example.com")
+EMAIL_SUBJECT_TEMPLATE: str = "Trading Briefing - {date}"
+
+# ── Timeouts and limits ──────────────────────────────────────────────────────────
+AGENT_TIMEOUT_SECONDS: float = 90.0
+HTTP_TIMEOUT_SECONDS: float = 10.0
+HTTP_RETRY_ATTEMPTS: int = 2
+
+# ── Agent weighting for portfolio synthesis ──────────────────────────────────────
+AGENT_WEIGHTS: dict[str, float] = {
+    "technical": 0.35,
+    "fundamentals": 0.25,
+    "sentiment": 0.20,
+    "news": 0.20,
+}

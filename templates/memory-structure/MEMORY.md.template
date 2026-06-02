@@ -1,0 +1,25 @@
+# MEMORY.md
+
+This is the index of your persistent, file-based memory. Each memory is a single
+markdown file in this directory holding one fact, with YAML frontmatter. This
+index file is loaded into context each session — keep it to **one line per
+memory**, never put memory content here.
+
+Add a pointer when you create a memory:
+
+```
+- [Title](file.md) — short hook describing when it's relevant
+```
+
+## Memory types
+
+- **user** — who the user is (role, expertise, durable preferences)
+- **feedback** — guidance on how to work (corrections + confirmed approaches; include the *why*)
+- **project** — ongoing work, goals, constraints not derivable from code/history (use absolute dates)
+- **reference** — pointers to external resources (URLs, dashboards, tickets)
+
+## Index
+
+<!-- Example entries — replace with your own. -->
+- [Example user profile](example-user-profile.md) — who the user is and how they like to work
+- [Example feedback](example-feedback.md) — a correction worth remembering

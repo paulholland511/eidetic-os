@@ -1,0 +1,73 @@
+# ── Secrets & credentials ───────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+credentials*
+*credential*
+*password*
+*secret*
+*.token
+.anthropic-api-key
+*-app-password
+*gmail-app-password*
+
+# ── Personal data / PII (never commit) ──────────────────────────────────────
+*.xlsx          # job trackers and other spreadsheets contain PII
+*.xls
+*.csv           # may contain personal/exported data
+vault-content/
+vault/
+personal/
+private/
+job-search/
+job-tracker*
+briefings/
+*briefing*.md
+session-logs/
+*.eml
+
+# ── Generated RAG / graph data (contains embedded personal notes) ───────────
+*.sqlite
+*.sqlite3
+*.db
+vectors.json
+vectors.json.tmp
+graph.json
+graph.json.tmp
+last_embed.txt
+last_embed_fallback.txt
+embed_checkpoint.json
+.rag/
+.vectors/
+cache/
+
+# ── Trading (local config may contain real paths / keys) ────────────────────
+trading/config.py
+signals.json
+
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env.bak
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Node / dashboard ────────────────────────────────────────────────────────
+node_modules/
+dist/
+build/
+*.log
+
+# ── OS / editor ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

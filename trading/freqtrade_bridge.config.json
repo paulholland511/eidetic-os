@@ -1,0 +1,50 @@
+{
+  "_comment": "Config for freqtrade_bridge.py. The analyst agents run on your local LLM (see config.py). This file controls the optional Portfolio Manager step that synthesises their reports into a final signal. All paths use ~ expansion and env-friendly placeholders — edit to taste. No secrets live here; the Anthropic key is resolved from the environment or a file you control.",
+
+  "portfolio_manager": {
+    "provider": "local",
+    "_provider_options": ["claude", "local"],
+    "_provider_note": "local = your LLM endpoint (private, default). claude = Anthropic cloud (requires ANTHROPIC_API_KEY). If 'claude' is set but no key/CLI is reachable, the bridge auto-falls-back to 'local'.",
+
+    "claude": {
+      "model": "claude-opus-4-6",
+      "max_tokens": 1500,
+      "temperature": 0.2,
+      "_key_lookup_order": [
+        "env:ANTHROPIC_API_KEY",
+        "file:~/.anthropic-api-key",
+        "envfile:~/.config/atlas-os/.env"
+      ]
+    },
+
+    "local": {
+      "endpoint": "http://localhost:5555",
+      "model": "local-model",
+      "max_tokens": 1500,
+      "temperature": 0.2
+    },
+
+    "system_prompt": "You are a senior portfolio manager reviewing 4 analyst reports (fundamentals, sentiment, news, technical). Debate the evidence, identify conflicts between analysts, weigh the strongest signal, and produce a final trading recommendation. Return strict JSON with keys: signal (one of buy/sell/hold), confidence (0.0-1.0), reasoning (string, <=400 chars). No prose outside the JSON object."
+  },
+
+  "ticker_to_pair": {
+    "BTC-USD": "BTC/USDT",
+    "ETH-USD": "ETH/USDT",
+    "SOL-USD": "SOL/USDT",
+    "ADA-USD": "ADA/USDT",
+    "AVAX-USD": "AVAX/USDT"
+  },
+
+  "_pair_filter_note": "Only tickers present in ticker_to_pair are emitted to signals.json. Equities are dropped because Freqtrade here is configured for crypto/USDT spot.",
+
+  "paths": {
+    "briefings_dir": "~/Documents/Obsidian/MyVault/wiki/sources",
+    "signals_output": "~/freqtrade/user_data/signals.json",
+    "log_file": "~/.cache/atlas-os/freqtrade_bridge.log"
+  },
+
+  "freshness": {
+    "max_briefing_age_hours": 36,
+    "_note": "If the most recent briefing is older than this, the bridge still writes signals.json but marks every signal as stale=true so the strategy can choose to ignore them."
+  }
+}
