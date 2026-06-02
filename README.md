@@ -88,22 +88,57 @@ scheduled task, first RAG embed) see **[docs/EXAMPLES.md](docs/EXAMPLES.md)**.
 
 ## Why Atlas OS
 
-Most "AI + your notes" tools stop at retrieval — *chat with your vault*. Atlas OS
-is built around the thing they don't do: **scheduled, autonomous agents that take
-action** — index your notes, commit them with a categorised history, email you a
-morning briefing, run market research, update trackers — and do it unattended,
-on your machine, with a full audit trail in git.
+Out of the box, Claude is a brilliant but **stateless** assistant: it forgets
+everything between sessions, can't act while you're away, and knows nothing about
+the work you did last week. Atlas OS is the configuration layer that fixes that —
+it turns Claude Cowork into a **persistent, autonomous, knowledge-aware operating
+system** that runs on your own machine.
 
-Three principles set it apart:
+You don't get another chatbot. You get an assistant that *remembers, retrieves,
+and acts on its own*.
 
-- **Agency, not just search.** The unit of work is a *skill* (a Claude Cowork
-  prompt) that runs on a schedule and orchestrates the Python tooling below.
-- **Local-first and private.** Notes, embeddings, and the knowledge graph stay
-  on your disk. The only external calls are ones you explicitly enable (your own
-  SMTP, an opt-in cloud model). No telemetry, ever.
-- **Files over databases.** The "database" is a folder of markdown; the "API" is
-  a set of small, inspectable Python scripts; history is plain git. Everything
-  is diffable, portable, and reproducible.
+### What Atlas OS actually sets up
+
+A single `atlas init` wires Claude into a coherent system:
+
+- **Persistent memory across sessions** — a structured memory store and a
+  git-tracked markdown vault, so Claude carries context forward instead of
+  starting cold every time.
+- **A knowledge base that grows smarter over time** — a local RAG pipeline
+  (chunk → embed → hybrid vector+keyword search) plus a `[[wikilink]]` knowledge
+  graph, so every note you add makes retrieval sharper.
+- **Automated vault management** — frontmatter schemas kept consistent
+  automatically and auto-commits with a categorised git history, so your second
+  brain stays tidy without you curating it.
+- **Scheduled tasks that run autonomously** — nightly indexing, morning
+  briefings, daily reports, weekly health checks — Claude Cowork *skills* that
+  fire on a cadence and do real work while you're away.
+- **Multi-agent orchestration** — a self-updating skills catalog and a
+  dependency-light multi-agent research framework, so agents can discover and
+  invoke every automation you've configured.
+- **Local LLM integration** — embeddings and inference run against your own
+  LM Studio / Ollama / llama.cpp endpoint by default; nothing leaves the box
+  unless you wire it up yourself.
+- **Voice, trading, and email automation** *(optional)* — TTS health hooks,
+  a local-first market-research SDK that writes briefings into your vault, and a
+  credential-free SMTP sender that emails you reports on schedule.
+
+### What you get
+
+- **A Claude that remembers everything** — past decisions, projects, and context
+  are one search away, not lost to the last session boundary.
+- **Daily operations that run themselves** — wake up to an indexed vault, a
+  committed history, and a briefing in your inbox, all done overnight.
+- **A professional-grade AI assistant that runs locally** — your notes,
+  embeddings, and knowledge graph stay on your disk; the only external calls are
+  ones you explicitly enable. No telemetry, ever.
+- **Total transparency** — the "database" is a folder of markdown, the "API" is
+  a set of small inspectable Python scripts, and history is plain git. Everything
+  is diffable, portable, auditable, and yours.
+
+The unit of work is a *skill* — a Claude Cowork prompt that runs on a schedule
+and orchestrates the Python tooling below. That's the difference between *chatting
+with your notes* and *running an operating system over them*.
 
 ---
 
