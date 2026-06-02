@@ -10,6 +10,12 @@
 
 # Atlas OS
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![Local-first](https://img.shields.io/badge/privacy-local--first-success.svg)](docs/DATA-CLASSIFICATION.md)
+[![No telemetry](https://img.shields.io/badge/telemetry-none-brightgreen.svg)](SECURITY.md)
+[![Docs](https://img.shields.io/badge/docs-complete-informational.svg)](docs/README.md)
+
 **Atlas OS** turns [Claude Cowork](https://claude.ai/) into a personal,
 local-first operating system over a markdown knowledge vault. It gives you a
 searchable second brain, scheduled automations, automatic git history, and a
@@ -97,8 +103,22 @@ atlas-os/
 ├── templates/    CLAUDE.md, memory structure, vault skeleton, ops dashboard
 ├── trading/      optional multi-agent research SDK
 ├── dashboard/    static ops dashboard + setup notes
-└── docs/         architecture, setup, rebuild, data classification, scheduled tasks
+└── docs/         setup, configuration, scripts, architecture, rebuild, FAQ, …
 ```
+
+## Documentation
+
+Full docs live in [`docs/`](docs/README.md). Quick links:
+
+- [Setup](docs/SETUP.md) — install from scratch.
+- [**Configuration reference**](docs/CONFIGURATION.md) — every environment
+  variable: default, required/optional, and which script reads it.
+- [**Script & CLI reference**](docs/SCRIPTS.md) — every script and all its flags.
+- [Scheduled tasks](docs/SCHEDULED-TASKS.md) — the skills and their cadences.
+- [Architecture](docs/ARCHITECTURE.md) · [Rebuild runbook](docs/REBUILD.md) ·
+  [Data classification](docs/DATA-CLASSIFICATION.md) · [FAQ](docs/FAQ.md)
+- [Security policy](SECURITY.md) · [Contributing](CONTRIBUTING.md) ·
+  [Changelog](CHANGELOG.md)
 
 ## Screenshots / demo
 
@@ -109,9 +129,11 @@ browser).
 
 ## Configuration
 
-All configuration is via environment variables — see
-[`.env.example`](.env.example). Nothing personal is hardcoded anywhere in the
-repo.
+All configuration is via environment variables — copy
+[`.env.example`](.env.example) to `.env` and edit. Every variable (purpose,
+default, required/optional, and which script reads it) is documented in
+[`docs/CONFIGURATION.md`](docs/CONFIGURATION.md). Nothing personal is hardcoded
+anywhere in the repo.
 
 ## Contributing
 
