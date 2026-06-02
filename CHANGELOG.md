@@ -7,6 +7,16 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **GitHub issue & PR templates**
+  ([`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/),
+  [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md)) — a
+  structured bug report (with an environment block: OS, Python, Atlas OS
+  version, install method), a feature request (use case / proposed solution /
+  alternatives), and a PR checklist (tests, docs, the PII scan). An
+  `ISSUE_TEMPLATE/config.yml` disables blank issues and routes security reports
+  to `SECURITY.md` and questions to the FAQ.
+- **README status badges** — GitHub Actions CI status, GitHub stars, and
+  last-commit, alongside the existing license / Python / privacy / docs badges.
 - **`atlas trading`** — wraps `scripts/trading_briefing.py` (`--ticker`,
   `--date`, `--dry-run`); the last optional pipeline script to gain a first-class
   subcommand, so the whole system is now reachable through one `atlas` command.
@@ -52,9 +62,14 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the README and the docs index.
 
 ### Changed
+- **`CONTRIBUTING.md` expanded** into a full contributor guide — dev-environment
+  setup, running the test/lint/audit suite, code style, the PR workflow, and a
+  project-structure overview — on top of the existing "golden rule" (never
+  commit personal data) and PII scan.
 - **README**: documented `atlas trading`, the new `atlas email` flags,
   env-validation behaviour, a Docker section (+ a Docker pointer under
-  Installation), and the Docker files in the repo-layout diagram.
+  Installation), the Docker files in the repo-layout diagram, and updated the
+  `.github/` layout line to note the issue/PR templates.
 - **Docs sync across the set** to match the streamlined CLI:
   - `docs/ARCHITECTURE.md` — added the `atlas` CLI as component 0 (the unified
     entry point) and a Deployment section covering checkout / installed tool /

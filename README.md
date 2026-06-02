@@ -10,8 +10,11 @@
 
 # Atlas OS
 
+[![CI](https://img.shields.io/github/actions/workflow/status/paulholland511/atlas-os/ci.yml?branch=main&label=CI)](https://github.com/paulholland511/atlas-os/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![GitHub stars](https://img.shields.io/github/stars/paulholland511/atlas-os?style=flat)](https://github.com/paulholland511/atlas-os/stargazers)
+[![Last commit](https://img.shields.io/github/last-commit/paulholland511/atlas-os)](https://github.com/paulholland511/atlas-os/commits/main)
 [![Local-first](https://img.shields.io/badge/privacy-local--first-success.svg)](docs/DATA-CLASSIFICATION.md)
 [![No telemetry](https://img.shields.io/badge/telemetry-none-brightgreen.svg)](SECURITY.md)
 [![Docs](https://img.shields.io/badge/docs-complete-informational.svg)](docs/README.md)
@@ -629,7 +632,7 @@ atlas-os/
 ├── pyproject.toml   packaging — `uv tool install` / `pipx` / `pip install -e .`
 ├── scripts/         embed · graph · commit · changelog · email · health · trade
 ├── tests/           pytest suite (scripts + CLI; hermetic, no network)
-├── .github/         GitHub Actions CI (ruff · pytest · pip-audit)
+├── .github/         CI workflow (ruff · pytest · pip-audit) + issue/PR templates
 ├── skills/          9 scheduled-task SKILL.md prompts (templated)
 ├── schemas/         frontmatter schema enforcement + docs
 ├── templates/       CLAUDE.md, memory structure, vault skeleton, ops dashboard
