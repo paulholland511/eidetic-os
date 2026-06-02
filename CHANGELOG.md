@@ -6,6 +6,14 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Feature deep-dive docs** in [`docs/features/`](docs/features/README.md) — one
+  per feature, explaining how it actually works (internals, data formats,
+  configuration, edge cases), grounded in the source: knowledge vault & schemas,
+  local RAG search, knowledge graph, git automation, scheduled tasks & skills
+  catalog, email reports, trading SDK, and health check & dashboard. Linked from
+  the README and the docs index.
+
 ## [0.3.0] — 2026-06-02
 
 ### Added

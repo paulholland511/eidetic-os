@@ -105,6 +105,12 @@ Eight composable systems, each usable on its own:
 8. **Voice / TTS hooks & dashboard** *(optional)* — health-check probes for a
    local TTS service, plus a static, single-file operations dashboard.
 
+> **How does each one work?** Every feature has a deep-dive doc (internals, data
+> formats, config) in [`docs/features/`](docs/features/README.md) — e.g.
+> [how RAG works](docs/features/rag-search.md),
+> [how trading works](docs/features/trading-sdk.md),
+> [the knowledge graph](docs/features/knowledge-graph.md).
+
 ---
 
 ## Prerequisites
@@ -546,6 +552,8 @@ atlas-os/
 
 Full docs live in [`docs/`](docs/README.md):
 
+- [**Feature deep-dives**](docs/features/README.md) — how each feature works
+  internally (RAG, graph, git automation, trading, skills, email, health).
 - [Setup](docs/SETUP.md) — install from scratch (package or source).
 - [**Configuration reference**](docs/CONFIGURATION.md) — every env var: default,
   required/optional, consuming script.

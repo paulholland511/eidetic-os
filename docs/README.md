@@ -3,6 +3,20 @@
 The full documentation set. Start with the README in the repo root for the
 overview, then dive in here.
 
+## Feature deep-dives
+
+How each feature actually works (internals, data formats, config), grounded in
+the source — see [**features/**](features/README.md):
+
+- [Knowledge vault & schemas](features/knowledge-vault.md)
+- [Local RAG search](features/rag-search.md)
+- [Knowledge graph](features/knowledge-graph.md)
+- [Git automation](features/git-automation.md)
+- [Scheduled tasks & skills catalog](features/skills-and-automation.md)
+- [Email reports](features/email-reports.md)
+- [Trading research SDK](features/trading-sdk.md)
+- [Health check & dashboard](features/health-and-dashboard.md)
+
 ## Getting started
 
 - [**SETUP.md**](SETUP.md) — step-by-step installation from scratch.
