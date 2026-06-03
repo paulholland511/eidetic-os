@@ -7,6 +7,17 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **CLI reference & v1.0 stability contract.** A new
+  [`docs/CLI-REFERENCE.md`](docs/CLI-REFERENCE.md) documents the complete `atlas`
+  CLI — generated from the live `--help` output and the underlying scripts, so it
+  reflects exactly what exists. It covers global flags, a commands table, a
+  detailed per-command reference (description, usage, flags, env vars read, exit
+  codes, examples), a full environment-variable table (purpose + default), and
+  the `0` / `1` / `2` / `130` exit-code meanings. It doubles as a **stability
+  contract**: command names, flags, env vars, exit codes, and documented JSON
+  output shapes are stable as of v1.0, and a breaking change to any of them
+  requires a major version bump. Linked from the root [`README.md`](README.md)
+  and the docs [index](docs/README.md).
 - **Tutorial: *Your first 24 hours with Atlas OS*.** A new end-to-end guide,
   [`docs/TUTORIAL.md`](docs/TUTORIAL.md), walks a brand-new user from
   `pip install atlas-os` to a fully autonomous system — structured as a timeline

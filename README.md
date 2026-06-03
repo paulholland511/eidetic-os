@@ -434,7 +434,9 @@ exiting with a clear message (and a non-zero code) if something is missing — s
 half-configured optional feature fails fast instead of part-way through.
 
 Run `atlas --help` or `atlas <command> --help` for details. Complete per-command
-reference (flags, env vars consumed, outputs): [`docs/SCRIPTS.md`](docs/SCRIPTS.md).
+reference — flags, env vars consumed, exit codes, and the v1.0 stability
+contract: [`docs/CLI-REFERENCE.md`](docs/CLI-REFERENCE.md). The underlying scripts
+are documented in [`docs/SCRIPTS.md`](docs/SCRIPTS.md).
 
 > `atlas init`, `atlas doctor`, `atlas skills`, and `atlas audit` are CLI-only.
 > The rest map 1:1 to scripts in `scripts/` (and `schemas/`), so you can also run
@@ -806,6 +808,8 @@ Full docs live in [`docs/`](docs/README.md):
 - [Setup](docs/SETUP.md) — install from scratch (package or source).
 - [**Configuration reference**](docs/CONFIGURATION.md) — every env var: default,
   required/optional, consuming script.
+- [**CLI reference & stability contract**](docs/CLI-REFERENCE.md) — every command,
+  flag, env var, and exit code; the v1.0 stability promise.
 - [**Script & CLI reference**](docs/SCRIPTS.md) — every command and flag.
 - [Scheduled tasks](docs/SCHEDULED-TASKS.md) — the skills, cadences, placeholders,
   and the skills catalog.

@@ -30,8 +30,11 @@ the source — see [**features/**](features/README.md):
   (root [`Dockerfile`](../Dockerfile) · [`docker-compose.yml`](../docker-compose.yml)).
 - [**CONFIGURATION.md**](CONFIGURATION.md) — every environment variable: purpose,
   default, required/optional, and which scripts read it.
-- [**SCRIPTS.md**](SCRIPTS.md) — complete CLI reference for every script and all
-  their flags.
+- [**CLI-REFERENCE.md**](CLI-REFERENCE.md) — the complete `atlas` CLI reference
+  and **v1.0 stability contract**: every command, flag, environment variable, and
+  exit code, plus what's guaranteed not to change without a major version bump.
+- [**SCRIPTS.md**](SCRIPTS.md) — complete reference for every underlying script and
+  all their flags.
 - [**FAQ.md**](FAQ.md) — common questions and troubleshooting.
 
 ## Operating it
@@ -81,6 +84,7 @@ the source — see [**features/**](features/README.md):
 2. [`TUTORIAL.md`](TUTORIAL.md) — the guided first-24-hours walkthrough.
 3. [`SETUP.md`](SETUP.md) — install it.
 4. [`CONFIGURATION.md`](CONFIGURATION.md) — set your env vars.
-5. [`SCRIPTS.md`](SCRIPTS.md) — run the pipeline.
-6. [`SCHEDULED-TASKS.md`](SCHEDULED-TASKS.md) — automate it.
-7. [`FAQ.md`](FAQ.md) — when something doesn't work.
+5. [`CLI-REFERENCE.md`](CLI-REFERENCE.md) — the full command/flag/env-var contract.
+6. [`SCRIPTS.md`](SCRIPTS.md) — run the pipeline.
+7. [`SCHEDULED-TASKS.md`](SCHEDULED-TASKS.md) — automate it.
+8. [`FAQ.md`](FAQ.md) — when something doesn't work.
