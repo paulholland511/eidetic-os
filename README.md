@@ -6,6 +6,7 @@
    /_/   \_\__|_|\__,_|___/  \___/|____/
 
    A personal AI operating system, built on Claude Cowork.
+   Every conversation stored · every research session preserved.
    Job search automation · trading intelligence · RAG knowledge · 17+ pipelines.
 ```
 
@@ -25,6 +26,11 @@ local-first operating system over a markdown knowledge vault. It gives you a
 searchable second brain, scheduled autonomous agents, automatic git history, and
 a set of report/research workflows — all configured through environment
 variables and runnable entirely on your own machine.
+
+Crucially, **everything you discuss with Claude gets captured into your vault** —
+conversations, research, code sessions, decisions. Nothing is lost between
+sessions. Your vault becomes a complete, searchable record of your AI-assisted
+work that gets smarter the more you use it.
 
 It ships with **no personal data, no credentials, and no PII**. Everything is a
 template you point at your own vault, your own local LLM, and your own email
@@ -51,6 +57,7 @@ account.
 - [Configuration](#configuration)
 - [Architecture](#architecture)
 - [The knowledge vault](#the-knowledge-vault)
+- [Session capture & knowledge persistence](#session-capture--knowledge-persistence)
 - [RAG search & knowledge graph](#rag-search--knowledge-graph)
 - [Scheduled tasks & the skills catalog](#scheduled-tasks--the-skills-catalog)
 - [Trading research SDK (optional)](#trading-research-sdk-optional)
@@ -113,10 +120,39 @@ system** that runs on your own machine.
 You don't get another chatbot. You get an assistant that *remembers, retrieves,
 and acts on its own*.
 
+### Stock Claude forgets. Atlas OS remembers everything.
+
+The single biggest difference Atlas OS makes is **knowledge persistence**:
+
+- **Stock Claude forgets everything between sessions.** Close the tab and the
+  context is gone — last week's research, yesterday's planning discussion, the
+  reasoning behind a decision.
+- **Atlas OS captures every conversation automatically.** Twice a day (by
+  default), every Cowork session is folded back into your vault as a searchable
+  note — the summary, the key actions taken, and the files touched.
+- **Your vault becomes a searchable, RAG-indexed knowledge base of everything
+  you've ever discussed with Claude.** Research sessions, code reviews, planning
+  discussions, debugging threads — all retrievable months later by meaning, not
+  just keyword.
+- **Research done via the deep-research skills gets embedded alongside your
+  conversations.** `deep-research`, `autoresearch`, and `topic-research-brief`
+  all write their findings into the vault, where the RAG pipeline indexes them
+  into the same knowledge graph as your chats.
+- **Over time, your vault gets smarter** because it holds the full context of
+  your work. Every captured session and every embedded research brief sharpens
+  what Claude can retrieve and reason over the next time you ask.
+
+The result: nothing you do with Claude is ever lost. Your vault is the
+institutional memory of your AI-assisted work.
+
 ### What Atlas OS actually sets up
 
 A single `atlas init` wires Claude into a coherent system:
 
+- **Automatic session capture** — every conversation you have in Cowork is
+  saved back into your vault as a searchable note (twice daily by default), so
+  research, code sessions, planning, and decisions are preserved permanently
+  rather than lost when the tab closes.
 - **Persistent memory across sessions** — a structured memory store and a
   git-tracked markdown vault, so Claude carries context forward instead of
   starting cold every time.
@@ -150,7 +186,10 @@ A single `atlas init` wires Claude into a coherent system:
 ### What you get
 
 - **A Claude that remembers everything** — past decisions, projects, and context
-  are one search away, not lost to the last session boundary.
+  are one search away, not lost to the last session boundary. Every conversation
+  and research session is captured into the vault automatically and indexed for
+  RAG search, so months later you can ask "what did we decide about X?" and get
+  the real answer.
 - **Daily operations that run themselves** — wake up to an indexed vault, a
   committed history, and a briefing in your inbox, all done overnight.
 - **A professional-grade AI assistant that runs locally** — your notes,
@@ -171,33 +210,38 @@ with your notes* and *running an operating system over them*.
 
 ## Features
 
-Ten composable systems, each usable on its own:
+Eleven composable systems, each usable on its own:
 
-1. **Knowledge vault** — a folder of markdown notes (Obsidian-friendly) where
+1. **Session capture** — every Cowork conversation is automatically saved back
+   into your vault as a searchable session log (twice daily by default).
+   Research, code reviews, planning, and decisions are preserved permanently and
+   RAG-indexed alongside your notes — nothing discussed with Claude is ever lost.
+   See [session capture](#session-capture--knowledge-persistence).
+2. **Knowledge vault** — a folder of markdown notes (Obsidian-friendly) where
    top-level folders carry meaning and per-folder YAML frontmatter is kept
    consistent automatically. See [the vault](#the-knowledge-vault).
-2. **Local RAG search** — chunk + embed your notes via a local LLM into a hybrid
+3. **Local RAG search** — chunk + embed your notes via a local LLM into a hybrid
    (vector + keyword) index stored in `.rag/vectors.json`.
-3. **Pluggable LLM backends** — bring whatever OpenAI-compatible server you run.
+4. **Pluggable LLM backends** — bring whatever OpenAI-compatible server you run.
    Atlas OS auto-detects LM Studio, Ollama, llama.cpp, or any custom endpoint
    (probed in that order), with `ATLAS_LLM_BACKEND` to force one. Inspect with
    `atlas backends` / `atlas backends test`.
-4. **Knowledge graph** — a wikilink (`[[note]]`) graph with nodes, edges,
+5. **Knowledge graph** — a wikilink (`[[note]]`) graph with nodes, edges,
    adjacency, and backlinks for "related notes".
-5. **Git automation** — auto-commit the vault with messages categorised by which
+6. **Git automation** — auto-commit the vault with messages categorised by which
    folders changed, and generate changelogs for a morning briefing.
-6. **Scheduled tasks & skills catalog** — nightly indexing, daily reports,
+7. **Scheduled tasks & skills catalog** — nightly indexing, daily reports,
    weekly health checks and more, as Claude Cowork skills — plus a self-updating
    `Skills Catalog.md` in the vault so agents can discover every automation they
    can invoke.
-7. **Email reports** — a credential-free SMTP sender for status reports and
+8. **Email reports** — a credential-free SMTP sender for status reports and
    newsletters (password from the environment, never hardcoded).
-8. **Trading research SDK** *(optional)* — a dependency-light multi-agent
+9. **Trading research SDK** *(optional)* — a dependency-light multi-agent
    market-research framework that writes briefings into your vault.
    *Not financial advice.*
-9. **Voice / TTS hooks & dashboard** *(optional)* — health-check probes for a
+10. **Voice / TTS hooks & dashboard** *(optional)* — health-check probes for a
    local TTS service, plus a static, single-file operations dashboard.
-10. **Audit trail** — an append-only JSONL log of every autonomous action (what
+11. **Audit trail** — an append-only JSONL log of every autonomous action (what
    ran, how it was triggered, the outcome, duration, and what changed), with
    `atlas audit show / tail / export` for inspection and CSV compliance reports.
 
@@ -545,6 +589,55 @@ filename). Schemas ship for `research`, `projects`, `decisions`, `guides`,
 `wiki`, `daily`, `memory`, `learning`, `code-solutions`, and more. Customise the
 `SCHEMAS` dict to match your own layout. Full table:
 [`schemas/frontmatter-schemas.md`](schemas/frontmatter-schemas.md).
+
+---
+
+## Session capture & knowledge persistence
+
+This is what turns Atlas OS from "Claude with a notes folder" into a system with
+a memory. **Every conversation you have in Cowork is folded back into your vault
+as a searchable note** — so the record of *what was done and why* lives in your
+knowledge base, not in chat transcripts that vanish when you close the tab.
+
+```bash
+atlas session list          # see your recent Cowork sessions
+atlas session save --all    # write a session-log note for every session
+atlas session save --since 12h   # only what's new in the last 12 hours
+```
+
+For each session, `atlas session save` writes
+`$VAULT_PATH/sessions/session-log-YYYY-MM-DD-<title>.md` — frontmatter tagged
+`[session-log, cowork]`, a summary, the key actions taken, and the files
+modified. Everything is extracted **locally — no LLM call, nothing leaves your
+machine**. A watermark in `.atlas/last_session_save.txt` means a plain
+`atlas session save` only picks up what's new, so it's safe to run repeatedly.
+
+**Captured automatically, twice a day.** The recommended default is a morning and
+an afternoon capture, each covering a 12-hour window, so your work lands in the
+vault close to when it happened:
+
+```bash
+atlas skills install morning-session-capture     # ~09:00, --since 12h
+atlas skills install afternoon-session-capture   # ~17:00, --since 12h
+```
+
+Prefer a single nightly run? Install `daily-session-capture` (`--since 24h`)
+instead. Record your choice in `.env` with `SESSION_CAPTURE_FREQUENCY`
+(`twice` | `daily` | `hourly` | `manual`).
+
+**Everything gets indexed.** Because session logs land in the vault as ordinary
+markdown, the nightly RAG embed picks them up automatically — your conversations
+become searchable by meaning alongside your notes. And it's not just chats:
+research produced by the deep-research skills is captured the same way.
+`deep-research`, `autoresearch`, and `topic-research-brief` all write their
+findings into the vault, where they're embedded into the **same knowledge graph**
+as your conversations. Over time the vault accumulates the full context of your
+AI-assisted work, and every captured session makes the next retrieval sharper.
+
+The twice-daily pair is part of the [`knowledge` pack](docs/SCHEDULED-TASKS.md),
+so `atlas skills install-pack knowledge` sets both up alongside the nightly index
+and RAG embed. Full walkthrough:
+[`docs/TUTORIAL.md`](docs/TUTORIAL.md#step-35--capture-your-cowork-sessions-to-the-vault).
 
 ---
 

@@ -8,6 +8,7 @@ setup and the command reference, see [`docs/SETUP.md`](../SETUP.md) and
 | Feature | Doc | Source | CLI |
 |---|---|---|---|
 | Knowledge vault & frontmatter schemas | [knowledge-vault.md](knowledge-vault.md) | `schemas/`, `templates/` | `atlas schemas`, `atlas init` |
+| Session capture | [session-capture.md](session-capture.md) | `scripts/save_sessions.py` | `atlas session` |
 | Local RAG search | [rag-search.md](rag-search.md) | `scripts/embed_vault.py` | `atlas embed` |
 | Knowledge graph | [knowledge-graph.md](knowledge-graph.md) | `scripts/build_graph.py` | `atlas graph` |
 | Git automation | [git-automation.md](git-automation.md) | `scripts/vault_commit.py`, `vault_changelog.py` | `atlas commit`, `atlas changelog` |
@@ -19,8 +20,10 @@ setup and the command reference, see [`docs/SETUP.md`](../SETUP.md) and
 ## How the features fit together
 
 ```
+          Cowork conversations + research ──(atlas session save)──┐
+                                                                  ▼
               ┌──────────────── the vault (source of truth) ────────────────┐
-              │  markdown notes · frontmatter schemas · [[wikilinks]]        │
+              │  markdown notes · session logs · frontmatter · [[wikilinks]] │
               └───────┬───────────────┬───────────────┬───────────────┬─────┘
                       │               │               │               │
                  RAG search     knowledge graph   git automation   skills catalog
@@ -34,10 +37,12 @@ setup and the command reference, see [`docs/SETUP.md`](../SETUP.md) and
 ```
 
 The vault is the source of truth; RAG, the graph, and git history are derived and
-reproducible. Scheduled **skills** tie the pieces together on a cadence; **email**
-delivers the results; the **health check** and **dashboard** observe the whole
-system. The **trading SDK** is an optional research workload that writes its
-briefings back into the vault.
+reproducible. **Session capture** feeds it from the other direction — folding your
+Cowork conversations and research back into the vault as notes, so they're indexed
+and searchable alongside everything else. Scheduled **skills** tie the pieces
+together on a cadence; **email** delivers the results; the **health check** and
+**dashboard** observe the whole system. The **trading SDK** is an optional
+research workload that writes its briefings back into the vault.
 
 See also: [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md) for the high-level design,
 and [`docs/DATA-CLASSIFICATION.md`](../DATA-CLASSIFICATION.md) for what stays

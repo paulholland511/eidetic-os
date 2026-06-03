@@ -9,6 +9,7 @@ How each feature actually works (internals, data formats, config), grounded in
 the source — see [**features/**](features/README.md):
 
 - [Knowledge vault & schemas](features/knowledge-vault.md)
+- [Session capture](features/session-capture.md)
 - [Local RAG search](features/rag-search.md)
 - [Knowledge graph](features/knowledge-graph.md)
 - [Git automation](features/git-automation.md)

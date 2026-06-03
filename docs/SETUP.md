@@ -17,6 +17,7 @@ unconfigured feature simply stays off; nothing else breaks.
 | Auto-commit the vault | `atlas commit` | git |
 | Vault changelog | `atlas changelog` | git |
 | Frontmatter schemas | `atlas schemas` | — |
+| Session capture | `atlas session save` / `list` | — |
 | Health probe | `atlas health` | — |
 | Skills catalog | `atlas skills` | — |
 | Audit trail | `atlas audit` | — |
@@ -175,6 +176,34 @@ discover what's available. Refresh it any time you add or change a skill:
 atlas skills          # list the catalog
 atlas skills --sync   # regenerate the catalog note in the vault
 ```
+
+### Session capture (recommended)
+
+One scheduled task is worth turning on first: **session capture**, which folds
+your Cowork conversations back into the vault as searchable notes so nothing you
+discuss with Claude is ever lost. The recommended default is **twice daily** — a
+morning and an afternoon pass, each covering a 12-hour window:
+
+```bash
+atlas skills install morning-session-capture     # ~09:00, --since 12h
+atlas skills install afternoon-session-capture   # ~17:00, --since 12h
+```
+
+Both run `ATLAS_TRIGGER=scheduled atlas session save --since 12h`; a shared
+watermark (`.atlas/last_session_save.txt`) means the overlapping windows never
+double-write a session. Prefer a single nightly run instead? Install
+`daily-session-capture` (`--since 24h`).
+
+Record your choice in `.env` so the system knows your cadence:
+
+```bash
+SESSION_CAPTURE_FREQUENCY=twice    # twice (default) | daily | hourly | manual
+```
+
+The captured session logs are ordinary markdown in `sessions/`, so the nightly
+RAG embed (step 6) indexes them automatically — your conversations become
+searchable alongside your notes. The twice-daily pair also ships in the
+[`knowledge` pack](SCHEDULED-TASKS.md): `atlas skills install-pack knowledge`.
 
 ## 9. LLM backend configuration
 

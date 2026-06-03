@@ -682,10 +682,18 @@ were away.
 
 ### Step 3.5 — Capture your Cowork sessions to the vault
 
-Going autonomous cuts both ways: as agents do more of your work in Cowork, the
-record of *what was done and why* lives in chat transcripts, not your notes.
-`atlas session` folds those transcripts back into the vault so they're
-searchable alongside everything else.
+This is the step that makes Atlas OS *remember*. Stock Claude forgets everything
+the moment you close the tab — last week's research, yesterday's planning
+discussion, the reasoning behind a decision. Atlas OS fixes that by folding every
+Cowork conversation back into your vault, so **nothing you discuss with Claude is
+ever lost**. Research sessions, code reviews, debugging threads, planning
+discussions — all of it becomes a permanent, searchable note.
+
+Going autonomous makes this essential: as agents do more of your work in Cowork,
+the record of *what was done and why* lives in chat transcripts rather than your
+notes. `atlas session` folds those transcripts back into the vault, where the
+nightly RAG embed (Step 3 above) indexes them so they're retrievable by meaning
+alongside everything else — months later, you can search your own conversations.
 
 ```bash
 atlas session list          # see your recent Cowork sessions
@@ -721,6 +729,13 @@ Record your choice in `.env` with `SESSION_CAPTURE_FREQUENCY` (`twice` | `daily`
 The twice-daily pair is part of the [`knowledge` pack](SCHEDULED-TASKS.md), so
 `atlas skills install-pack knowledge` sets both up alongside the nightly index and
 RAG embed.
+
+**It's not just chats — research is captured too.** The deep-research skills
+(`deep-research`, `autoresearch`, `topic-research-brief`) write their findings
+straight into the vault as notes. So the same nightly embed that indexes your
+session logs also folds your research into the **same knowledge graph** — your
+conversations and your research become one searchable corpus. The longer you run
+Atlas OS, the more context the vault holds, and the sharper every retrieval gets.
 
 ---
 

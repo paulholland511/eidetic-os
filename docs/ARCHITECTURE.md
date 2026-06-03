@@ -12,16 +12,18 @@ and the scheduled skills drive everything through the one `atlas` command.
                         │        Claude Cowork           │
                         │  (skills, scheduled tasks,     │
                         │   memory, MCP tools)           │
-                        └───────────────┬────────────────┘
-                                        │ invokes
-            ┌───────────────────────────┼───────────────────────────┐
-            ▼                           ▼                            ▼
+                        │  conversations + research ─────┼──┐
+                        └───────────────┬────────────────┘  │ atlas session save
+                                        │ invokes            │ (transcripts → notes)
+            ┌───────────────────────────┼───────────────────┼───────────┐
+            ▼                           ▼                     ▼           ▼
    ┌─────────────────┐       ┌────────────────────┐       ┌──────────────────┐
    │  scripts/ (py)  │       │  Markdown Vault     │       │  Local LLM        │
    │  embed, graph,  │◀─────▶│  notes / wiki /     │       │  (embeddings +    │
-   │  commit, email, │  rw   │  memory / daily     │       │  chat, OpenAI-    │
-   │  health, trade  │       │  (git-tracked)      │       │  compatible)      │
-   └────────┬────────┘       └────────────────────┘       └─────────┬────────┘
+   │  commit, email, │  rw   │  memory / daily /   │       │  chat, OpenAI-    │
+   │  health, trade, │       │  sessions           │       │  compatible)      │
+   │  session        │       │  (git-tracked)      │       └─────────┬────────┘
+   └────────┬────────┘       └────────────────────┘                 │
             │                                                        │
             ▼                                                        │
    ┌─────────────────┐                                              │
@@ -29,6 +31,10 @@ and the scheduled skills drive everything through the one `atlas` command.
    │  vector store   │   (local only, git-ignored)
    └─────────────────┘
 ```
+
+Session capture closes the loop: conversations and research done in Cowork are
+written back into the vault (`sessions/`), where the RAG pipeline indexes them
+alongside your notes — so the system's knowledge grows with every chat.
 
 ## Components
 
@@ -47,34 +53,44 @@ A plain folder of markdown notes (works great with Obsidian, but not required).
 Top-level folders carry meaning (`research`, `projects`, `decisions`, `memory`,
 `wiki`, `daily`, …) and drive the frontmatter schemas. Git-tracked for history.
 
-### 2. RAG pipeline (`scripts/embed_vault.py`, `build_graph.py`)
+### 2. Session capture (`scripts/save_sessions.py`)
+Folds Cowork chat transcripts back into the vault as `sessions/session-log-*.md`
+notes — a summary, the key actions, and the files touched, all extracted
+**locally with no LLM call**. A watermark (`.atlas/last_session_save.txt`) makes
+runs incremental, and the twice-daily capture skills keep it current. Because the
+notes land in the vault as ordinary markdown, the RAG pipeline (below) indexes
+them automatically — this is what makes every conversation, and the research the
+deep-research skills write into the vault, permanently searchable.
+
+### 3. RAG pipeline (`scripts/embed_vault.py`, `build_graph.py`)
 Chunks notes (~500 tokens, 50 overlap), embeds them via a **local**
 OpenAI-compatible endpoint, and stores vectors in `.rag/vectors.json`. Hybrid
 search (vector + keyword) at query time. `build_graph.py` derives a wikilink
-knowledge graph. Both run incrementally (nightly) and fully (weekly).
+knowledge graph. Both run incrementally (nightly) and fully (weekly). It indexes
+your notes, captured sessions, and research findings into one searchable corpus.
 
-### 3. Frontmatter schemas (`schemas/enforce_schemas.py`)
+### 4. Frontmatter schemas (`schemas/enforce_schemas.py`)
 Non-destructive enforcement of per-folder YAML frontmatter so notes stay
 consistent. See [`../schemas/frontmatter-schemas.md`](../schemas/frontmatter-schemas.md).
 
-### 4. Scheduled tasks (`skills/*`)
+### 5. Scheduled tasks (`skills/*`)
 Each is a `SKILL.md` prompt run on a schedule by Claude Cowork: nightly index +
-RAG embed, daily reports, weekly health check and full re-embed, etc. They
-orchestrate the scripts above and your connected MCP tools. See
-[`SCHEDULED-TASKS.md`](SCHEDULED-TASKS.md).
+RAG embed, twice-daily session capture, daily reports, weekly health check and
+full re-embed, etc. They orchestrate the scripts above and your connected MCP
+tools. See [`SCHEDULED-TASKS.md`](SCHEDULED-TASKS.md).
 
-### 5. Git automation (`scripts/vault_commit.py`, `vault_changelog.py`)
+### 6. Git automation (`scripts/vault_commit.py`, `vault_changelog.py`)
 Auto-commits the vault with categorised messages and produces changelogs for the
 morning briefing.
 
-### 6. Email (`scripts/send_email.py`)
+### 7. Email (`scripts/send_email.py`)
 A credential-free SMTP sender (password from env) used by the report tasks.
 
-### 7. Trading SDK (`trading/`, optional)
+### 8. Trading SDK (`trading/`, optional)
 A multi-agent market-research framework that writes briefings into the vault.
 Entirely optional and **not financial advice**.
 
-### 8. Dashboard (`dashboard/`)
+### 9. Dashboard (`dashboard/`)
 A static HTML overview that reads from your own local backend endpoints.
 
 ## Design principles

@@ -4,6 +4,12 @@ The shortest path from zero to a working Atlas OS: a searchable markdown vault
 with git history and a scheduled task. This skips every optional feature — just
 the core. For the full walkthrough see [`SETUP.md`](SETUP.md).
 
+**What you get:** a local-first second brain that grows itself. Beyond the
+searchable vault and git history, Atlas OS can **automatically capture every
+Cowork conversation back into your vault** — research, code sessions, planning,
+and decisions, all preserved and RAG-indexed so nothing you discuss with Claude
+is ever lost (see [step 6](#6-capture-every-conversation-optional)).
+
 ---
 
 ## 1. Prerequisites (1 min)
@@ -109,6 +115,32 @@ Atlas OS — doctor
 
 3 OK · 3 WARN · 0 FAIL
 ```
+
+---
+
+## 6. Capture every conversation (optional)
+
+Atlas OS can fold your Cowork chats back into the vault so they're searchable
+forever. Try it manually:
+
+```bash
+atlas session list          # your recent Cowork sessions
+atlas session save --all    # write a searchable note for each one
+```
+
+Each session becomes `sessions/session-log-YYYY-MM-DD-<title>.md` — a summary,
+the actions taken, and the files touched, extracted **locally with no LLM call**.
+To run it automatically, install the twice-daily capture skills (a morning and an
+afternoon pass):
+
+```bash
+atlas skills install morning-session-capture
+atlas skills install afternoon-session-capture
+```
+
+Once your notes are RAG-indexed (below), these session logs are searched right
+alongside them — so months later you can ask "what did we decide about X?" and
+get the real answer.
 
 ---
 
