@@ -24,12 +24,12 @@ scheduled-task skills and their cadences, see
 - [✅ Quality](#quality) — 20 skills
 - [📊 Data & AI](#data--ai) — 21 skills
 - [📈 Business](#business) — 20 skills
-- [🤖 Atlas-native skills](#-atlas-native-skills) — 4 skills
-- [⏰ Scheduled automations](#-scheduled-automations) — 9 tasks
+- [🤖 Atlas-native skills](#atlas-native-skills) — 4 skills
+- [⏰ Scheduled automations](#scheduled-automations) — 9 tasks
 
 ---
 
-## 🔒 Security
+## Security
 
 *20 skills.*
 
@@ -155,7 +155,7 @@ DevSecOps and security integration in CI/CD pipelines.
 
 ---
 
-## ⚙️ DevOps
+## DevOps
 
 *25 skills.*
 
@@ -311,7 +311,7 @@ Container registry management and image lifecycle.
 
 ---
 
-## 🎨 Frontend
+## Frontend
 
 *20 skills.*
 
@@ -437,7 +437,7 @@ i18n, localisation, and RTL layout support.
 
 ---
 
-## 🛠️ Backend
+## Backend
 
 *23 skills.*
 
@@ -581,7 +581,7 @@ Soft delete implementation, audit trails, and record versioning patterns.
 
 ---
 
-## ✅ Quality
+## Quality
 
 *20 skills.*
 
@@ -707,7 +707,7 @@ Technical debt management and modernization planning.
 
 ---
 
-## 📊 Data & AI
+## Data & AI
 
 *21 skills.*
 
@@ -839,7 +839,7 @@ Sentiment analysis and opinion mining.
 
 ---
 
-## 📈 Business
+## Business
 
 *20 skills.*
 
@@ -965,7 +965,7 @@ Legal compliance, contracts.
 
 ---
 
-## 🤖 Atlas-native skills
+## Atlas-native skills
 
 *4 skills.* These are the first-class skills that ship installed with Atlas OS
 and integrate directly with the knowledge vault, RAG search, and email tooling.
@@ -998,7 +998,7 @@ Send an email (HTML, plain text, attachments) via SMTP.
 
 ---
 
-## ⏰ Scheduled automations
+## Scheduled automations
 
 *9 tasks.* These are the scheduled-task `SKILL.md` prompts in
 [`skills/`](../skills) — Claude Cowork skills that run on a cadence. Each is fully

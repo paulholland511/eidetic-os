@@ -7,6 +7,24 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **Skills catalogue & framework docs.** A
+  [`docs/SKILLS-CATALOGUE.md`](docs/SKILLS-CATALOGUE.md) documenting the full menu
+  of **160+ skills** — 149 capability skills across seven domains (Security,
+  DevOps, Frontend, Backend, Quality, Data & AI, Business), each with a one-line
+  summary, what it does, and when to use it, plus the four Atlas-native skills
+  (`autoresearch`, `save-to-vault`, `wiki-search`, `send-email`) and the nine
+  scheduled automations. A companion
+  [`docs/SKILLS-FRAMEWORK.md`](docs/SKILLS-FRAMEWORK.md) explains what a skill is,
+  the anatomy of a `SKILL.md`, the placeholder-token system, the lifecycle
+  (creation → installation → scheduling → execution → audit logging), how the
+  RAG-indexed catalog reaches sub-agents, the `skill-creator` meta-skill, and a
+  copy-paste `SKILL.md` template. Everything is generic and `{{PLACEHOLDER}}`-
+  tokenised — no personal data.
+- **Six example skills** ([`skills/`](skills)) demonstrating the framework across
+  document creation (`generate-vault-report-doc`), email automation
+  (`inbox-triage-digest`), data analysis (`spreadsheet-analysis`), web research
+  (`topic-research-brief`), vault management (`vault-lint-report`), and report
+  generation (`weekly-digest-report`) — bringing the shipped skill count to 15.
 - **Audit trail** ([`atlas_os/audit.py`](atlas_os/audit.py)). An append-only
   JSONL log of every autonomous action, written to `$ATLAS_AUDIT_PATH` (default
   `$VAULT_PATH/.atlas/audit.jsonl`). Each entry records the timestamp, action,
