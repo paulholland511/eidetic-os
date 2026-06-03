@@ -19,6 +19,7 @@ unconfigured feature simply stays off; nothing else breaks.
 | Frontmatter schemas | `atlas schemas` | — |
 | Health probe | `atlas health` | — |
 | Skills catalog | `atlas skills` | — |
+| Audit trail | `atlas audit` | — |
 
 Core install: `pip install -e .` (or `uv tool install …`). No extra deps, no
 network, no secrets.
@@ -183,6 +184,38 @@ atlas health      # full subsystem probe   (or: python3 scripts/health_check.py)
 ```
 
 You should see each subsystem report UP / DEGRADED / DOWN.
+
+## 10. The audit trail
+
+Every autonomous action Atlas runs — `embed`, `commit`, `graph`, `changelog`,
+`health`, `trading`, `email` — appends one line to an **append-only** JSONL log.
+This gives you a queryable record of what ran, how it was triggered, the
+outcome, how long it took, what changed, and why. No setup is required; the log
+is created on first write.
+
+**Where it lives.** `$ATLAS_AUDIT_PATH` if you set it, otherwise
+`$VAULT_PATH/.atlas/audit.jsonl`. The file auto-rotates at 10 MB
+(`audit.jsonl.1`, `.2`, …), and appends are guarded by an OS-level file lock so
+concurrent `atlas` runs never corrupt a line.
+
+```bash
+atlas audit show                       # recent entries (default last 20)
+atlas audit show --action commit --since 7d
+atlas audit tail                       # last 5, compact
+atlas audit export --format csv -o audit-report.csv   # for compliance
+```
+
+**Trigger tagging for scheduled tasks.** Interactive runs are tagged
+`trigger: cli`. So unattended runs are distinguishable, set
+`ATLAS_TRIGGER=scheduled` in the environment of your scheduled tasks (or
+`manual` for one-off scripted runs):
+
+```bash
+ATLAS_TRIGGER=scheduled atlas commit   # logged as a scheduled action
+```
+
+The audit trail supports ISO 27001 control A.12.4 (logging & monitoring) — see
+[`../SECURITY.md`](../SECURITY.md).
 
 ## Run in Docker (optional)
 

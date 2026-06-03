@@ -7,6 +7,20 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **Audit trail** ([`atlas_os/audit.py`](atlas_os/audit.py)). An append-only
+  JSONL log of every autonomous action, written to `$ATLAS_AUDIT_PATH` (default
+  `$VAULT_PATH/.atlas/audit.jsonl`). Each entry records the timestamp, action,
+  trigger (`scheduled`/`manual`/`cli`), status, duration, what changed, why it
+  ran, and any error. Appends are serialised with an in-process lock plus an
+  OS-level advisory file lock (safe across concurrent `atlas` processes) and the
+  file auto-rotates at 10 MB to `audit.jsonl.1`, `.2`, …. Every script-wrapping
+  command (`embed`, `commit`, `graph`, `changelog`, `health`, `trading`,
+  `email`) now logs its outcome automatically; scheduled tasks tag their runs by
+  setting `ATLAS_TRIGGER=scheduled`. New `atlas audit` subcommands: `show`
+  (`--limit`/`--action`/`--since`), `tail` (last 5, compact), and `export`
+  (`--format csv|json`, `--output`) for compliance reporting. Strengthens ISO
+  27001 control A.12.4 (logging & monitoring). Covered by
+  [`tests/test_audit.py`](tests/test_audit.py).
 - **GitHub issue & PR templates**
   ([`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/),
   [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md)) — a

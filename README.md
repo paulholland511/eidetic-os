@@ -54,6 +54,7 @@ account.
 - [Trading research SDK (optional)](#trading-research-sdk-optional)
 - [Email reports](#email-reports)
 - [Dashboard (optional)](#dashboard-optional)
+- [Audit trail](#audit-trail)
 - [Security & privacy](#security--privacy)
 - [Repository layout](#repository-layout)
 - [Documentation](#documentation)
@@ -122,6 +123,10 @@ A single `atlas init` wires Claude into a coherent system:
 - **Voice, trading, and email automation** *(optional)* — TTS health hooks,
   a local-first market-research SDK that writes briefings into your vault, and a
   credential-free SMTP sender that emails you reports on schedule.
+- **An append-only audit trail** — every autonomous action (embed, commit,
+  email, trading, …) is logged to a tamper-evident JSONL trail recording what
+  ran, how it was triggered, the outcome, duration, and what changed — queryable
+  and exportable to CSV for compliance.
 
 ### What you get
 
@@ -135,6 +140,9 @@ A single `atlas init` wires Claude into a coherent system:
 - **Total transparency** — the "database" is a folder of markdown, the "API" is
   a set of small inspectable Python scripts, and history is plain git. Everything
   is diffable, portable, auditable, and yours.
+- **A full audit trail of what Claude did** — every autonomous action appends to
+  an append-only log (`atlas audit show`), so you can answer "what ran overnight,
+  why, and what did it change?" and export the record for compliance.
 
 The unit of work is a *skill* — a Claude Cowork prompt that runs on a schedule
 and orchestrates the Python tooling below. That's the difference between *chatting
@@ -144,7 +152,7 @@ with your notes* and *running an operating system over them*.
 
 ## Features
 
-Eight composable systems, each usable on its own:
+Nine composable systems, each usable on its own:
 
 1. **Knowledge vault** — a folder of markdown notes (Obsidian-friendly) where
    top-level folders carry meaning and per-folder YAML frontmatter is kept
@@ -166,6 +174,9 @@ Eight composable systems, each usable on its own:
    *Not financial advice.*
 8. **Voice / TTS hooks & dashboard** *(optional)* — health-check probes for a
    local TTS service, plus a static, single-file operations dashboard.
+9. **Audit trail** — an append-only JSONL log of every autonomous action (what
+   ran, how it was triggered, the outcome, duration, and what changed), with
+   `atlas audit show / tail / export` for inspection and CSV compliance reports.
 
 > **How does each one work?** Every feature has a deep-dive doc (internals, data
 > formats, config) in [`docs/features/`](docs/features/README.md) — e.g.
@@ -356,6 +367,9 @@ underlying script.
 | `atlas trading` | Generate a trading research briefing *(optional)* | `--ticker`, `--date`, `--dry-run` |
 | `atlas email` | Send an email via SMTP | `--to`, `--subject`, `--body`, `--text`, `--attach`, `--json` |
 | `atlas schemas` | Enforce per-folder frontmatter schemas | `--dry-run`, `--folder`, `--verbose` |
+| `atlas audit show` | Show recent audit-trail entries | `--limit`, `--action`, `--since` |
+| `atlas audit tail` | Last 5 audit entries, compact | — |
+| `atlas audit export` | Export the audit log for compliance | `--format csv\|json`, `--output`, `--action`, `--since` |
 
 ```bash
 # examples
@@ -366,6 +380,8 @@ atlas commit --dry-run
 atlas skills --sync                        # regenerate Skills Catalog.md
 atlas email -s "Hi" -b "<p>Hello</p>" --to me@example.com
 atlas email --json '{"to":"me@example.com","subject":"Hi","body_html":"<p>Hi</p>"}'
+atlas audit show --action commit --since 7d
+atlas audit export --format csv -o audit-report.csv
 ```
 
 Every command auto-loads `.env` and **validates its required env vars up front**,
@@ -375,9 +391,10 @@ half-configured optional feature fails fast instead of part-way through.
 Run `atlas --help` or `atlas <command> --help` for details. Complete per-command
 reference (flags, env vars consumed, outputs): [`docs/SCRIPTS.md`](docs/SCRIPTS.md).
 
-> `atlas init`, `atlas doctor`, and `atlas skills` are CLI-only. The rest map
-> 1:1 to scripts in `scripts/` (and `schemas/`), so you can also run them
-> directly, e.g. `python3 scripts/embed_vault.py --full`.
+> `atlas init`, `atlas doctor`, `atlas skills`, and `atlas audit` are CLI-only.
+> The rest map 1:1 to scripts in `scripts/` (and `schemas/`), so you can also run
+> them directly, e.g. `python3 scripts/embed_vault.py --full`. Every script
+> command also appends an entry to the [audit trail](#audit-trail).
 
 ---
 
@@ -631,6 +648,43 @@ this is a CLI, so use `docker compose run` per command. See the root
 > The public repo ships only the static, single-file ops dashboard
 > (`templates/ops-dashboard.html`), so there's no web app to containerise — the
 > image is for the CLI tooling. Keep any full dashboard in its own repo (above).
+
+---
+
+## Audit trail
+
+Atlas runs work on your behalf — overnight indexing, auto-commits, scheduled
+briefings, emails. The audit trail gives you a single, queryable record of every
+one of those actions, so "what did Claude do last night, and why?" has a precise
+answer.
+
+Every script-wrapping command (`embed`, `commit`, `graph`, `changelog`,
+`health`, `trading`, `email`) appends one JSON line to an **append-only** log
+when it finishes:
+
+```jsonl
+{"timestamp":"2026-06-03T02:00:11.482+00:00","action":"commit","trigger":"scheduled","status":"success","duration_seconds":1.84,"changes":["3 new","1 modified","commit a1b9f2c"],"context":"atlas commit --json","error":null}
+```
+
+Each entry records **what** ran (`action`), **how** it was triggered (`trigger`
+— `scheduled` / `manual` / `cli`), the **outcome** (`status`), how long it took,
+**what changed**, **why** it ran (`context`), and any **error**. The log is
+appended under an OS-level file lock (safe across concurrent `atlas` processes)
+and auto-rotates at 10 MB to `audit.jsonl.1`, `.2`, ….
+
+```bash
+atlas audit show                       # recent entries (default last 20)
+atlas audit show --action commit --since 7d
+atlas audit tail                       # last 5, compact
+atlas audit export --format csv -o audit-report.csv   # for compliance
+```
+
+- **Location:** `$ATLAS_AUDIT_PATH` if set, otherwise `$VAULT_PATH/.atlas/audit.jsonl`.
+- **Trigger tagging:** scheduled tasks set `ATLAS_TRIGGER=scheduled`; interactive
+  runs default to `cli`.
+
+This logging directly supports ISO 27001 control **A.12.4 (Logging &
+monitoring)** — see [SECURITY.md](SECURITY.md).
 
 ---
 

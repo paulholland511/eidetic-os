@@ -13,6 +13,11 @@ Subcommands:
 * ``atlas email``    — send an email          (wraps scripts/send_email.py)
 * ``atlas trading``  — trading research brief  (wraps scripts/trading_briefing.py)
 * ``atlas schemas``  — enforce frontmatter     (wraps schemas/enforce_schemas.py)
+* ``atlas audit``    — inspect the append-only audit trail (show | tail | export)
+
+Every script-wrapping command appends an entry to the audit trail (see
+``atlas_os.audit``) recording what ran, how it was triggered, the outcome,
+duration, and what changed.
 
 Configuration is read from the environment; a ``.env`` in the current directory
 or the repo root is auto-loaded on startup.
@@ -20,18 +25,21 @@ or the repo root is auto-loaded on startup.
 
 from __future__ import annotations
 
+import csv
+import io
 import json
 import os
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import requests
 import typer
 from dotenv import load_dotenv
 
-from atlas_os import __version__
+from atlas_os import __version__, audit
 from atlas_os._paths import repo_root, schemas_dir, scripts_dir, templates_dir
 from atlas_os._probe import detect_endpoints
 from atlas_os._skills import default_catalog_path, load_skills, render_catalog
@@ -105,38 +113,136 @@ def _run(path: Path, args: list[str]) -> None:
     raise typer.Exit(code=subprocess.call([sys.executable, str(path), *args]))
 
 
+def _extract_changes(output: str) -> list[str]:
+    """Best-effort summary of what an action changed, from its stdout.
+
+    Most pipeline scripts print a final JSON object (with ``--json``) or a
+    human summary. We try to parse the last non-empty line as JSON and pull out
+    well-known fields; on anything unexpected we return an empty list rather
+    than guess. The audit entry is still written with status + duration.
+    """
+    for raw in reversed(output.splitlines()):
+        raw = raw.strip()
+        if not raw:
+            continue
+        if not (raw.startswith("{") and raw.endswith("}")):
+            return []
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            return []
+        if not isinstance(data, dict):
+            return []
+        changes: list[str] = []
+        for key in ("new", "modified", "deleted", "added", "skipped", "embedded"):
+            value = data.get(key)
+            if isinstance(value, int) and value > 0:
+                changes.append(f"{value} {key}")
+        if data.get("committed") and data.get("commit"):
+            changes.append(f"commit {data['commit']}")
+        if data.get("sent") or data.get("delivered"):
+            recipient = data.get("to") or data.get("recipient")
+            changes.append(f"email sent to {recipient}" if recipient else "email sent")
+        return changes
+    return []
+
+
+def _run_audited(
+    action: str, path: Path, args: list[str], context: str
+) -> None:
+    """Run a pipeline script, stream its output, and append an audit entry.
+
+    Output is passed through to the terminal unchanged (so progress and errors
+    look exactly as before) while being captured for the audit ``changes``
+    summary. ``trigger`` defaults to ``cli`` but a scheduler can set
+    ``ATLAS_TRIGGER=scheduled`` to mark unattended runs.
+    """
+    if not path.exists():
+        _echo_fail(f"Script not found: {path}")
+        audit.log_action(
+            action, os.environ.get("ATLAS_TRIGGER", "cli"), "error",
+            context=context, error=f"script not found: {path}",
+        )
+        raise typer.Exit(code=2)
+
+    trigger = os.environ.get("ATLAS_TRIGGER", "cli")
+    start = time.monotonic()
+    captured: list[str] = []
+    proc = subprocess.Popen(
+        [sys.executable, str(path), *args],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    assert proc.stdout is not None
+    while True:
+        chunk = proc.stdout.read(4096)
+        if not chunk:
+            break
+        sys.stdout.write(chunk)
+        sys.stdout.flush()
+        captured.append(chunk)
+    code = proc.wait()
+    duration = time.monotonic() - start
+    output = "".join(captured)
+
+    status = "success" if code == 0 else "error"
+    error = None if code == 0 else (output[-2000:].strip() or f"exit code {code}")
+    audit.log_action(
+        action=action,
+        trigger=trigger,
+        status=status,
+        changes=_extract_changes(output) if code == 0 else [],
+        context=context,
+        error=error,
+        duration=duration,
+    )
+    raise typer.Exit(code=code)
+
+
+def _context_for(action: str, args: list[str]) -> str:
+    """Human-readable 'why it ran' string for the audit entry."""
+    extra = " " + " ".join(args) if args else ""
+    return f"atlas {action}{extra}".strip()
+
+
 @app.command(context_settings=_PASSTHROUGH)
 def embed(ctx: typer.Context) -> None:
     """Build/refresh the RAG vector store (--full | --incremental | --test N | …)."""
     _require_env("VAULT_PATH")
-    _run(scripts_dir() / "embed_vault.py", ctx.args)
+    _run_audited("embed", scripts_dir() / "embed_vault.py", ctx.args,
+                 _context_for("embed", ctx.args))
 
 
 @app.command(context_settings=_PASSTHROUGH)
 def graph(ctx: typer.Context) -> None:
     """Rebuild the wikilink knowledge graph."""
     _require_env("VAULT_PATH")
-    _run(scripts_dir() / "build_graph.py", ctx.args)
+    _run_audited("graph", scripts_dir() / "build_graph.py", ctx.args,
+                 _context_for("graph", ctx.args))
 
 
 @app.command(context_settings=_PASSTHROUGH)
 def commit(ctx: typer.Context) -> None:
     """Auto-commit the vault with a categorised message (--dry-run | --json)."""
     _require_env("VAULT_PATH")
-    _run(scripts_dir() / "vault_commit.py", ctx.args)
+    _run_audited("commit", scripts_dir() / "vault_commit.py", ctx.args,
+                 _context_for("commit", ctx.args))
 
 
 @app.command(context_settings=_PASSTHROUGH)
 def changelog(ctx: typer.Context) -> None:
     """Summarise vault changes over a window (--since | --markdown | --json)."""
     _require_env("VAULT_PATH")
-    _run(scripts_dir() / "vault_changelog.py", ctx.args)
+    _run_audited("changelog", scripts_dir() / "vault_changelog.py", ctx.args,
+                 _context_for("changelog", ctx.args))
 
 
 @app.command(context_settings=_PASSTHROUGH)
 def health(ctx: typer.Context) -> None:
     """Full subsystem health probe (--json | --quiet)."""
-    _run(scripts_dir() / "health_check.py", ctx.args)
+    _run_audited("health", scripts_dir() / "health_check.py", ctx.args,
+                 _context_for("health", ctx.args))
 
 
 @app.command(context_settings=_PASSTHROUGH)
@@ -147,7 +253,8 @@ def trading(ctx: typer.Context) -> None:
     running local LLM endpoint. Reads VAULT_PATH and LM_STUDIO_* from the env.
     """
     _require_env("VAULT_PATH")
-    _run(scripts_dir() / "trading_briefing.py", ctx.args)
+    _run_audited("trading", scripts_dir() / "trading_briefing.py", ctx.args,
+                 _context_for("trading", ctx.args))
 
 
 @app.command()
@@ -180,7 +287,8 @@ def email(
         if attach:
             data["attachments"] = list(attach)
         payload = json.dumps(data)
-    _run(scripts_dir() / "send_email.py", [payload])
+    _run_audited("email", scripts_dir() / "send_email.py", [payload],
+                 _context_for("email", []))
 
 
 @app.command(context_settings=_PASSTHROUGH)
@@ -403,6 +511,132 @@ def init(
     typer.echo("  2. atlas doctor                 # verify the setup")
     typer.echo("  3. atlas embed --full           # build the RAG index (needs an LLM)")
     typer.echo("  4. atlas health                 # full subsystem report\n")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# audit — the append-only action trail
+# ─────────────────────────────────────────────────────────────────────────────
+audit_app = typer.Typer(
+    no_args_is_help=True,
+    help="Inspect the append-only audit trail of autonomous actions.",
+)
+app.add_typer(audit_app, name="audit")
+
+_STATUS_COLOR = {
+    "success": typer.colors.GREEN,
+    "error": typer.colors.RED,
+    "skipped": typer.colors.YELLOW,
+}
+
+_AUDIT_FIELDS: tuple[str, ...] = (
+    "timestamp", "action", "trigger", "status",
+    "duration_seconds", "changes", "context", "error",
+)
+
+
+def _fmt_entry(entry: dict[str, object]) -> str:
+    """One-line coloured rendering of an audit entry for `audit show`."""
+    status = str(entry.get("status", ""))
+    colour = _STATUS_COLOR.get(status, typer.colors.WHITE)
+    badge = typer.style(f"{status:<7}", fg=colour, bold=True)
+    ts = str(entry.get("timestamp", ""))[:19]
+    action = str(entry.get("action", "?"))
+    trigger = str(entry.get("trigger", "?"))
+    dur = entry.get("duration_seconds")
+    dur_str = f"{dur:.2f}s" if isinstance(dur, (int, float)) else "—"
+    changes = entry.get("changes") or []
+    detail = ", ".join(str(c) for c in changes) if isinstance(changes, list) else ""
+    line = f"{ts}  {badge} {action:<10} [{trigger}] {dur_str:>7}"
+    if detail:
+        line += f"  · {detail}"
+    return line
+
+
+@audit_app.command("show")
+def audit_show(
+    limit: int = typer.Option(20, "--limit", "-n", help="Max entries to show."),
+    action: str = typer.Option(None, "--action", help="Filter by action name."),
+    since: str = typer.Option(
+        None, "--since", help="Only entries since e.g. 24h, 7d, or 2026-06-01."
+    ),
+) -> None:
+    """Show recent audit entries (newest last), with optional filters."""
+    try:
+        entries = audit.read_audit(since=since, action=action, limit=limit)
+    except ValueError as exc:
+        _echo_fail(f"bad --since value: {exc}")
+        raise typer.Exit(code=2) from exc
+
+    if not entries:
+        typer.echo("No audit entries match.")
+        return
+
+    typer.secho(f"\nAudit trail — {len(entries)} entr(y/ies):\n", bold=True)
+    for entry in entries:
+        typer.echo(_fmt_entry(entry))
+        if entry.get("status") == "error" and entry.get("error"):
+            first = str(entry["error"]).splitlines()[0]
+            typer.secho(f"           ↳ {first}", fg=typer.colors.RED)
+
+
+@audit_app.command("tail")
+def audit_tail() -> None:
+    """Show the last 5 entries in a compact format."""
+    entries = audit.read_audit(limit=5)
+    if not entries:
+        typer.echo("No audit entries yet.")
+        return
+    for entry in entries:
+        ts = str(entry.get("timestamp", ""))[:19]
+        status = str(entry.get("status", ""))
+        colour = _STATUS_COLOR.get(status, typer.colors.WHITE)
+        mark = typer.style("●", fg=colour)
+        typer.echo(f"{mark} {ts}  {entry.get('action', '?')}  {status}")
+
+
+@audit_app.command("export")
+def audit_export(
+    fmt: str = typer.Option("csv", "--format", "-f", help="Export format: csv or json."),
+    output: Path = typer.Option(None, "--output", "-o", help="Write to a file instead of stdout."),
+    action: str = typer.Option(None, "--action", help="Filter by action name."),
+    since: str = typer.Option(None, "--since", help="Only entries since e.g. 30d."),
+) -> None:
+    """Export the audit log for compliance reporting (CSV or JSON)."""
+    fmt = fmt.lower()
+    if fmt not in ("csv", "json"):
+        _echo_fail("--format must be 'csv' or 'json'")
+        raise typer.Exit(code=2)
+
+    try:
+        entries = audit.read_audit(since=since, action=action, limit=-1)
+    except ValueError as exc:
+        _echo_fail(f"bad --since value: {exc}")
+        raise typer.Exit(code=2) from exc
+
+    if fmt == "json":
+        text = json.dumps(entries, ensure_ascii=False, indent=2)
+    else:
+        buffer = io.StringIO()
+        writer = csv.DictWriter(buffer, fieldnames=list(_AUDIT_FIELDS))
+        writer.writeheader()
+        for entry in entries:
+            row: dict[str, str] = {}
+            for key in _AUDIT_FIELDS:
+                value = entry.get(key)
+                if isinstance(value, list):
+                    row[key] = "; ".join(str(item) for item in value)  # type: ignore[reportUnknownVariableType]
+                elif value is None:
+                    row[key] = ""
+                else:
+                    row[key] = str(value)
+            writer.writerow(row)
+        text = buffer.getvalue()
+
+    if output is not None:
+        output.write_text(text, encoding="utf-8")
+        _echo_ok(f"exported {len(entries)} entr(y/ies) → {output}")
+    else:
+        typer.echo(text)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -76,7 +76,15 @@ but the project is built so that doing the right thing is the default:
   truth and all derived data is reproducible.
 - **A.5.7 — Local processing:** local-first design keeps data on the device;
   external calls are explicit and opt-in.
-- **Auditability:** automatic, categorised git history of the vault.
+- **A.12.4 — Logging & monitoring:** an append-only audit trail
+  ([`atlas_os/audit.py`](atlas_os/audit.py)) records every autonomous action —
+  what ran, how it was triggered (`scheduled`/`manual`/`cli`), the outcome,
+  duration, what changed, why, and any error. Entries are written under an
+  OS-level file lock and auto-rotated, giving a tamper-evident operational record
+  you can query (`atlas audit show`) and export for review (`atlas audit export
+  --format csv`). The log stays on-device under your vault.
+- **Auditability:** automatic, categorised git history of the vault, plus the
+  append-only action audit trail above.
 
 This is an alignment *statement*, not a certification. Achieving certified
 compliance is the responsibility of the operator and their organisation.
