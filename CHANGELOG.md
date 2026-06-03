@@ -7,6 +7,15 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **Tutorial: *Your first 24 hours with Atlas OS*.** A new end-to-end guide,
+  [`docs/TUTORIAL.md`](docs/TUTORIAL.md), walks a brand-new user from
+  `pip install atlas-os` to a fully autonomous system — structured as a timeline
+  (Hour 0 install & init → Hour 1 first vault & commit → Hour 2 RAG vectors &
+  knowledge graph → Hour 3 skills & scheduled tasks → Hour 4 email reports →
+  Hours 5–24 going autonomous). Every command is copy-pasteable with a "what you
+  should see" check, and it assumes no prior knowledge of Obsidian, RAG, or
+  embeddings. Linked from the root [`README.md`](README.md) and the docs
+  [index](docs/README.md).
 - **Production hardening for the pipeline scripts.** Every script under
   [`scripts/`](scripts) now degrades gracefully instead of dumping a traceback,
   backed by five new reusable modules:

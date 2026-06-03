@@ -40,6 +40,7 @@ account.
 ## Table of contents
 
 - [Quick start](#quick-start)
+- [Tutorial](#tutorial)
 - [Why Atlas OS](#why-atlas-os)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
@@ -85,6 +86,19 @@ atlas doctor                  # verify
 
 For step-by-step integration walkthroughs (Gmail SMTP, LM Studio, first
 scheduled task, first RAG embed) see **[docs/EXAMPLES.md](docs/EXAMPLES.md)**.
+
+---
+
+## Tutorial
+
+Want the full guided walkthrough instead of the 5-minute sprint? **[Your first 24
+hours with Atlas OS](docs/TUTORIAL.md)** takes a brand-new user from
+`pip install atlas-os` to an autonomous system — install & init, your first
+vault and commit, building the RAG vector store and knowledge graph, scheduling
+your first nightly task, wiring up email reports, and reading the audit trail the
+next morning. No prior knowledge of Obsidian, RAG, or embeddings assumed.
+
+👉 **[docs/TUTORIAL.md](docs/TUTORIAL.md)**
 
 ---
 
@@ -785,6 +799,8 @@ atlas-os/
 
 Full docs live in [`docs/`](docs/README.md):
 
+- [**Tutorial — your first 24 hours**](docs/TUTORIAL.md) — the full end-to-end
+  walkthrough, from `pip install` to an autonomous system.
 - [**Feature deep-dives**](docs/features/README.md) — how each feature works
   internally (RAG, graph, git automation, trading, skills, email, health).
 - [Setup](docs/SETUP.md) — install from scratch (package or source).

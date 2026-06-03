@@ -19,6 +19,9 @@ the source — see [**features/**](features/README.md):
 
 ## Getting started
 
+- [**TUTORIAL.md**](TUTORIAL.md) — *your first 24 hours with Atlas OS*: the full
+  guided walkthrough from `pip install` to an autonomous, self-maintaining
+  system. Start here if you want the why behind each step, not just the commands.
 - [**QUICKSTART.md**](QUICKSTART.md) — zero to working setup in 5 minutes.
 - [**EXAMPLES.md**](EXAMPLES.md) — copy-paste walkthroughs: Gmail SMTP, LM Studio,
   first scheduled task, first RAG embed.
@@ -75,8 +78,9 @@ the source — see [**features/**](features/README.md):
 ### Reading order for a first-time setup
 
 1. Root [`README.md`](../README.md) — what Atlas OS is.
-2. [`SETUP.md`](SETUP.md) — install it.
-3. [`CONFIGURATION.md`](CONFIGURATION.md) — set your env vars.
-4. [`SCRIPTS.md`](SCRIPTS.md) — run the pipeline.
-5. [`SCHEDULED-TASKS.md`](SCHEDULED-TASKS.md) — automate it.
-6. [`FAQ.md`](FAQ.md) — when something doesn't work.
+2. [`TUTORIAL.md`](TUTORIAL.md) — the guided first-24-hours walkthrough.
+3. [`SETUP.md`](SETUP.md) — install it.
+4. [`CONFIGURATION.md`](CONFIGURATION.md) — set your env vars.
+5. [`SCRIPTS.md`](SCRIPTS.md) — run the pipeline.
+6. [`SCHEDULED-TASKS.md`](SCHEDULED-TASKS.md) — automate it.
+7. [`FAQ.md`](FAQ.md) — when something doesn't work.
