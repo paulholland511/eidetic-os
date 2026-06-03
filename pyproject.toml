@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "atlas-os"
 dynamic = ["version"]
-description = "A local-first personal AI operating system built on Claude Cowork: knowledge vault, local RAG, git automation, and scheduled agents."
+description = "Atlas OS — A personal AI operating system built on Claude Cowork. Job search automation, trading intelligence, RAG knowledge management, and 17+ automated pipelines."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }

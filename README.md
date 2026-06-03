@@ -6,6 +6,7 @@
    /_/   \_\__|_|\__,_|___/  \___/|____/
 
    A personal AI operating system, built on Claude Cowork.
+   Job search automation · trading intelligence · RAG knowledge · 17+ pipelines.
 ```
 
 # Atlas OS
