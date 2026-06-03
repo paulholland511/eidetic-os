@@ -6,7 +6,9 @@ and never shell out to the underlying scripts or touch the network.
 
 from __future__ import annotations
 
+import json
 import os
+import subprocess
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -206,3 +208,167 @@ def test_detect_default_vault_finds_obsidian_subfolder(
     monkeypatch.setattr(cli.Path, "home", classmethod(lambda cls: home))
 
     assert cli._detect_default_vault() == str(obsidian / "MyNotes")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# doctor — diagnostics, fixes, --fix, --json
+# ─────────────────────────────────────────────────────────────────────────────
+from atlas_os.backends import Backend, BackendStatus  # noqa: E402
+
+
+def _by_name(results: list[cli.Check], name: str) -> cli.Check:
+    return next(c for c in results if c.name == name)
+
+
+@pytest.fixture
+def _offline_llm(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Stub every network-touching part of the doctor so checks stay hermetic."""
+    monkeypatch.setattr(cli.llm_backends, "forced_backend_name", lambda: None)
+    monkeypatch.setattr(cli.llm_backends, "backend_statuses", lambda *a, **k: [])
+    monkeypatch.setattr(cli, "_check_embeddings", lambda: ("WARN", "unreachable"))
+
+
+@pytest.fixture
+def _vault(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """A vault directory wired into the environment, no git, no RAG."""
+    vault = tmp_path / "vault"
+    (vault / ".rag").mkdir(parents=True)
+    monkeypatch.setenv("VAULT_PATH", str(vault))
+    monkeypatch.setenv("RAG_DIR", str(vault / ".rag"))
+    monkeypatch.delenv("EMBED_URL", raising=False)
+    return vault
+
+
+def test_doctor_groups_known_categories(_offline_llm: None, _vault: Path) -> None:
+    """Every check carries one of the documented category labels."""
+    results = cli._doctor_results(now=1_000_000.0)
+    categories = {c.category for c in results}
+    assert categories <= set(cli._DOCTOR_CATEGORIES)
+    assert {"Config", "LLM", "RAG", "SMTP"} <= categories
+
+
+def test_doctor_missing_vault_offers_init_fix(
+    _offline_llm: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Unset VAULT_PATH is a FAIL that offers the (unsafe) init wizard."""
+    monkeypatch.delenv("VAULT_PATH", raising=False)
+    results = cli._doctor_results(now=1_000_000.0)
+    vault_check = _by_name(results, "Vault path")
+    assert vault_check.status == "FAIL"
+    assert vault_check.fix is not None
+    assert vault_check.fix.safe is False  # running init always prompts
+
+
+def test_doctor_detects_stale_git_lock(_offline_llm: None, _vault: Path) -> None:
+    """A stale index.lock in a git vault is a WARN with a safe auto-fix."""
+    subprocess.run(["git", "init", "-q"], cwd=_vault, check=True)
+    (_vault / ".git" / "index.lock").write_text("", encoding="utf-8")
+
+    results = cli._doctor_results(now=1_000_000.0)
+    lock_check = _by_name(results, "Locks")
+    assert lock_check.status == "WARN"
+    assert lock_check.fix is not None
+    assert lock_check.fix.safe is True
+
+
+def test_doctor_offers_git_init_for_non_repo_vault(
+    _offline_llm: None, _vault: Path
+) -> None:
+    """A vault that isn't a git repo gets a WARN + unsafe git-init fix."""
+    results = cli._doctor_results(now=1_000_000.0)
+    repo_check = _by_name(results, "Repository")
+    assert repo_check.status == "WARN"
+    assert repo_check.fix is not None and repo_check.fix.safe is False
+
+
+def test_doctor_stale_rag_vectors(_offline_llm: None, _vault: Path) -> None:
+    """An index older than 24h warns and suggests an incremental re-embed."""
+    rag = _vault / ".rag"
+    (rag / "vectors.json").write_text("{}", encoding="utf-8")
+    (rag / "last_embed.txt").write_text("1000000.0", encoding="utf-8")
+
+    # 48h after the recorded embed time.
+    results = cli._doctor_results(now=1_000_000.0 + 48 * 3600)
+    freshness = _by_name(results, "Freshness")
+    assert freshness.status == "WARN"
+    assert "incremental" in (freshness.next_step or "")
+
+
+def test_doctor_fresh_rag_is_ok(_offline_llm: None, _vault: Path) -> None:
+    """A recently-built index passes the freshness check."""
+    rag = _vault / ".rag"
+    (rag / "vectors.json").write_text("{}", encoding="utf-8")
+    (rag / "last_embed.txt").write_text("1000000.0", encoding="utf-8")
+
+    results = cli._doctor_results(now=1_000_000.0 + 600)  # 10 minutes later
+    assert _by_name(results, "Freshness").status == "OK"
+
+
+def test_doctor_detects_icloud_offload(
+    _offline_llm: None, _vault: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A dataless (iCloud-offloaded) vectors.json raises an iCloud WARN."""
+    rag = _vault / ".rag"
+    (rag / "vectors.json").write_text("{}", encoding="utf-8")
+    (rag / "last_embed.txt").write_text("1000000.0", encoding="utf-8")
+    monkeypatch.setattr(
+        cli.fileio, "is_dataless", lambda p: p.name == "vectors.json"
+    )
+
+    results = cli._doctor_results(now=1_000_000.0 + 60)
+    icloud = _by_name(results, "iCloud")
+    assert icloud.status == "WARN"
+    assert "vectors.json" in icloud.detail
+
+
+def test_doctor_diagnoses_down_forced_backend(
+    _vault: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A forced-but-down backend yields a clear diagnosis listing alternatives."""
+    lmstudio = Backend("lmstudio", "LM Studio", "http://192.168.50.158:5555")
+    ollama = Backend("ollama", "Ollama", "http://localhost:11434")
+    monkeypatch.setattr(cli.llm_backends, "forced_backend_name", lambda: "lmstudio")
+    monkeypatch.setattr(cli.llm_backends, "get_backend", lambda name: lmstudio)
+    monkeypatch.setattr(
+        cli.llm_backends, "probe_backend",
+        lambda be, *a, **k: BackendStatus(be, False, (), "ConnectionError"),
+    )
+    monkeypatch.setattr(
+        cli.llm_backends, "backend_statuses",
+        lambda *a, **k: [BackendStatus(ollama, True, ("llama3",), None)],
+    )
+    monkeypatch.setattr(cli, "_check_embeddings", lambda: ("OK", "reachable"))
+
+    backend = _by_name(cli._doctor_results(now=1_000_000.0), "Backend")
+    assert backend.status == "WARN"
+    assert "is not responding" in backend.detail
+    assert "192.168.50.158:5555" in backend.detail
+    assert "Ollama" in (backend.next_step or "")
+
+
+def test_doctor_json_output(_offline_llm: None, _vault: Path) -> None:
+    """`--json` emits structured checks plus a tallied summary."""
+    result = runner.invoke(app, ["doctor", "--json"])
+    payload = json.loads(result.stdout)
+    assert "checks" in payload and "summary" in payload
+    assert {"ok", "warn", "fail"} == set(payload["summary"])
+    names = {c["name"] for c in payload["checks"]}
+    assert "Python" in names and "Email" in names
+    # The summary tallies match the rows.
+    assert payload["summary"]["fail"] == sum(
+        1 for c in payload["checks"] if c["status"] == "FAIL"
+    )
+
+
+def test_doctor_fix_clears_locks_without_prompting(
+    _offline_llm: None, _vault: Path
+) -> None:
+    """`atlas doctor --fix` auto-applies the safe lock-cleanup, no input needed."""
+    subprocess.run(["git", "init", "-q"], cwd=_vault, check=True)
+    lock = _vault / ".git" / "index.lock"
+    lock.write_text("", encoding="utf-8")
+
+    result = runner.invoke(app, ["doctor", "--fix"])  # no stdin provided
+
+    assert not lock.exists(), result.stdout
+    assert "Locks" in result.stdout

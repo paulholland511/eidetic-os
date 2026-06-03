@@ -55,6 +55,23 @@ class TestClearStaleLocks:
         assert gitutil.clear_stale_locks(tmp_path) == []
 
 
+class TestFindStaleLocks:
+    def test_lists_locks_without_removing(self, repo: Path) -> None:
+        (repo / ".git" / "index.lock").write_text("", encoding="utf-8")
+
+        found = gitutil.find_stale_locks(repo)
+
+        assert any(p.name == "index.lock" for p in found)
+        # Inspection only — the lock is still there.
+        assert (repo / ".git" / "index.lock").exists()
+
+    def test_empty_when_clean(self, repo: Path) -> None:
+        assert gitutil.find_stale_locks(repo) == []
+
+    def test_empty_for_non_repo(self, tmp_path: Path) -> None:
+        assert gitutil.find_stale_locks(tmp_path) == []
+
+
 class TestRun:
     def test_successful_command(self, repo: Path) -> None:
         result = gitutil.run(["rev-parse", "--is-inside-work-tree"], repo)

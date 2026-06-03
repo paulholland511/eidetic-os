@@ -55,6 +55,24 @@ def is_git_repo(repo: Path) -> bool:
     return result.ok and result.stdout.strip() == "true"
 
 
+def find_stale_locks(repo: Path) -> list[Path]:
+    """Return the git lock files currently present in ``repo`` (without removing).
+
+    Inspection-only counterpart to :func:`clear_stale_locks` — used by
+    ``atlas doctor`` to report the problem before offering to fix it.
+    """
+    gd = git_dir(repo)
+    if not gd.is_dir():
+        return []
+
+    candidates = [gd / name for name in _TOP_LEVEL_LOCKS]
+    refs = gd / "refs"
+    if refs.is_dir():
+        candidates.extend(refs.rglob("*.lock"))
+
+    return [lock for lock in candidates if lock.exists()]
+
+
 def clear_stale_locks(repo: Path) -> list[str]:
     """Remove stale git lock files and prune worktrees; return what was removed.
 
@@ -68,18 +86,12 @@ def clear_stale_locks(repo: Path) -> list[str]:
     if not gd.is_dir():
         return removed
 
-    candidates = [gd / name for name in _TOP_LEVEL_LOCKS]
-    refs = gd / "refs"
-    if refs.is_dir():
-        candidates.extend(refs.rglob("*.lock"))
-
-    for lock in candidates:
-        if lock.exists():
-            try:
-                lock.unlink()
-                removed.append(str(lock.relative_to(repo)))
-            except OSError:
-                pass  # best-effort; the git command will surface a clear error
+    for lock in find_stale_locks(repo):
+        try:
+            lock.unlink()
+            removed.append(str(lock.relative_to(repo)))
+        except OSError:
+            pass  # best-effort; the git command will surface a clear error
 
     # Prune dangling worktree administrative files (ignored if it fails).
     run(["worktree", "prune"], repo, check=False)

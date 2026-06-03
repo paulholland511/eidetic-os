@@ -35,6 +35,8 @@ import shutil
 import subprocess
 import sys
 import time
+from collections.abc import Callable
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import requests
@@ -43,6 +45,7 @@ from dotenv import load_dotenv
 
 from atlas_os import __version__, audit
 from atlas_os import backends as llm_backends
+from atlas_os import fileio, gitutil
 from atlas_os import _skills
 from atlas_os._paths import repo_root, schemas_dir, scripts_dir, templates_dir
 from atlas_os._probe import Endpoint, detect_endpoints
@@ -631,7 +634,7 @@ def _prompt_email(values: dict[str, str], yes: bool) -> None:
 
 @app.command()
 def init(
-    vault: Path = typer.Option(
+    vault: Path | None = typer.Option(
         None, "--vault", help="Vault path (skips the prompt)."
     ),
     yes: bool = typer.Option(
@@ -694,7 +697,7 @@ def init(
     typer.secho("\n  Verifying your setup…", bold=True)
     results = _doctor_results()
     _render_doctor(results)
-    fails = sum(1 for _, status, _ in results if status == "FAIL")
+    fails = sum(1 for c in results if c.status == "FAIL")
 
     # 8. You're ready
     if fails:
@@ -918,8 +921,57 @@ def backends(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# doctor
+# doctor — diagnose the setup, then offer (or apply) fixes
 # ─────────────────────────────────────────────────────────────────────────────
+# Display order for the grouped report; any check whose category is missing here
+# is appended after the known ones.
+_DOCTOR_CATEGORIES: tuple[str, ...] = ("Config", "Git", "LLM", "RAG", "SMTP")
+
+# Re-embed once the index is older than this (point 4 of the doctor spec).
+_RAG_STALE_AFTER = 24 * 3600.0
+
+
+@dataclass(frozen=True)
+class Fix:
+    """A remediation a check can offer.
+
+    A *safe* fix only touches state the user can trivially recreate — deleting a
+    stale git lock left by a dead process, for instance — so ``atlas doctor
+    --fix`` applies it without asking. An *unsafe* fix (running the init wizard,
+    creating the vault's first git commit) always prompts first, even under
+    ``--fix``. ``apply`` does the work and returns ``(succeeded, message)``.
+    """
+
+    description: str
+    safe: bool
+    apply: Callable[[], tuple[bool, str]]
+
+
+@dataclass(frozen=True)
+class Check:
+    """One health-check row, grouped under a :data:`_DOCTOR_CATEGORIES` heading."""
+
+    category: str
+    name: str
+    status: str  # "OK" | "WARN" | "FAIL"
+    detail: str
+    next_step: str | None = None
+    fix: Fix | None = field(default=None, compare=False)
+
+    def as_dict(self) -> dict[str, object]:
+        """JSON-serialisable view (the callable on ``fix`` is dropped)."""
+        out: dict[str, object] = {
+            "category": self.category,
+            "name": self.name,
+            "status": self.status,
+            "detail": self.detail,
+            "next_step": self.next_step,
+        }
+        if self.fix is not None:
+            out["fix"] = {"description": self.fix.description, "safe": self.fix.safe}
+        return out
+
+
 def _check_embeddings() -> tuple[str, str]:
     host = os.environ.get("EMBED_HOST", "localhost")
     port = os.environ.get("EMBED_PORT", "5555")
@@ -934,82 +986,393 @@ def _check_embeddings() -> tuple[str, str]:
     return "WARN", f"{probe} returned HTTP {resp.status_code}"
 
 
-def _doctor_results() -> list[tuple[str, str, str]]:
-    """Run every health check and return ``(name, status, detail)`` rows.
+def _format_age(seconds: float) -> str:
+    """Human-readable age for the RAG-freshness diagnosis."""
+    if seconds < 3600:
+        return f"{max(0, int(seconds // 60))}m"
+    if seconds < 86400:
+        return f"{seconds / 3600:.1f}h"
+    return f"{seconds / 86400:.1f}d"
 
-    Pure inspection — no printing, no process exit — so both ``atlas doctor`` and
-    the ``atlas init`` verification step can share it. ``status`` is one of
-    ``"OK"`` / ``"WARN"`` / ``"FAIL"``.
-    """
-    results: list[tuple[str, str, str]] = []
 
-    # Python
+def _is_offloaded(path: Path) -> bool:
+    """True if ``path`` is iCloud-offloaded — dataless stub or ``.icloud`` placeholder."""
+    if fileio.is_dataless(path):
+        return True
+    # A fully evicted file is replaced by a dot-prefixed `.<name>.icloud` stub.
+    return path.with_name(f".{path.name}.icloud").exists()
+
+
+# ── Fix implementations ───────────────────────────────────────────────────────
+def _fix_run_init() -> tuple[bool, str]:
+    """Run the interactive init wizard (unsafe fix for missing config)."""
+    try:
+        init(vault=None, yes=False, force=False)
+    except typer.Exit as exc:
+        if exc.exit_code:
+            return False, f"init exited with code {exc.exit_code}"
+    return True, "ran `atlas init` — re-run `atlas doctor` to confirm"
+
+
+def _fix_clear_locks(vault: Path) -> Callable[[], tuple[bool, str]]:
+    def apply() -> tuple[bool, str]:
+        removed = gitutil.clear_stale_locks(vault)
+        if removed:
+            return True, f"removed {', '.join(removed)}"
+        return True, "no locks remained to remove"
+    return apply
+
+
+def _git_init_result(vault: Path) -> tuple[bool, str]:
+    """Initialise a git repo in ``vault`` with a first commit (unsafe fix)."""
+    try:
+        subprocess.run(["git", "init", "-q"], cwd=vault, check=True)
+        subprocess.run(["git", "add", "-A"], cwd=vault, check=True)
+        subprocess.run(
+            ["git", "commit", "-q", "-m", "Initialise vault"], cwd=vault, check=True
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+        return False, f"git init failed: {exc}"
+    return True, "initialised the vault git repo with a first commit"
+
+
+# ── Per-category check builders ───────────────────────────────────────────────
+def _config_checks() -> list[Check]:
+    checks: list[Check] = []
+
     py_ok = sys.version_info >= (3, 11)
-    results.append((
-        "Python", "OK" if py_ok else "FAIL",
+    checks.append(Check(
+        "Config", "Python", "OK" if py_ok else "FAIL",
         f"{sys.version_info.major}.{sys.version_info.minor} (need ≥ 3.11)",
+        next_step=None if py_ok else "install Python 3.11+ and re-create the venv",
     ))
 
-    # Vault
+    vault_env = os.environ.get("VAULT_PATH")
+    init_fix = Fix("run the `atlas init` wizard", safe=False, apply=_fix_run_init)
+    if not vault_env:
+        checks.append(Check(
+            "Config", "Vault path", "FAIL", "VAULT_PATH not set",
+            next_step="run `atlas init` to create a vault and write .env",
+            fix=init_fix,
+        ))
+    elif not Path(os.path.expanduser(vault_env)).is_dir():
+        vault = Path(os.path.expanduser(vault_env))
+        checks.append(Check(
+            "Config", "Vault path", "FAIL", f"{vault} does not exist",
+            next_step="create the directory or run `atlas init`",
+            fix=init_fix,
+        ))
+    else:
+        checks.append(Check(
+            "Config", "Vault path", "OK", str(Path(os.path.expanduser(vault_env)))
+        ))
+    return checks
+
+
+def _git_checks() -> list[Check]:
+    """Vault git state: tracked-or-not, plus stale lock detection. Empty if no vault."""
     vault_env = os.environ.get("VAULT_PATH")
     if not vault_env:
-        results.append(("Vault path", "FAIL", "VAULT_PATH not set — run `atlas init`"))
-    else:
-        vault = Path(os.path.expanduser(vault_env))
-        if not vault.is_dir():
-            results.append(("Vault path", "FAIL", f"{vault} does not exist"))
+        return []
+    vault = Path(os.path.expanduser(vault_env))
+    if not vault.is_dir():
+        return []
+
+    checks: list[Check] = []
+    if (vault / ".git").is_dir():
+        checks.append(Check("Git", "Repository", "OK", "vault is a git repo (tracked)"))
+        locks = gitutil.find_stale_locks(vault)
+        if locks:
+            names = ", ".join(p.name for p in locks)
+            checks.append(Check(
+                "Git", "Locks", "WARN",
+                f"stale git lock(s): {names} — blocks every git command",
+                next_step="safe to delete (left by an interrupted git process)",
+                fix=Fix(
+                    f"delete {len(locks)} stale git lock file(s)",
+                    safe=True, apply=_fix_clear_locks(vault),
+                ),
+            ))
         else:
-            results.append(("Vault path", "OK", str(vault)))
-            git_state = "OK" if (vault / ".git").is_dir() else "WARN"
-            results.append((
-                "Vault git", git_state,
-                "tracked" if git_state == "OK" else "not a git repo (commit/changelog off)",
+            checks.append(Check("Git", "Locks", "OK", "no stale lock files"))
+    else:
+        checks.append(Check(
+            "Git", "Repository", "WARN",
+            "not a git repo (commit/changelog disabled)",
+            next_step="initialise one to enable auto-commit and changelogs",
+            fix=Fix(
+                "initialise a git repo in the vault (creates a first commit)",
+                safe=False, apply=lambda: _git_init_result(vault),
+            ),
+        ))
+    return checks
+
+
+def _llm_checks() -> list[Check]:
+    """Probe the active LLM backend, diagnose if it's down, list alternatives."""
+    try:
+        forced = llm_backends.forced_backend_name()
+    except llm_backends.BackendError as exc:
+        return [Check(
+            "LLM", "Backend", "FAIL", str(exc),
+            next_step="set ATLAS_LLM_BACKEND to a known backend (docs/CONFIGURATION.md)",
+        )]
+
+    statuses = llm_backends.backend_statuses()
+    reachable = [s for s in statuses if s.reachable]
+    checks: list[Check] = []
+
+    if forced is not None:
+        try:
+            backend = llm_backends.get_backend(forced)
+        except llm_backends.BackendError as exc:
+            return [Check(
+                "LLM", "Backend", "FAIL", str(exc),
+                next_step=f"set the matching *_URL env var for {forced}",
+            )]
+        status = llm_backends.probe_backend(backend)
+        if status.reachable:
+            models = ", ".join(status.models[:3]) or "no models reported"
+            checks.append(Check(
+                "LLM", "Backend", "OK",
+                f"{backend.label} at {backend.base_url} (forced; {models})",
             ))
-            rag_dir = Path(os.path.expanduser(os.environ.get("RAG_DIR", str(vault / ".rag"))))
-            vectors = rag_dir / "vectors.json"
-            results.append((
-                "RAG index", "OK" if vectors.exists() else "WARN",
-                str(vectors) if vectors.exists() else "no vectors yet — run `atlas embed --full`",
+        else:
+            others = [s for s in reachable if s.backend.name != forced]
+            alt = (
+                "reachable alternatives: "
+                + ", ".join(f"{s.backend.label} ({s.backend.base_url})" for s in others)
+                if others else "no other backend is reachable either"
+            )
+            checks.append(Check(
+                "LLM", "Backend", "WARN",
+                f"{backend.label} at {backend.base_url} is not responding. Is it running?",
+                next_step=f"Try: atlas backends test — {alt}",
+            ))
+    else:
+        active = reachable[0] if reachable else None
+        if active is not None:
+            models = ", ".join(active.models[:3]) or "no models reported"
+            checks.append(Check(
+                "LLM", "Backend", "OK",
+                f"{active.backend.label} at {active.backend.base_url} ({models})",
+            ))
+        else:
+            tried = ", ".join(s.backend.label for s in statuses) or "none configured"
+            checks.append(Check(
+                "LLM", "Backend", "WARN",
+                "no LLM backend reachable (RAG, graph and trading all need one)",
+                next_step=(
+                    f"start LM Studio / Ollama / llama.cpp, then `atlas backends test` "
+                    f"(tried: {tried})"
+                ),
             ))
 
-    # Embeddings endpoint
-    results.append(("Embeddings", *_check_embeddings()))
-
-    # Email
-    has_email = bool(os.environ.get("SENDER_EMAIL")) and bool(os.environ.get("SMTP_APP_PASSWORD"))
-    results.append((
-        "Email (SMTP)", "OK" if has_email else "WARN",
-        "configured" if has_email else "not configured (reports won't send)",
+    emb_status, emb_detail = _check_embeddings()
+    checks.append(Check(
+        "LLM", "Embeddings", emb_status, emb_detail,
+        next_step=None if emb_status == "OK"
+        else "start the embeddings server, then `atlas embed --incremental`",
     ))
+    return checks
 
+
+def _rag_checks(now: float) -> list[Check]:
+    """RAG index presence, freshness, and iCloud-offload detection. Empty if no vault."""
+    vault_env = os.environ.get("VAULT_PATH")
+    if not vault_env:
+        return []
+    vault = Path(os.path.expanduser(vault_env))
+    if not vault.is_dir():
+        return []
+
+    rag_dir = Path(os.path.expanduser(os.environ.get("RAG_DIR", str(vault / ".rag"))))
+    vectors = rag_dir / "vectors.json"
+    last_embed = rag_dir / "last_embed.txt"
+    checks: list[Check] = []
+
+    # Index presence.
+    if vectors.exists():
+        checks.append(Check("RAG", "Index", "OK", str(vectors)))
+    else:
+        checks.append(Check(
+            "RAG", "Index", "WARN", "no vectors yet",
+            next_step="run `atlas embed --full` to build the index",
+        ))
+
+    # Freshness (only meaningful once an index exists).
+    if vectors.exists():
+        ts = 0.0
+        if last_embed.exists():
+            try:
+                ts = float(last_embed.read_text().strip())
+            except (ValueError, OSError):
+                ts = 0.0
+        if ts <= 0:
+            checks.append(Check(
+                "RAG", "Freshness", "WARN", "embed timestamp missing",
+                next_step="run `atlas embed --incremental` to refresh",
+            ))
+        else:
+            age = max(0.0, now - ts)
+            if age > _RAG_STALE_AFTER:
+                checks.append(Check(
+                    "RAG", "Freshness", "WARN",
+                    f"vectors are {_format_age(age)} old (> 24h)",
+                    next_step="run `atlas embed --incremental` to refresh",
+                ))
+            else:
+                checks.append(Check(
+                    "RAG", "Freshness", "OK", f"embedded {_format_age(age)} ago"
+                ))
+
+    # iCloud offload on the key files (the recurring dataless-file problem).
+    offloaded = [p for p in (vectors, last_embed) if p.exists() and _is_offloaded(p)]
+    if offloaded:
+        names = ", ".join(p.name for p in offloaded)
+        checks.append(Check(
+            "RAG", "iCloud", "WARN",
+            f"offloaded to iCloud (dataless): {names}",
+            next_step="download with `brctl download <file>` or open it in Finder",
+        ))
+    return checks
+
+
+def _smtp_checks() -> list[Check]:
+    has_email = bool(os.environ.get("SENDER_EMAIL")) and bool(
+        os.environ.get("SMTP_APP_PASSWORD")
+    )
+    return [Check(
+        "SMTP", "Email", "OK" if has_email else "WARN",
+        "configured" if has_email else "not configured (reports won't send)",
+        next_step=None if has_email
+        else "set SENDER_EMAIL + SMTP_APP_PASSWORD in .env — see docs/TUTORIAL.md (Hour 4)",
+    )]
+
+
+def _doctor_results(now: float | None = None) -> list[Check]:
+    """Run every health check and return the grouped :class:`Check` rows.
+
+    Pure inspection — no printing, no process exit, no fixes applied — so both
+    ``atlas doctor`` and the ``atlas init`` verification step can share it.
+    ``now`` (a unix timestamp) is injectable so the RAG-freshness check is
+    deterministic under test; it defaults to the wall clock.
+    """
+    when = time.time() if now is None else now
+    results: list[Check] = []
+    results.extend(_config_checks())
+    results.extend(_git_checks())
+    results.extend(_llm_checks())
+    results.extend(_rag_checks(when))
+    results.extend(_smtp_checks())
     return results
 
 
-def _render_doctor(results: list[tuple[str, str, str]]) -> None:
-    """Print the doctor rows and a one-line OK/WARN/FAIL summary."""
-    for name, status, detail in results:
-        line = f"{name:<14} {detail}"
-        if status == "OK":
+def _render_doctor(results: list[Check]) -> None:
+    """Print the checks grouped by category, then an OK/WARN/FAIL summary."""
+    ordered = sorted(
+        results,
+        key=lambda c: _DOCTOR_CATEGORIES.index(c.category)
+        if c.category in _DOCTOR_CATEGORIES else len(_DOCTOR_CATEGORIES),
+    )
+    current: str | None = None
+    for check in ordered:
+        if check.category != current:
+            current = check.category
+            typer.secho(f"\n{check.category}", bold=True)
+        line = f"{check.name:<12} {check.detail}"
+        if check.status == "OK":
             _echo_ok(line)
-        elif status == "WARN":
+        elif check.status == "WARN":
             _echo_warn(line)
         else:
             _echo_fail(line)
+        if check.next_step and check.status != "OK":
+            typer.secho(f"      → {check.next_step}", fg=typer.colors.CYAN)
 
-    fails = sum(1 for _, s, _ in results if s == "FAIL")
-    warns = sum(1 for _, s, _ in results if s == "WARN")
+    fails = sum(1 for c in results if c.status == "FAIL")
+    warns = sum(1 for c in results if c.status == "WARN")
     typer.echo("")
     summary = f"{len(results) - fails - warns} OK · {warns} WARN · {fails} FAIL"
     typer.secho(summary, bold=True)
 
 
+def _apply_fixes(results: list[Check], *, auto: bool) -> int:
+    """Offer or apply the fixes attached to ``results``; return how many succeeded.
+
+    Safe fixes are applied silently under ``--fix`` (``auto=True``); every other
+    case prompts for confirmation. Unsafe fixes always prompt, even under
+    ``--fix``.
+    """
+    fixable = [c for c in results if c.fix is not None]
+    if not fixable:
+        return 0
+
+    typer.secho("\nFixes", bold=True)
+    applied = 0
+    for check in fixable:
+        fix = check.fix
+        assert fix is not None  # narrowed by the comprehension above
+        if auto and fix.safe:
+            run_it = True
+        else:
+            run_it = typer.confirm(
+                f"  {check.name}: {fix.description}?", default=fix.safe
+            )
+        if not run_it:
+            _echo_warn(f"{check.name}: skipped")
+            continue
+        ok, message = fix.apply()
+        if ok:
+            _echo_ok(f"{check.name}: {message}")
+            applied += 1
+        else:
+            _echo_fail(f"{check.name}: {message}")
+    return applied
+
+
 @app.command()
-def doctor() -> None:
-    """Validate the Atlas OS setup and report OK / WARN / FAIL."""
-    typer.secho("\nAtlas OS — doctor\n", bold=True)
+def doctor(
+    fix: bool = typer.Option(
+        False, "--fix", help="Apply safe fixes automatically; prompt for unsafe ones."
+    ),
+    as_json: bool = typer.Option(
+        False, "--json", help="Emit the health report as JSON and exit."
+    ),
+) -> None:
+    """Validate the Atlas OS setup, diagnose problems, and offer fixes.
+
+    Groups checks by category (Config, Git, LLM, RAG, SMTP), colour-codes each
+    row, and prints an actionable next step for anything that isn't OK. Pass
+    ``--fix`` to auto-apply safe remediations (clearing stale git locks) while
+    still prompting for unsafe ones; pass ``--json`` for machine-readable output.
+    """
+    if as_json:
+        results = _doctor_results()
+        fail_count = sum(1 for c in results if c.status == "FAIL")
+        payload = {
+            "checks": [c.as_dict() for c in results],
+            "summary": {
+                "ok": sum(1 for c in results if c.status == "OK"),
+                "warn": sum(1 for c in results if c.status == "WARN"),
+                "fail": fail_count,
+            },
+        }
+        typer.echo(json.dumps(payload, indent=2))
+        raise typer.Exit(code=1 if fail_count else 0)
+
+    typer.secho("\nAtlas OS — doctor", bold=True)
     results = _doctor_results()
     _render_doctor(results)
-    if any(status == "FAIL" for _, status, _ in results):
+
+    if any(c.fix is not None for c in results):
+        _apply_fixes(results, auto=fix)
+        # Re-run so the summary and exit code reflect what the fixes changed.
+        results = _doctor_results()
+        typer.secho("\nAfter fixes", bold=True)
+        _render_doctor(results)
+
+    if any(c.status == "FAIL" for c in results):
         raise typer.Exit(code=1)
 
 

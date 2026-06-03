@@ -87,7 +87,7 @@ atlas-os 0.3.0
 | Command | What it does |
 |---|---|
 | [`atlas init`](#atlas-init) | Interactive onboarding — detect your LLM, write `.env`, scaffold the vault. |
-| [`atlas doctor`](#atlas-doctor) | Validate the setup and report OK / WARN / FAIL per subsystem. |
+| [`atlas doctor`](#atlas-doctor) | Diagnose the setup by category, offer fixes (`--fix`), emit JSON (`--json`). |
 | [`atlas health`](#atlas-health) | Full subsystem health probe. |
 | [`atlas embed`](#atlas-embed) | Build / refresh the RAG vector store. |
 | [`atlas commit`](#atlas-commit) | Auto-commit the vault with a categorised message. |
@@ -162,12 +162,27 @@ atlas init --force               # regenerate .env over an existing one
 
 ### `atlas doctor`
 
-Validate the Atlas OS setup and report OK / WARN / FAIL.
+Validate the Atlas OS setup, diagnose problems, and offer fixes.
 
-Pure inspection — runs the same checks `atlas init` finishes with: Python
-version (≥ 3.11), `VAULT_PATH` existence, whether the vault is a git repo,
-whether a RAG index exists, embeddings-endpoint reachability, and whether email
-is configured.
+Checks are **grouped by category** and colour-coded (green OK / yellow WARN /
+red FAIL), and every non-OK row prints an actionable **next step**:
+
+- **Config** — Python version (≥ 3.11) and `VAULT_PATH` (set + exists).
+- **Git** — whether the vault is a git repo, plus detection of stale
+  `index.lock` / `HEAD.lock` / ref locks left by an interrupted git process.
+- **LLM** — probes the active (or `ATLAS_LLM_BACKEND`-forced) backend. If it's
+  down, shows a clear diagnosis (*"LM Studio at host:port is not responding. Is
+  it running?"*) and lists any reachable backends as alternatives. Also checks
+  the embeddings endpoint that RAG depends on.
+- **RAG** — whether a vector index exists, whether it's stale (last embed > 24h
+  ago → suggests `atlas embed --incremental`), and whether the key files
+  (`vectors.json`, `last_embed.txt`) have been offloaded to iCloud ("dataless").
+- **SMTP** — whether email credentials are configured (links to the tutorial).
+
+Several checks carry a **fix**. *Safe* fixes (clearing stale git locks) are
+applied automatically by `--fix`; *unsafe* fixes (running the init wizard,
+creating the vault's first git commit) always prompt for confirmation first,
+even under `--fix`. Without `--fix`, every fix is offered interactively.
 
 **Usage**
 
@@ -179,18 +194,28 @@ atlas doctor [OPTIONS]
 
 | Flag | Description |
 |---|---|
+| `--fix` | Apply safe fixes automatically; prompt for unsafe ones. |
+| `--json` | Emit the health report as JSON (`{checks, summary}`) and exit. |
 | `--help` | Show help and exit. |
 
 **Environment variables** — reads `VAULT_PATH`, `RAG_DIR`, `EMBED_HOST`,
-`EMBED_PORT`, `EMBED_URL`, `SENDER_EMAIL`, `SMTP_APP_PASSWORD`.
+`EMBED_PORT`, `EMBED_URL`, `ATLAS_LLM_BACKEND` (+ the backend `*_URL` vars),
+`SENDER_EMAIL`, `SMTP_APP_PASSWORD`.
+
+**JSON shape** — `--json` prints `{"checks": [{category, name, status, detail,
+next_step, fix?}], "summary": {ok, warn, fail}}`, where `fix` (present only on
+fixable checks) is `{description, safe}`. This shape is part of the v1.0
+stability contract.
 
 **Exit codes** — `0` if no check is FAIL (warnings are tolerated); `1` if any
 check reports FAIL.
 
-**Example**
+**Examples**
 
 ```bash
-atlas doctor
+atlas doctor              # diagnose and offer fixes interactively
+atlas doctor --fix        # auto-apply safe fixes (e.g. clear stale git locks)
+atlas doctor --json       # machine-readable health report
 ```
 
 ---

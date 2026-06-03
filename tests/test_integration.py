@@ -104,7 +104,7 @@ def test_init_then_doctor_cycle(
     assert doctor.exit_code == 0, doctor.output
     assert "Vault path" in doctor.output
     assert str(vault) in doctor.output
-    assert "Vault git" in doctor.output
+    assert "Repository" in doctor.output  # vault git state, grouped under "Git"
     # The embeddings endpoint isn't running, so RAG/embeddings are WARN not FAIL.
     assert "0 FAIL" in doctor.output
 

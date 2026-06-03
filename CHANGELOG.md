@@ -7,6 +7,29 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **`atlas doctor` — from reporting to diagnosing and fixing.** The doctor no
+  longer just lists OK / WARN / FAIL; it now groups checks by category
+  (**Config / Git / LLM / RAG / SMTP**), colour-codes each row, and prints an
+  actionable **next step** for everything that isn't OK. New checks:
+  - **Git state** — detects stale `index.lock` / `HEAD.lock` / ref locks left by
+    an interrupted git process (new `gitutil.find_stale_locks`), and flags a
+    vault that isn't a git repo.
+  - **LLM backends** — probes the active (or `ATLAS_LLM_BACKEND`-forced) backend
+    and, when it's down, shows a clear diagnosis (*"LM Studio at host:port is not
+    responding. Is it running?"*) plus any reachable backends as alternatives.
+  - **RAG freshness** — warns when the index is older than 24h (or never built)
+    and suggests `atlas embed --incremental`.
+  - **iCloud offload** — detects the recurring dataless / cloud-offloaded file
+    problem on `vectors.json` and `last_embed.txt`.
+  - **Config & SMTP** — offers to run `atlas init` for a missing `VAULT_PATH`,
+    and explains how to configure email (linking the tutorial) when SMTP is unset.
+
+  Two new flags back this up: **`--fix`** auto-applies *safe* remediations
+  (clearing stale git locks) while still prompting for *unsafe* ones (running the
+  init wizard, creating the vault's first commit), and **`--json`** emits the
+  whole report as `{checks, summary}` for programmatic use (part of the v1.0
+  stability contract). Documented in
+  [`docs/CLI-REFERENCE.md`](docs/CLI-REFERENCE.md).
 - **CLI reference & v1.0 stability contract.** A new
   [`docs/CLI-REFERENCE.md`](docs/CLI-REFERENCE.md) documents the complete `atlas`
   CLI — generated from the live `--help` output and the underlying scripts, so it
