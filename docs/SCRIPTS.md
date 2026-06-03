@@ -65,9 +65,11 @@ The flags below are identical whether you call `atlas <cmd>` or the script.
 ## `embed_vault.py`
 
 The RAG pipeline. Chunks markdown (~500 tokens, 50 overlap) and optionally PDFs,
-embeds each chunk via your OpenAI-compatible endpoint, and stores vectors in
-`$RAG_DIR/vectors.json`. After a **full** run it also rebuilds the knowledge
-graph (it shells out to `build_graph.py`).
+embeds each chunk via your OpenAI-compatible endpoint, and stores vectors in a
+SQLite store at `$RAG_DIR/vectors.db` (via `atlas_os.vectordb`, with a legacy
+`vectors.json` auto-migrated on first run). Writes are incremental — per file,
+per batch. After a **full** run it also rebuilds the knowledge graph (it shells
+out to `build_graph.py`).
 
 **Usage**
 
@@ -99,7 +101,7 @@ python3 scripts/embed_vault.py --full --checkpoint-interval 50 --batch-size 16
 
 **Reads:** `VAULT_PATH` (required), `RAG_DIR`, `EMBED_HOST`, `EMBED_PORT`,
 `EMBED_URL`, `EMBED_MODEL`, `EMBED_API_KEY`.
-**Writes:** `$RAG_DIR/vectors.json`, `$RAG_DIR/graph.json` (after `--full`),
+**Writes:** `$RAG_DIR/vectors.db`, `$RAG_DIR/graph.json` (after `--full`),
 `$RAG_DIR/last_embed.txt`.
 **Needs:** a running embeddings endpoint.
 

@@ -179,7 +179,10 @@ def _embeddings_models_url() -> tuple[str, str]:
 
 
 def check_rag() -> Result:
-    vectors = RAG_DIR / "vectors.json"
+    # The current store is SQLite (vectors.db); fall back to the legacy
+    # vectors.json so a not-yet-migrated install still reports an index.
+    vectors_db = RAG_DIR / "vectors.db"
+    vectors = vectors_db if vectors_db.exists() else RAG_DIR / "vectors.json"
     last_embed = RAG_DIR / "last_embed.txt"
     lm_url, lm_label = _embeddings_models_url()
     lm_ok, lm_detail = probe_http(lm_url, timeout=3.0)

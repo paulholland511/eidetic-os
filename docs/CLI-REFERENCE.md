@@ -19,6 +19,7 @@ environment variables described here are the public interface of Atlas OS. See
   - [`atlas doctor`](#atlas-doctor)
   - [`atlas health`](#atlas-health)
   - [`atlas embed`](#atlas-embed)
+  - [`atlas migrate-vectors`](#atlas-migrate-vectors)
   - [`atlas commit`](#atlas-commit)
   - [`atlas changelog`](#atlas-changelog)
   - [`atlas graph`](#atlas-graph)
@@ -91,6 +92,7 @@ atlas-os 0.3.0
 | [`atlas doctor`](#atlas-doctor) | Diagnose the setup by category, offer fixes (`--fix`), emit JSON (`--json`). |
 | [`atlas health`](#atlas-health) | Full subsystem health probe. |
 | [`atlas embed`](#atlas-embed) | Build / refresh the RAG vector store. |
+| [`atlas migrate-vectors`](#atlas-migrate-vectors) | Migrate a legacy `vectors.json` into the SQLite store. |
 | [`atlas commit`](#atlas-commit) | Auto-commit the vault with a categorised message. |
 | [`atlas changelog`](#atlas-changelog) | Summarise vault changes over a time window. |
 | [`atlas graph`](#atlas-graph) | Rebuild the wikilink knowledge graph. |
@@ -178,7 +180,7 @@ red FAIL), and every non-OK row prints an actionable **next step**:
   the embeddings endpoint that RAG depends on.
 - **RAG** — whether a vector index exists, whether it's stale (last embed > 24h
   ago → suggests `atlas embed --incremental`), and whether the key files
-  (`vectors.json`, `last_embed.txt`) have been offloaded to iCloud ("dataless").
+  (`vectors.db`, `last_embed.txt`) have been offloaded to iCloud ("dataless").
 - **SMTP** — whether email credentials are configured (links to the tutorial).
 
 Several checks carry a **fix**. *Safe* fixes (clearing stale git locks) are
@@ -258,8 +260,13 @@ atlas health --quiet      # for cron / scripting: check $?
 Build / refresh the RAG vector store. Wraps `scripts/embed_vault.py`.
 
 Reads your markdown vault, chunks and embeds it via an OpenAI-compatible
-embeddings endpoint, and writes the vector store atomically. Exactly one mode
-flag is required.
+embeddings endpoint, and writes the vectors into a **SQLite store**
+(`$RAG_DIR/vectors.db`, via [`atlas_os/vectordb.py`](../atlas_os/vectordb.py)).
+Writes are **incremental** — only the touched files' chunks are replaced — and
+each batch is committed as it lands, so an interrupted run resumes rather than
+corrupting the index. A legacy `vectors.json` is auto-migrated on first run (see
+[`atlas migrate-vectors`](#atlas-migrate-vectors)). Exactly one mode flag is
+required.
 
 **Usage**
 
@@ -296,6 +303,49 @@ atlas embed --incremental         # only changed notes
 atlas embed --test 5              # smoke-test the endpoint on 5 files
 atlas embed --folder Research     # one folder only
 atlas embed --full --batch-size 16
+```
+
+---
+
+### `atlas migrate-vectors`
+
+Migrate a legacy `vectors.json` index into the SQLite vector store
+(`vectors.db`). Embeds auto-migrate on first run, so this is only needed to
+convert an existing index **ahead of time**, or to re-import with `--force`.
+
+Reads the old JSON store and writes every chunk into `vectors.db` (created
+alongside it), reporting how many vectors were migrated and which search backend
+is active (`sqlite-vec` if the `[vector]` extra is installed, otherwise the
+brute-force cosine fallback). The legacy `vectors.json` is left in place so you
+can verify search before deleting it.
+
+**Usage**
+
+```text
+atlas migrate-vectors [--rag-dir PATH] [--force]
+```
+
+**Flags**
+
+| Flag | Argument | Description |
+|---|---|---|
+| `--rag-dir` | `PATH` | RAG directory holding `vectors.json` (default `$RAG_DIR`, else `$VAULT_PATH/.rag`). |
+| `--force` | | Re-import even if `vectors.db` already has vectors (clears it first). |
+| `--help` | | Show help and exit. |
+
+**Environment variables** — reads `RAG_DIR`, falling back to `$VAULT_PATH/.rag`.
+No embeddings endpoint or `VAULT_PATH` is required (it only moves existing
+vectors between files).
+
+**Exit codes** — `0` success (including "already migrated" and "nothing to
+migrate"); `1` no legacy `vectors.json` found; `2` no RAG directory resolved.
+
+**Examples**
+
+```bash
+atlas migrate-vectors                       # convert $RAG_DIR/vectors.json → vectors.db
+atlas migrate-vectors --rag-dir ~/vault/.rag
+atlas migrate-vectors --force               # re-import, replacing the existing DB
 ```
 
 ---

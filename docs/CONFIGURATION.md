@@ -73,8 +73,8 @@ VAULT_PATH=~/Documents/Obsidian/MyVault
 ```
 
 ### `RAG_DIR`
-Where the RAG vector store (`vectors.json`), knowledge graph (`graph.json`),
-and run markers (`last_embed.txt`, `index.lock`) are written.
+Where the RAG vector store (`vectors.db`, a SQLite database), knowledge graph
+(`graph.json`), and run markers (`last_embed.txt`, `index.lock`) are written.
 Default: `$VAULT_PATH/.rag`. Read by `embed_vault.py`, `build_graph.py`, and
 `health_check.py`. Always keep this **git-ignored** — it's derived data.
 

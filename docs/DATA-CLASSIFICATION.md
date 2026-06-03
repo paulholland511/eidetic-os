@@ -31,8 +31,8 @@ alignment claims in [`../SECURITY.md`](../SECURITY.md).
 
 The repo's `.gitignore` blocks, among others: `.env`, `*.key`, `*.pem`,
 `credentials*`, `*password*`, `*.xlsx`, `vault-content/`, `personal/`,
-`job-search/`, `*.sqlite`, `vectors.json`, `graph.json`. See the file for the
-full list.
+`job-search/`, `*.sqlite`, `*.db`, `vectors.json`, `graph.json` (the RAG vector
+store and graph are derived, local-only data). See the file for the full list.
 
 ## Your responsibilities
 

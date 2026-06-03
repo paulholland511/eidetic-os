@@ -35,7 +35,12 @@ dependencies = [
 [project.optional-dependencies]
 pdf = ["pdfplumber>=0.10"]
 trading = ["yfinance>=0.2"]
-all = ["pdfplumber>=0.10", "yfinance>=0.2"]
+# Production-scale RAG: the sqlite-vec extension accelerates vector search.
+# Without it the store transparently falls back to a (NumPy-accelerated)
+# brute-force cosine scan, so this extra is optional. NumPy further speeds the
+# fallback when present.
+vector = ["sqlite-vec>=0.1.6", "numpy>=1.24"]
+all = ["pdfplumber>=0.10", "yfinance>=0.2", "sqlite-vec>=0.1.6", "numpy>=1.24"]
 
 [project.urls]
 Homepage = "https://github.com/paulholland511/atlas-os"

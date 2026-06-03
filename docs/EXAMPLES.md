@@ -230,9 +230,9 @@ atlas embed --full
 ```
 
 This chunks every note, sends each chunk to your local embeddings endpoint, and
-writes the vectors to `.rag/vectors.json` inside your vault. For a large vault
-this takes a few minutes; progress prints as it goes. It checkpoints, so you can
-stop and resume.
+writes the vectors to the SQLite store at `.rag/vectors.db` inside your vault.
+For a large vault this takes a few minutes; progress prints as it goes. It
+checkpoints, so you can stop and resume.
 
 > Running scripts directly instead of the CLI? `python3 scripts/embed_vault.py --full`
 > does the same thing.
@@ -246,7 +246,7 @@ atlas doctor          # the "RAG index" line should now be green with a count
 Or check the file directly — it should exist and be non-trivial in size:
 
 ```bash
-ls -lh "$VAULT_PATH/.rag/vectors.json"
+ls -lh "$VAULT_PATH/.rag/vectors.db"
 ```
 
 ### Step 3 — Keep it fresh

@@ -223,6 +223,69 @@ def embed(ctx: typer.Context) -> None:
                  _context_for("embed", ctx.args))
 
 
+@app.command(name="migrate-vectors")
+def migrate_vectors(
+    rag_dir: Path = typer.Option(
+        None, "--rag-dir",
+        help="RAG directory holding vectors.json (defaults to $RAG_DIR or $VAULT_PATH/.rag).",
+    ),
+    force: bool = typer.Option(
+        False, "--force", help="Re-import even if the SQLite store already has vectors."
+    ),
+) -> None:
+    """Migrate a legacy ``vectors.json`` into the SQLite vector store.
+
+    Reads the old JSON store and writes every chunk into ``vectors.db`` (created
+    alongside it). Embeds are auto-migrated on first run, so this is only needed
+    to convert an existing index ahead of time, or to re-import with ``--force``.
+    """
+    from atlas_os import vectordb
+
+    rag = rag_dir or _resolve_rag_dir()
+    if rag is None:
+        _echo_fail("No RAG directory: pass --rag-dir, or set RAG_DIR / VAULT_PATH.")
+        raise typer.Exit(code=2)
+
+    legacy = rag / "vectors.json"
+    if not legacy.exists():
+        _echo_fail(f"No legacy store found at {legacy}")
+        raise typer.Exit(code=1)
+
+    entries = vectordb.VectorStore.read_from_json(legacy)
+    if not entries:
+        _echo_warn(f"{legacy} is empty or unreadable — nothing to migrate")
+        raise typer.Exit(code=0)
+
+    db_path = vectordb.default_db_path(rag)
+    with vectordb.VectorStore(db_path) as store:
+        existing = store.count()
+        if existing and not force:
+            _echo_warn(
+                f"{db_path} already has {existing} vector(s) — skipping "
+                "(pass --force to re-import)."
+            )
+            raise typer.Exit(code=0)
+        if force:
+            store.clear()
+        added = store.add_vectors(entries)
+        backend = "sqlite-vec" if store.vec_enabled else "brute-force cosine"
+
+    _echo_ok(f"migrated {added} vector(s) → {db_path}")
+    typer.echo(f"  backend: {backend}")
+    typer.echo(f"  the legacy {legacy.name} is left in place; delete it once you've verified search.")
+
+
+def _resolve_rag_dir() -> Path | None:
+    """The RAG directory from $RAG_DIR, else $VAULT_PATH/.rag, else None."""
+    rag_env = os.environ.get("RAG_DIR")
+    if rag_env:
+        return Path(os.path.expanduser(rag_env))
+    vault_env = os.environ.get("VAULT_PATH")
+    if vault_env:
+        return Path(os.path.expanduser(vault_env)) / ".rag"
+    return None
+
+
 @app.command(context_settings=_PASSTHROUGH)
 def graph(ctx: typer.Context) -> None:
     """Rebuild the wikilink knowledge graph."""
@@ -1316,7 +1379,10 @@ def _rag_checks(now: float) -> list[Check]:
         return []
 
     rag_dir = Path(os.path.expanduser(os.environ.get("RAG_DIR", str(vault / ".rag"))))
-    vectors = rag_dir / "vectors.json"
+    # The current store is SQLite (vectors.db); fall back to the legacy
+    # vectors.json so a not-yet-migrated install still reports an index.
+    vectors_db = rag_dir / "vectors.db"
+    vectors = vectors_db if vectors_db.exists() else rag_dir / "vectors.json"
     last_embed = rag_dir / "last_embed.txt"
     checks: list[Check] = []
 

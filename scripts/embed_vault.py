@@ -40,7 +40,7 @@ import requests
 from _bootstrap import ensure_atlas_os
 
 ensure_atlas_os()
-from atlas_os import fileio, netio  # noqa: E402
+from atlas_os import netio, vectordb  # noqa: E402
 from atlas_os import retry as retrylib  # noqa: E402
 from atlas_os import scriptkit  # noqa: E402
 
@@ -55,7 +55,8 @@ VAULT_DIR = Path(os.path.expanduser(os.environ.get("VAULT_PATH", "."))).resolve(
 RAG_DIR = Path(os.path.expanduser(os.environ.get("RAG_DIR", str(VAULT_DIR / ".rag"))))
 RAG_DIR.mkdir(parents=True, exist_ok=True)
 
-VECTORS_FILE    = RAG_DIR / "vectors.json"
+VECTORS_FILE    = RAG_DIR / "vectors.json"          # legacy store (migration source)
+VECTORS_DB      = vectordb.default_db_path(RAG_DIR)  # SQLite store (current)
 LAST_EMBED      = RAG_DIR / "last_embed.txt"
 CHECKPOINT_FILE = RAG_DIR / "embed_checkpoint.json"
 
@@ -312,21 +313,42 @@ def embed(texts: list[str]) -> list[list[float]]:
 
 
 # ── Vector store ──────────────────────────────────────────────────────────────
+#
+# Vectors live in a SQLite database (``vectors.db``) via :mod:`atlas_os.vectordb`,
+# which scales past the old single-file ``vectors.json`` and supports incremental
+# insert/delete. An existing ``vectors.json`` is auto-migrated the first time the
+# DB is opened, so upgrades are transparent. The helpers below keep their old
+# signatures (list-of-dicts in/out) so search and the tests are unaffected.
+
+def open_store() -> vectordb.VectorStore:
+    """Open the SQLite vector store, auto-migrating a legacy ``vectors.json``."""
+    return vectordb.open_store(RAG_DIR)
+
 
 def load_vectors() -> list[dict]:
-    """Load the vector store, tolerating a missing or crash-corrupted file.
+    """Return every chunk (with its embedding) from the store, as plain dicts.
 
-    A truncated ``vectors.json`` (e.g. from a killed run) degrades to an empty
-    store — a full re-embed — rather than aborting with a JSON error.
+    Kept for the keyword/hybrid search paths and backward compatibility. A
+    missing store simply yields an empty list — a full re-embed — rather than
+    raising.
     """
-    data = fileio.read_json(VECTORS_FILE, default=[])
-    return data if isinstance(data, list) else []
+    try:
+        with open_store() as store:
+            return store.all_chunks(with_embedding=True)
+    except Exception:
+        return []
 
 
 def save_vectors(vectors: list[dict]) -> None:
-    """Atomically persist the vector store (write-temp-then-rename + fsync)."""
-    fileio.atomic_write_json(VECTORS_FILE, vectors)
-    print(f"Saved {len(vectors)} vectors to {VECTORS_FILE}")
+    """Replace the store's contents with ``vectors`` (full rewrite).
+
+    Incremental embeds add per-file rather than rewriting wholesale; this is the
+    bulk path used by migration and tests.
+    """
+    with open_store() as store:
+        store.clear()
+        store.add_vectors(vectors)
+    print(f"Saved {len(vectors)} vectors to {VECTORS_DB}")
 
 
 # ── File discovery ────────────────────────────────────────────────────────────
@@ -474,38 +496,43 @@ def chunk_matches_filters(v: dict, filters: list[str]) -> bool:
 
 def search(query: str, top_k: int = 5, mode: str = "hybrid",
            filters: list[str] | None = None) -> list[dict]:
-    vectors = load_vectors()
-    if not vectors:
-        print("No vectors found. Run embed_vault.py --full first.")
-        return []
-
-    if filters:
-        vectors = [v for v in vectors if chunk_matches_filters(v, filters)]
-        if not vectors:
-            print(f"No chunks matched filters: {filters}")
-            return []
-
+    # Keyword mode is pure text scoring — no embedding call, no vector index.
     if mode == "keyword":
+        vectors = load_vectors()
+        if not vectors:
+            print("No vectors found. Run embed_vault.py --full first.")
+            return []
+        if filters:
+            vectors = [v for v in vectors if chunk_matches_filters(v, filters)]
+            if not vectors:
+                print(f"No chunks matched filters: {filters}")
+                return []
         return keyword_search(query, vectors, top_k=top_k)
 
     q_vec = embed([query])[0]
+    store = open_store()
+    try:
+        if store.count() == 0:
+            print("No vectors found. Run embed_vault.py --full first.")
+            return []
 
-    all_scored = []
-    for v in vectors:
-        score = cosine_similarity(q_vec, v["embedding"])
-        all_scored.append({
-            "file":    v["file"],
-            "heading": v.get("heading", ""),
-            "text":    v["chunk_text"],
-            "score":   score,
-        })
-    all_scored.sort(key=lambda x: x["score"], reverse=True)
+        # Vector similarity is delegated to the store, which uses the sqlite-vec
+        # KNN index when available and a cosine scan otherwise.
+        top_vec = store.search(q_vec, top_k=max(top_k, 20), filters=filters)
+        if filters and not top_vec:
+            print(f"No chunks matched filters: {filters}")
+            return []
+        if mode == "vector":
+            return top_vec[:top_k]
 
-    if mode == "vector":
-        return all_scored[:top_k]
-
-    top_vec = all_scored[:20]
-    top_kw  = keyword_search(query, vectors, top_k=20)
+        # Hybrid: blend the vector ranking with a keyword ranking over the same
+        # (optionally filtered) candidate set.
+        chunks = store.all_chunks()
+        if filters:
+            chunks = [c for c in chunks if chunk_matches_filters(c, filters)]
+        top_kw = keyword_search(query, chunks, top_k=20)
+    finally:
+        store.close()
 
     def chunk_key(r: dict) -> str:
         return f"{r['file']}::{r['heading']}::{r['text'][:50]}"
@@ -621,19 +648,26 @@ def run_embed(mode: str, test_limit: int = 0, folder_filter: str = "",
             netio.unreachable_message(EMBED_URL, "Embeddings endpoint"), url=EMBED_URL
         )
 
-    if mode == "incremental" or test_limit > 0 or folder_filter or pdfs_only:
-        existing = load_vectors()
-        touched_files = {str(f.relative_to(VAULT_DIR)) for f in files}
-        existing = [v for v in existing if v.get("file", v.get("file_path", "")) not in touched_files]
+    # Persist into the SQLite store. A partial embed (incremental/test/folder/
+    # pdfs) deletes only the files it's about to re-embed and leaves the rest;
+    # a full embed clears the store first. Either way, vectors are written per
+    # batch, so the store is always a valid (if incomplete) index — no single
+    # giant rewrite, and a crash mid-run keeps every batch already committed.
+    store = open_store()
+    touched_files = {str(f.relative_to(VAULT_DIR)) for f in files}
+    is_partial = mode == "incremental" or test_limit > 0 or bool(folder_filter) or pdfs_only
+    if is_partial:
+        for touched in touched_files:
+            store.delete_by_file(touched)
     else:
-        existing = []
+        store.clear()
 
     file_last_chunk_idx: dict[str, int] = {}
     for idx, c in enumerate(all_chunks):
         file_last_chunk_idx[c["file"]] = idx
 
     t0 = time.time()
-    new_vectors: list[dict] = []
+    embedded = 0
     files_completed_this_run: set[str] = set()
     i = 0
 
@@ -652,11 +686,11 @@ def run_embed(mode: str, test_limit: int = 0, folder_filter: str = "",
             i += len(batch)
             continue
 
+        batch_entries: list[dict] = []
         for chunk, vec in zip(batch, vecs):
             i += 1
-            entry_id = f"{chunk['file']}::{i}"
-            new_vectors.append({
-                "id":            entry_id,
+            batch_entries.append({
+                "id":            f"{chunk['file']}::{i}",
                 "file":          chunk["file"],
                 "chunk_text":    chunk["chunk_text"],
                 "heading":       chunk["heading"],
@@ -666,24 +700,26 @@ def run_embed(mode: str, test_limit: int = 0, folder_filter: str = "",
                 "doc_type":      chunk["doc_type"],
                 "tags":          chunk["tags"],
             })
-
             if (i - 1) == file_last_chunk_idx[chunk["file"]]:
                 files_completed_this_run.add(chunk["file"])
 
-            if mode == "incremental" and i % checkpoint_interval == 0:
-                save_vectors(existing + new_vectors)
-                save_checkpoint(files_completed_this_run, i, total_chunks, chunk["file"])
-                print(
-                    f"Checkpoint: {i}/{total_chunks} chunks embedded, "
-                    f"{len(files_completed_this_run)} files complete"
-                )
+        store.add_vectors(batch_entries)
+        embedded += len(batch_entries)
+
+        if mode == "incremental" and i % checkpoint_interval == 0:
+            save_checkpoint(files_completed_this_run, i, total_chunks, batch[-1]["file"])
+            print(
+                f"Checkpoint: {i}/{total_chunks} chunks embedded, "
+                f"{len(files_completed_this_run)} files complete"
+            )
 
         if INTER_CALL_DELAY:
             time.sleep(INTER_CALL_DELAY)
 
     elapsed = time.time() - t0
-    combined = existing + new_vectors
-    save_vectors(combined)
+    total_vectors = store.count()
+    store.close()
+    print(f"Saved {embedded} new vectors to {VECTORS_DB}")
 
     if mode == "incremental":
         delete_checkpoint()
@@ -694,7 +730,7 @@ def run_embed(mode: str, test_limit: int = 0, folder_filter: str = "",
     print(f"\nDone in {elapsed:.1f}s")
     print(f"  Files embedded : {len(files)}")
     print(f"  Chunks created : {total_chunks}")
-    print(f"  Total vectors  : {len(combined)}")
+    print(f"  Total vectors  : {total_vectors}")
 
     if mode in ("full", "incremental") and not test_limit and not folder_filter and not pdfs_only:
         print("\nRebuilding knowledge graph…")

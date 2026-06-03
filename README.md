@@ -221,7 +221,8 @@ Eleven composable systems, each usable on its own:
    top-level folders carry meaning and per-folder YAML frontmatter is kept
    consistent automatically. See [the vault](#the-knowledge-vault).
 3. **Local RAG search** — chunk + embed your notes via a local LLM into a hybrid
-   (vector + keyword) index stored in `.rag/vectors.json`.
+   (vector + keyword) index stored in a SQLite vector store (`.rag/vectors.db`),
+   accelerated by `sqlite-vec` with a pure-Python fallback.
 4. **Pluggable LLM backends** — bring whatever OpenAI-compatible server you run.
    Atlas OS auto-detects LM Studio, Ollama, llama.cpp, or any custom endpoint
    (probed in that order), with `ATLAS_LLM_BACKEND` to force one. Inspect with
@@ -548,8 +549,8 @@ Full reference (per-variable detail, secret handling, the `LM_STUDIO_URL` vs
         │                    └────────────────────┘           └─────────┬────────┘
         ▼                                                                │
  ┌──────────────┐                                                       │
- │  .rag/       │   vectors.json + graph.json  ◀────────────────────────┘
- │  (local,     │   (regenerated, git-ignored)
+ │  .rag/       │   vectors.db + graph.json  ◀──────────────────────────┘
+ │  (local,     │   (SQLite store, regenerated, git-ignored)
  │  git-ignored)│
  └──────────────┘
 ```
@@ -644,16 +645,25 @@ and RAG embed. Full walkthrough:
 ## RAG search & knowledge graph
 
 **RAG (`atlas embed`).** Notes (and optionally PDFs) are chunked (~500 tokens,
-50 overlap), embedded via your local OpenAI-compatible endpoint, and stored in
-`$RAG_DIR/vectors.json`. Query time uses **hybrid** retrieval (vector + keyword).
+50 overlap), embedded via your local OpenAI-compatible endpoint, and stored in a
+**SQLite vector store** at `$RAG_DIR/vectors.db` (see
+[`atlas_os/vectordb.py`](atlas_os/vectordb.py)). Query time uses **hybrid**
+retrieval (vector + keyword).
 
 - `atlas embed --full` — re-embed everything (also rebuilds the graph).
 - `atlas embed --incremental` — only files changed since the last run.
 - `atlas embed --test N` — embed the first N files (connectivity check).
 - `--folder NAME`, `--pdfs-only`, `--checkpoint-interval N`, `--batch-size N`.
+- `atlas migrate-vectors` — convert an existing `vectors.json` → `vectors.db`
+  (auto-runs on first embed, so this is only for migrating ahead of time).
 
-A full run **checkpoints**, so an interrupted embed resumes rather than starting
-over.
+The store scales past the old single-file `vectors.json`: vector search uses the
+[`sqlite-vec`](https://github.com/asg017/sqlite-vec) KNN index when the
+`[vector]` extra is installed (`pip install -e ".[vector]"`), and falls back to a
+NumPy-accelerated cosine scan otherwise. Embeds write **incrementally** (per
+file, per batch), so a full run **checkpoints** and an interrupted embed resumes
+rather than starting over — and never corrupts the index with a half-written
+rewrite.
 
 **Knowledge graph (`atlas graph`).** Walks every note, resolves `[[wikilinks]]`,
 and writes `$RAG_DIR/graph.json` with nodes, edges, adjacency, and backlinks —
@@ -860,7 +870,7 @@ Atlas OS distinguishes four data classes and keeps each in its place:
 - **No telemetry, no analytics, no phone-home.**
 - Secrets live only in env vars; `.env` is git-ignored (only `.env.example` is
   committed). The `.gitignore` blocks PII-bearing artefacts (`*.xlsx`,
-  `vectors.json`, `graph.json`, `*.key`, `credentials*`, …).
+  `*.db`, `graph.json`, `*.key`, `credentials*`, …).
 - The design is built to support an **ISO/IEC 27001-aligned** posture (data
   classification, secrets handling, recoverability, auditability) — an alignment
   statement, not a certification.
@@ -943,14 +953,31 @@ More: [`docs/FAQ.md`](docs/FAQ.md). For a clean rebuild:
 
 ## Roadmap
 
-Ideas on the table (contributions welcome):
+**[v2.0.0 milestone](https://github.com/paulholland511/atlas-os/milestone/2)** —
+the next-generation Atlas OS (contributions welcome):
+
+- ✅ **SQLite vector store** ([#10](https://github.com/paulholland511/atlas-os/issues/10)) —
+  production-scale RAG: `vectors.db` with `sqlite-vec` KNN, incremental
+  insert/delete, and a graceful brute-force fallback. *Shipped.*
+- 🚧 **Advanced RAG pipeline** ([#11](https://github.com/paulholland511/atlas-os/issues/11)) —
+  semantic chunking, hybrid BM25 + vector search, reranking, embedding cache,
+  metadata filtering.
+- **Open-source lightweight dashboard** ([#12](https://github.com/paulholland511/atlas-os/issues/12)) —
+  health, audit trail, scheduled-task status, skill management, backend status.
+- **Skills marketplace / registry** ([#13](https://github.com/paulholland511/atlas-os/issues/13)) —
+  share, discover, and install community skills with schema validation.
+- **Visual knowledge graph viewer** ([#14](https://github.com/paulholland511/atlas-os/issues/14)) —
+  a D3.js view over the graph `build_graph.py` generates.
+
+Further out:
 
 - **PyPI release** — the packaging is ready ([`docs/PUBLISHING.md`](docs/PUBLISHING.md));
   once published, `pipx install atlas-os` works without the git URL.
 - **Nix flake** — `nix run github:paulholland511/atlas-os` for a hermetic install.
 
-Recently shipped: an append-only audit trail, and `atlas skills install` for
-one-command skill deployment with placeholder substitution.
+Recently shipped: the SQLite vector store (above), an append-only audit trail,
+and `atlas skills install` for one-command skill deployment with placeholder
+substitution.
 
 ---
 

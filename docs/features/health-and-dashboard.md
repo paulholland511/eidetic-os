@@ -20,7 +20,7 @@ design isn't falsely marked down. It checks nine subsystems:
 | Subsystem | Probe |
 |---|---|
 | **Vault** | counts `*.md`; freshness of `.claude-index.md`, `wiki/index.md`, `wiki/hot.md`, `wiki/log.md` (≤14 days) |
-| **RAG Pipeline** | `vectors.json` exists (+ size); `last_embed.txt` ≤7 days; `GET $EMBED_HOST:$EMBED_PORT/v1/models` |
+| **RAG Pipeline** | `vectors.db` exists (+ size; legacy `vectors.json` accepted); `last_embed.txt` ≤7 days; `GET $EMBED_HOST:$EMBED_PORT/v1/models` |
 | **TTS** | `GET $TTS_HOST:$TTS_PORT/` (accept 200–499) |
 | **Email** | `send_email.py` present + `SMTP_APP_PASSWORD` set |
 | **Git** | no stale `.git/index.lock`; `git status` clean-ish; last commit readable |
@@ -52,7 +52,7 @@ atlas health --quiet    # no output; exit code only
     "status": "up",
     "detail": "3/3 checks passed",
     "checks": [
-      {"name": "vectors.json", "ok": true, "detail": "12.4 MB"},
+      {"name": "vectors.db", "ok": true, "detail": "12.4 MB"},
       {"name": "last_embed.txt", "ok": true, "detail": "age 7.0h (limit 168h)"},
       {"name": "embeddings endpoint", "ok": true, "detail": "HTTP 200"}
     ]

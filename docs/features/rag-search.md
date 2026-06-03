@@ -1,7 +1,7 @@
 # Feature: Local RAG Search
 
 **Source:** [`scripts/embed_vault.py`](../../scripts/embed_vault.py) ·
-**CLI:** `atlas embed` · **Store:** `$RAG_DIR/vectors.json`
+**CLI:** `atlas embed` · **Store:** `$RAG_DIR/vectors.db` (SQLite, via `atlas_os/vectordb.py`)
 
 Atlas OS turns your markdown vault into a searchable knowledge base by chunking
 each note, embedding the chunks with a **local** OpenAI-compatible model, and
@@ -56,7 +56,7 @@ For each chunk, the pipeline attaches:
 - **Auth optional** — sends `Authorization: Bearer $EMBED_API_KEY` only if the
   key is set (local servers usually need none).
 
-Each embedded chunk becomes a vector record:
+Each embedded chunk becomes a row in the SQLite store, carrying the same fields:
 
 ```json
 {
@@ -72,8 +72,12 @@ Each embedded chunk becomes a vector record:
 }
 ```
 
-The whole list is written **atomically** (`.json.tmp` → `os.replace`) to
-`vectors.json`.
+Rows are written **incrementally** into `vectors.db` (a `chunks` table holding the
+text, metadata, and packed `float32` embedding) via `atlas_os.vectordb.VectorStore`.
+Only the touched files' chunks are replaced, and each batch is committed as it
+lands — so an interrupted embed resumes rather than leaving a half-written index.
+Similarity search uses the `sqlite-vec` KNN index when the `[vector]` extra is
+installed, falling back to a NumPy/pure-Python cosine scan otherwise.
 
 ### 5. Graph rebuild
 
@@ -137,13 +141,13 @@ incremental selection.
 | Variable | Default | Purpose |
 |---|---|---|
 | `VAULT_PATH` | — (**required**) | vault to embed |
-| `RAG_DIR` | `$VAULT_PATH/.rag` | where `vectors.json` etc. live |
+| `RAG_DIR` | `$VAULT_PATH/.rag` | where `vectors.db` etc. live |
 | `EMBED_HOST` / `EMBED_PORT` | `localhost` / `5555` | embeddings endpoint |
 | `EMBED_URL` | `…/v1/embeddings` | full override for non-standard paths |
 | `EMBED_MODEL` | `text-embedding-nomic-embed-text-v1.5` | model name |
 | `EMBED_API_KEY` | `""` | bearer token, if required |
 
-Files written under `RAG_DIR`: `vectors.json`, `last_embed.txt`,
+Files written under `RAG_DIR`: `vectors.db`, `last_embed.txt`,
 `last_embed_fallback.txt`, `embed_checkpoint.json`, and (via the graph step)
 `graph.json`. **All are git-ignored** — derived data, reproducible from the
 vault.

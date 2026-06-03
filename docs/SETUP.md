@@ -154,6 +154,19 @@ atlas embed --test 5        # smoke test on 5 files
 atlas embed --full          # full index (also rebuilds the graph)
 ```
 
+The index is a **SQLite** database at `$RAG_DIR/vectors.db` (one row per chunk,
+incremental insert/delete). For production-scale vaults, install the optional
+`[vector]` extra to accelerate similarity search with the `sqlite-vec` KNN index;
+without it the store falls back to a NumPy/pure-Python cosine scan — same results,
+no setup:
+
+```bash
+pip install -e ".[vector]"          # sqlite-vec + numpy (optional, faster search)
+```
+
+Already have a `vectors.json` from an older release? It auto-migrates on the next
+embed, or convert it ahead of time with `atlas migrate-vectors`.
+
 ## 7. Install the CLAUDE.md and memory
 
 ```bash

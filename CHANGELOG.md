@@ -20,6 +20,24 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   pair as the recommended default.
 
 ### Added
+- **SQLite vector store — production-scale RAG (replaces `vectors.json`).** The
+  RAG index now lives in a single SQLite database (`$RAG_DIR/vectors.db`) via the
+  new [`atlas_os/vectordb.py`](atlas_os/vectordb.py) `VectorStore`, instead of one
+  monolithic `vectors.json` rewritten in full on every embed. Vector search runs
+  through the [`sqlite-vec`](https://github.com/asg017/sqlite-vec) KNN index (with
+  a NumPy-accelerated brute-force cosine fallback when the extension isn't
+  installed), embeds are **incremental** (insert/delete by file, no whole-store
+  rewrite), a crash mid-run leaves every committed batch intact, and metadata
+  filtering (folder / doc_type / tags) is a first-class query option.
+  - **Transparent migration.** An existing `vectors.json` is imported
+    automatically the first time the store is opened, so upgrading is a no-op.
+  - **`atlas migrate-vectors`** converts an existing `vectors.json` → `vectors.db`
+    ahead of time (or re-imports with `--force`). See
+    [`docs/CLI-REFERENCE.md`](docs/CLI-REFERENCE.md#atlas-migrate-vectors).
+  - **`[vector]` optional dependency** (`pip install -e ".[vector]"`) pulls in
+    `sqlite-vec` + `numpy`; both are optional — the store falls back gracefully.
+  - **`ATLAS_VECTORDB_NO_VEC=1`** forces the brute-force backend (for testing, or
+    opting out of the native extension).
 - **`SESSION_CAPTURE_FREQUENCY` configuration.** A scheduling hint documenting
   your intended session-capture cadence — `twice` (default), `daily`, `hourly`,
   or `manual`. Documented in [`.env.example`](.env.example),

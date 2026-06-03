@@ -214,7 +214,7 @@ most of them, but it helps to know what they are:
 
 - `wiki/` — your knowledge base notes (the wizard seeds an index, a hot-topics
   cache, and a log here).
-- `.rag/` — derived search data (`vectors.json`, `graph.json`). Git-ignored,
+- `.rag/` — derived search data (`vectors.db`, `graph.json`). Git-ignored,
   rebuildable. More in Hour 2.
 - `.atlas/` — the audit trail (`audit.jsonl`) lives here. More in Hour 3.
 - `.claude/` — where installed skills land.
@@ -462,21 +462,22 @@ atlas embed --full
 
 **What this does:** it walks every note in your vault, splits each into chunks,
 sends every chunk to your local embeddings endpoint, and writes the resulting
-vectors to **`$VAULT_PATH/.rag/vectors.json`**. Progress prints as it goes, and
-it checkpoints — so if you stop it (or your laptop sleeps), re-running picks up
-where it left off rather than starting over.
+vectors to a **SQLite database** at **`$VAULT_PATH/.rag/vectors.db`**. Progress
+prints as it goes, and each batch is committed as it lands — so if you stop it
+(or your laptop sleeps), re-running picks up where it left off rather than
+starting over.
 
 **What you should see:** a running count of embedded chunks, then a summary like
-`Embedded 142 chunks from 2 notes → .rag/vectors.json`.
+`Saved 142 new vectors to .rag/vectors.db`.
 
-### Understanding `vectors.json`
+### Understanding `vectors.db`
 
-`vectors.json` is the heart of search. It's a plain JSON file inside your vault's
-`.rag/` directory containing, for every chunk of every note:
+`vectors.db` is the heart of search. It's a SQLite database inside your vault's
+`.rag/` directory with one row per chunk of every note, holding:
 
 - the **text** of the chunk,
 - its **vector** (the numeric meaning-fingerprint),
-- and **metadata** (which note it came from, where).
+- and **metadata** (which note it came from, the heading, folder, tags).
 
 Properties worth knowing:
 
@@ -484,13 +485,22 @@ Properties worth knowing:
   if it's ever lost or corrupted, `atlas embed --full` recreates it. Your notes
   are the source of truth; this is just an index.
 - **It's local.** It lives in your vault folder and is never uploaded anywhere.
-- **It's written atomically.** Atlas OS writes to a temp file and renames it into
-  place, so a crash mid-write can't leave you with a half-written index.
+- **It's incremental.** Embeds replace only the chunks of files that changed and
+  commit per batch, so there's no giant full-file rewrite and a crash mid-run
+  leaves every committed batch intact.
+- **Search is fast — and degrades gracefully.** With the optional `[vector]`
+  extra installed (`pip install -e ".[vector]"`), similarity search runs on the
+  `sqlite-vec` KNN index; without it, it falls back to a NumPy/pure-Python cosine
+  scan with identical results.
+
+> **Upgrading from an older release?** If you have a `vectors.json` from a
+> previous version, it migrates to `vectors.db` automatically on your next
+> `atlas embed` — or convert it ahead of time with `atlas migrate-vectors`.
 
 Verify it exists and has real size:
 
 ```bash
-ls -lh "$VAULT_PATH/.rag/vectors.json"
+ls -lh "$VAULT_PATH/.rag/vectors.db"
 atlas doctor          # the "RAG index" line should now be green with a count
 ```
 
@@ -522,7 +532,7 @@ atlas graph
 ```
 
 **What this does:** writes `$VAULT_PATH/.rag/graph.json` — a list of **nodes**
-(your notes) and **edges** (the wikilinks between them). Like `vectors.json`,
+(your notes) and **edges** (the wikilinks between them). Like `vectors.db`,
 it's derived, git-ignored, and rebuildable.
 
 **What you should see:** a summary like `Graph: 2 nodes, 2 edges → .rag/graph.json`
@@ -533,7 +543,7 @@ it's derived, git-ignored, and rebuildable.
 > now you know what it produces and why.
 
 At this point you have a vault that is **version-controlled** (Hour 1),
-**semantically searchable** (`vectors.json`), and **linked** (`graph.json`).
+**semantically searchable** (`vectors.db`), and **linked** (`graph.json`).
 Everything so far you ran by hand. Hour 3 makes it run itself.
 
 ---
@@ -828,7 +838,7 @@ With the skills from Hours 3–4 scheduled, a typical night looks like:
   wiki, appends the hot-topics cache, **commits the vault**, and writes a morning
   briefing.
 - **Just after — `nightly-rag-incremental`:** embeds only the notes that changed
-  since the last run, keeping `vectors.json` (and the graph) current — fast,
+  since the last run, keeping `vectors.db` (and the graph) current — fast,
   because it's incremental.
 - **~09:30 — `atlas-daily-report-email`:** emails you the morning report.
 - **Weekly — `weekly-system-health-check`:** probes every subsystem, emails a

@@ -117,22 +117,60 @@ def test_embed_pipeline_writes_vectors(
     llm_server: Callable[..., str],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """`atlas embed --full` embeds the sample vault into a vectors.json store."""
+    """`atlas embed --full` embeds the sample vault into the SQLite vector store."""
+    from atlas_os import vectordb
+
     _embed_env(monkeypatch, llm_server())
 
     result = runner.invoke(app, ["embed", "--full"])
     assert result.exit_code == 0, result.output
 
-    vectors_file = sample_vault / ".rag" / "vectors.json"
-    assert vectors_file.is_file()
-    vectors = json.loads(vectors_file.read_text(encoding="utf-8"))
+    db_file = sample_vault / ".rag" / "vectors.db"
+    assert db_file.is_file()
 
-    # One short file → one chunk → one vector, so the count matches the md files.
-    md_files = list(sample_vault.rglob("*.md"))
-    assert len(vectors) == len(md_files)
-    for entry in vectors:
-        assert entry["file"]
-        assert isinstance(entry["embedding"], list) and entry["embedding"]
+    store = vectordb.VectorStore(db_file)
+    try:
+        # One short file → one chunk → one vector, so the count matches md files.
+        md_files = list(sample_vault.rglob("*.md"))
+        assert store.count() == len(md_files)
+        for entry in store.all_chunks(with_embedding=True):
+            assert entry["file"]
+            assert isinstance(entry["embedding"], list) and entry["embedding"]
+    finally:
+        store.close()
+
+
+def test_migrate_vectors_imports_legacy_json(
+    sample_vault: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """`atlas migrate-vectors` converts a legacy vectors.json into vectors.db."""
+    from atlas_os import vectordb
+
+    rag = sample_vault / ".rag"
+    legacy = rag / "vectors.json"
+    legacy.write_text(json.dumps([
+        {"id": "x::1", "file": "research/x.md", "chunk_text": "legacy chunk",
+         "heading": "X", "embedding": [0.1, 0.2, 0.3], "folder": "research",
+         "doc_type": "research", "tags": ["legacy"]},
+    ]), encoding="utf-8")
+    monkeypatch.setenv("RAG_DIR", str(rag))
+
+    result = runner.invoke(app, ["migrate-vectors"])
+    assert result.exit_code == 0, result.output
+    assert "migrated 1 vector" in result.output
+
+    store = vectordb.VectorStore(rag / "vectors.db")
+    try:
+        assert store.count() == 1
+        assert store.files() == {"research/x.md"}
+    finally:
+        store.close()
+
+    # A second run is a no-op (store already populated) unless --force is passed.
+    again = runner.invoke(app, ["migrate-vectors"])
+    assert again.exit_code == 0
+    assert "already has" in again.output
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -376,7 +414,7 @@ def test_full_lifecycle(
     # 2. embed — build the RAG store (mocked endpoint).
     embed = runner.invoke(app, ["embed", "--full"])
     assert embed.exit_code == 0, embed.output
-    assert (vault / ".rag" / "vectors.json").is_file()
+    assert (vault / ".rag" / "vectors.db").is_file()
 
     # 3. commit — the embed produced new untracked files in the vault.
     (vault / "research").mkdir(parents=True, exist_ok=True)

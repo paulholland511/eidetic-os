@@ -27,8 +27,8 @@ and the scheduled skills drive everything through the one `atlas` command.
             │                                                        │
             ▼                                                        │
    ┌─────────────────┐                                              │
-   │  .rag/          │   vectors.json + graph.json  ◀───────────────┘
-   │  vector store   │   (local only, git-ignored)
+   │  .rag/          │   vectors.db + graph.json    ◀───────────────┘
+   │  vector store   │   (SQLite, local only, git-ignored)
    └─────────────────┘
 ```
 
@@ -62,12 +62,21 @@ notes land in the vault as ordinary markdown, the RAG pipeline (below) indexes
 them automatically — this is what makes every conversation, and the research the
 deep-research skills write into the vault, permanently searchable.
 
-### 3. RAG pipeline (`scripts/embed_vault.py`, `build_graph.py`)
+### 3. RAG pipeline (`scripts/embed_vault.py`, `build_graph.py`, `atlas_os/vectordb.py`)
 Chunks notes (~500 tokens, 50 overlap), embeds them via a **local**
-OpenAI-compatible endpoint, and stores vectors in `.rag/vectors.json`. Hybrid
-search (vector + keyword) at query time. `build_graph.py` derives a wikilink
-knowledge graph. Both run incrementally (nightly) and fully (weekly). It indexes
-your notes, captured sessions, and research findings into one searchable corpus.
+OpenAI-compatible endpoint, and stores vectors in a **SQLite** database
+(`.rag/vectors.db`) through `atlas_os.vectordb.VectorStore`. One row per chunk
+holds the text, metadata, and packed `float32` embedding together, so embeds are
+incremental (insert/delete by file) rather than a full-file rewrite, and a crash
+mid-run leaves every committed batch intact. Vector search uses the
+[`sqlite-vec`](https://github.com/asg017/sqlite-vec) extension's k-nearest-neighbour
+index when it's installed, and transparently falls back to a NumPy (or pure-Python)
+cosine scan otherwise — same API, same scores, no hard dependency. Hybrid search
+(vector + keyword) and metadata filtering run at query time. A legacy
+`vectors.json` is auto-migrated to `vectors.db` on first embed (or ahead of time
+via `atlas migrate-vectors`). `build_graph.py` derives a wikilink knowledge graph.
+Both run incrementally (nightly) and fully (weekly), indexing your notes, captured
+sessions, and research findings into one searchable corpus.
 
 ### 4. Frontmatter schemas (`schemas/enforce_schemas.py`)
 Non-destructive enforcement of per-folder YAML frontmatter so notes stay
