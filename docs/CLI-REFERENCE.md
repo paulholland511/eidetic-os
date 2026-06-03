@@ -28,6 +28,7 @@ environment variables described here are the public interface of Atlas OS. See
   - [`atlas backends`](#atlas-backends)
   - [`atlas audit`](#atlas-audit)
   - [`atlas schemas`](#atlas-schemas)
+  - [`atlas session`](#atlas-session)
 - [Environment variables reference](#environment-variables-reference)
 - [Exit codes reference](#exit-codes-reference)
 - [Stability promise](#stability-promise)
@@ -99,6 +100,7 @@ atlas-os 0.3.0
 | [`atlas backends`](#atlas-backends) | Show detected LLM backends; `test` runs an inference. |
 | [`atlas audit`](#atlas-audit) | Inspect the append-only audit trail. |
 | [`atlas schemas`](#atlas-schemas) | Enforce per-folder frontmatter schemas. |
+| [`atlas session`](#atlas-session) | Save Cowork chat transcripts to the vault. |
 
 **CLI-native vs. script-wrapping.** `init`, `doctor`, `skills`, `backends`, and
 `audit` are implemented in the CLI itself. The rest forward their flags 1:1 to a
@@ -684,6 +686,64 @@ atlas schemas
 
 ---
 
+### `atlas session`
+
+Save Claude Cowork chat transcripts to the vault as clean session-log notes.
+Wraps `scripts/save_sessions.py`. Has two subcommands: `save` and `list`.
+
+Each captured session becomes `$VAULT_PATH/sessions/session-log-YYYY-MM-DD-<title>.md`
+with `[session-log, cowork]` frontmatter, a `session_id`, an extracted summary,
+the key actions taken, and the files modified — all derived deterministically
+from the local transcript (no LLM call, no network). Notes are keyed by session
+id and overwritten in place, so re-running is idempotent.
+
+**Usage**
+
+```text
+atlas session save [--since WINDOW | --all] [--sessions-dir PATH] [--json]
+atlas session list [--limit N] [--sessions-dir PATH] [--json]
+```
+
+**`save` flags**
+
+| Flag | Argument | Description |
+|---|---|---|
+| `--since` | `WINDOW` | Capture sessions active since e.g. `24h`, `7d`, `2026-06-01`. |
+| `--all` | | Capture every session ever (ignores the watermark). |
+| `--sessions-dir` | `PATH` | Override the Cowork session store location. |
+| `--json` | | Emit a machine-readable summary. |
+| `--help` | | Show help and exit. |
+
+With no window flag, `save` captures everything new or changed since the last
+run, tracked by a watermark in `$VAULT_PATH/.atlas/last_session_save.txt`.
+
+**`list` flags**
+
+| Flag | Argument | Description |
+|---|---|---|
+| `--limit` / `-n` | `N` | Max sessions to show (default `20`). |
+| `--sessions-dir` | `PATH` | Override the Cowork session store location. |
+| `--json` | | Emit the session list as JSON. |
+| `--help` | | Show help and exit. |
+
+**Environment variables** — `save` requires `VAULT_PATH`. Both subcommands read
+`CLAUDE_SESSIONS_DIR` to locate the Cowork session store (defaults to the macOS
+path `~/Library/Application Support/Claude/local-agent-mode-sessions`).
+
+**Exit codes** — `0` success; `1` runtime error; `2` `VAULT_PATH` unset or bad
+`--since` value. `list` never needs `VAULT_PATH`.
+
+**Examples**
+
+```bash
+atlas session list
+atlas session save                 # new/changed since last run
+atlas session save --since 24h     # the day's sessions (for nightly capture)
+atlas session save --all --json
+```
+
+---
+
 ## Environment variables reference
 
 Every variable Atlas OS reads. Set them in a `.env` (auto-loaded) or your shell.
@@ -700,6 +760,7 @@ and [`docs/CONFIGURATION.md`](CONFIGURATION.md) for the annotated source.
 | `ATLAS_TRIGGER` | `cli` | Tag recorded in the audit trail for how a command ran (a scheduler sets `scheduled`). |
 | `SCHEDULED_DIR` | — | Where your Claude scheduled-task `SKILL.md` folders live. |
 | `ATLAS_SKILLS_DIR` | `$VAULT_PATH/.claude/skills` | Where `atlas skills install` writes installed skills. |
+| `CLAUDE_SESSIONS_DIR` | macOS Cowork session store | Where `atlas session` reads Cowork transcripts from. |
 
 ### Embeddings (RAG)
 

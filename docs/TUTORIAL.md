@@ -635,7 +635,7 @@ schedule the bare command:
 
 Here's the question Atlas OS is built to answer: **"What did the system do
 overnight, and did it work?"** Every script-wrapping command (`embed`, `commit`,
-`graph`, `changelog`, `health`, `trading`, `email`) appends one line to an
+`graph`, `changelog`, `health`, `trading`, `email`, `session`) appends one line to an
 **append-only audit log** when it finishes — whether you ran it by hand or a
 schedule did.
 
@@ -679,6 +679,40 @@ atlas audit export --format csv -o audit-report.csv
 
 This is your morning ritual: `atlas audit tail` to see what happened while you
 were away.
+
+### Step 3.5 — Capture your Cowork sessions to the vault
+
+Going autonomous cuts both ways: as agents do more of your work in Cowork, the
+record of *what was done and why* lives in chat transcripts, not your notes.
+`atlas session` folds those transcripts back into the vault so they're
+searchable alongside everything else.
+
+```bash
+atlas session list          # see your recent Cowork sessions
+atlas session save --all    # write a note for every session so far
+```
+
+**What this does:** for each session it writes
+`$VAULT_PATH/sessions/session-log-YYYY-MM-DD-<title>.md` — frontmatter tagged
+`[session-log, cowork]`, a summary, the key actions taken, and the files
+modified — all extracted locally, no LLM call. A watermark in
+`.atlas/last_session_save.txt` means a plain `atlas session save` only picks up
+what's new, so it's safe to run daily.
+
+To automate it, install the nightly capture skill and ask Cowork to run it:
+
+```bash
+atlas skills install daily-session-capture
+```
+
+> "Every night at 11:30pm, run the `daily-session-capture` skill so today's
+> Cowork work is saved to my vault."
+
+It runs `ATLAS_TRIGGER=scheduled atlas session save --since 24h`, so the capture
+shows up in your audit trail as an unattended run — closing the loop on the
+autonomous day. (It's also part of the [`knowledge` pack](SCHEDULED-TASKS.md), so
+`atlas skills install-pack knowledge` sets it up alongside the nightly index and
+RAG embed.)
 
 ---
 

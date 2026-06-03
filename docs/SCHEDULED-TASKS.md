@@ -43,6 +43,7 @@ reads `LM_STUDIO_PORT`. Tokens with no value (e.g. `{{JOB_TRACKER_PATH}}`,
 |---|---|---|
 | `nightly-obsidian-index` | Nightly (e.g. 02:00) | Index new/changed notes, sync the wiki to 100% coverage, append the hot cache, commit the vault, write a morning briefing |
 | `nightly-rag-incremental` | Nightly (after the index) | Embed only notes changed since the last run |
+| `daily-session-capture` | Nightly (~23:30) | Save the day's Cowork chat transcripts to the vault as session-log notes |
 | `daily-job-tracker-update` | Weekday mornings | Scan email for application updates; update the tracker |
 | `afternoon-job-tracker-update` | Weekday ~14:00 | Catch afternoon emails; update the tracker |
 | `atlas-daily-report-email` | Daily (e.g. 09:30) | Email a status report (job search, system health, action items) |

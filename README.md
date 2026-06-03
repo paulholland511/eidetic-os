@@ -410,6 +410,8 @@ underlying script.
 | `atlas trading` | Generate a trading research briefing *(optional)* | `--ticker`, `--date`, `--dry-run` |
 | `atlas email` | Send an email via SMTP | `--to`, `--subject`, `--body`, `--text`, `--attach`, `--json` |
 | `atlas schemas` | Enforce per-folder frontmatter schemas | `--dry-run`, `--folder`, `--verbose` |
+| `atlas session save` | Save Cowork chat transcripts to the vault as session logs | `--since`, `--all`, `--sessions-dir`, `--json` |
+| `atlas session list` | List recent Cowork sessions with dates and titles | `--limit`, `--sessions-dir`, `--json` |
 | `atlas audit show` | Show recent audit-trail entries | `--limit`, `--action`, `--since` |
 | `atlas audit tail` | Last 5 audit entries, compact | — |
 | `atlas audit export` | Export the audit log for compliance | `--format csv\|json`, `--output`, `--action`, `--since` |
@@ -581,6 +583,7 @@ your `.env`. Then register it on the cadence below.
 |---|---|---|
 | `nightly-obsidian-index` | Nightly (~02:00) | Index changed notes, sync the wiki, append the hot cache, commit the vault, write a morning briefing |
 | `nightly-rag-incremental` | Nightly (after the index) | Embed only notes changed since the last run |
+| `daily-session-capture` | Nightly (~23:30) | Save the day's Cowork chat transcripts to the vault as session-log notes |
 | `daily-job-tracker-update` | Weekday mornings | Scan email for application updates; update the tracker |
 | `afternoon-job-tracker-update` | Weekday ~14:00 | Catch afternoon emails; update the tracker |
 | `atlas-daily-report-email` | Daily (~09:30) | Email a status report (job search, health, action items) |
@@ -718,7 +721,7 @@ briefings, emails. The audit trail gives you a single, queryable record of every
 one of those actions, so "what did Claude do last night, and why?" has a precise
 answer.
 
-Every script-wrapping command (`embed`, `commit`, `graph`, `changelog`,
+Every script-wrapping command (`embed`, `commit`, `graph`, `changelog`, `session`,
 `health`, `trading`, `email`) appends one JSON line to an **append-only** log
 when it finishes:
 

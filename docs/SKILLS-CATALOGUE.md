@@ -1011,6 +1011,7 @@ placeholder tokens, and safety notes are in
 |---|---|---|
 | `nightly-obsidian-index` | Nightly (~02:00) | Index changed notes, sync the wiki, append the hot cache, commit the vault, write a morning briefing |
 | `nightly-rag-incremental` | Nightly (after the index) | Embed only notes changed since the last run |
+| `daily-session-capture` | Nightly (~23:30) | Save the day's Cowork chat transcripts to the vault as session-log notes |
 | `daily-job-tracker-update` | Weekday mornings | Scan email for application updates; update a tracker spreadsheet |
 | `afternoon-job-tracker-update` | Weekday ~14:00 | Catch afternoon emails; update the tracker |
 | `atlas-daily-report-email` | Daily (~09:30) | Email a status report (activity, system health, action items) |

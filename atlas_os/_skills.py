@@ -27,6 +27,7 @@ from atlas_os._paths import repo_root, skills_dir
 _CADENCES: dict[str, str] = {
     "nightly-obsidian-index": "Nightly (~02:00)",
     "nightly-rag-incremental": "Nightly (after the index)",
+    "daily-session-capture": "Nightly (~23:30)",
     "daily-job-tracker-update": "Weekday mornings",
     "afternoon-job-tracker-update": "Weekday ~14:00",
     "atlas-daily-report-email": "Daily (~09:30)",

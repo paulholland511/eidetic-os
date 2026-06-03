@@ -42,6 +42,7 @@ def test_version_flag() -> None:
         "trading",
         "email",
         "schemas",
+        "session",
     ],
 )
 def test_command_is_registered(command: str) -> None:

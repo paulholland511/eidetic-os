@@ -16,6 +16,7 @@ Subcommands:
 * ``atlas email``    — send an email          (wraps scripts/send_email.py)
 * ``atlas trading``  — trading research brief  (wraps scripts/trading_briefing.py)
 * ``atlas schemas``  — enforce frontmatter     (wraps schemas/enforce_schemas.py)
+* ``atlas session``  — save Cowork transcripts (wraps scripts/save_sessions.py)
 * ``atlas audit``    — inspect the append-only audit trail (show | tail | export)
 
 Every script-wrapping command appends an entry to the audit trail (see
@@ -901,6 +902,73 @@ def audit_export(
         _echo_ok(f"exported {len(entries)} entr(y/ies) → {output}")
     else:
         typer.echo(text)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# session — capture Cowork chat transcripts to the vault
+# ─────────────────────────────────────────────────────────────────────────────
+session_app = typer.Typer(
+    no_args_is_help=True,
+    help="Capture Cowork chat transcripts to the vault as session-log notes.",
+)
+app.add_typer(session_app, name="session")
+
+
+@session_app.command("save")
+def session_save(
+    since: str = typer.Option(
+        None, "--since", help="Capture sessions active since e.g. 24h, 7d, 2026-06-01."
+    ),
+    capture_all: bool = typer.Option(
+        False, "--all", help="Capture every session ever (ignores the watermark)."
+    ),
+    sessions_dir_opt: str = typer.Option(
+        None, "--sessions-dir", help="Override the Cowork session store path."
+    ),
+    as_json: bool = typer.Option(
+        False, "--json", help="Emit a machine-readable summary."
+    ),
+) -> None:
+    """Save new/changed Cowork sessions to ``$VAULT_PATH/sessions/``.
+
+    With no flags it captures everything new since the last run (tracked in
+    ``.atlas/last_session_save.txt``); ``--since`` captures a time window and
+    ``--all`` captures every session. Runs through the audit trail, so a
+    scheduled run (``ATLAS_TRIGGER=scheduled``) is recorded as unattended.
+    """
+    _require_env("VAULT_PATH")
+    args: list[str] = []
+    if capture_all:
+        args.append("--all")
+    elif since:
+        args += ["--since", since]
+    if sessions_dir_opt:
+        args += ["--sessions-dir", sessions_dir_opt]
+    if as_json:
+        args.append("--json")
+    _run_audited(
+        "session", scripts_dir() / "save_sessions.py", args,
+        _context_for("session save", args),
+    )
+
+
+@session_app.command("list")
+def session_list(
+    limit: int = typer.Option(20, "--limit", "-n", help="Max sessions to show."),
+    sessions_dir_opt: str = typer.Option(
+        None, "--sessions-dir", help="Override the Cowork session store path."
+    ),
+    as_json: bool = typer.Option(
+        False, "--json", help="Emit the session list as JSON."
+    ),
+) -> None:
+    """List recent Cowork sessions with their dates and titles (no writes)."""
+    args = ["--list", "--limit", str(limit)]
+    if sessions_dir_opt:
+        args += ["--sessions-dir", sessions_dir_opt]
+    if as_json:
+        args.append("--json")
+    _run(scripts_dir() / "save_sessions.py", args)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

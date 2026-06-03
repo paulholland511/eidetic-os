@@ -6,6 +6,37 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-06-03
+
+### Added
+- **Daily session capture — save your Cowork chats to the vault.** A new
+  command, **`atlas session`**, folds Claude Cowork chat transcripts back into
+  your knowledge base as searchable markdown. It reads Cowork's local session
+  store (metadata + the standard Claude Code JSONL transcripts) and, for every
+  session in the requested window, writes
+  `$VAULT_PATH/sessions/session-log-YYYY-MM-DD-<title>.md` with
+  `[session-log, cowork]` frontmatter, a `session_id`, an extracted summary, the
+  key actions taken, and the files modified — all derived **deterministically**
+  from the local transcript (no LLM call, no network).
+  - **`atlas session save`** captures everything new or changed since the last
+    run (tracked by a watermark in `.atlas/last_session_save.txt`, so re-running
+    is idempotent and notes are overwritten in place). `--since 24h` / `--since
+    7d` / `--since 2026-06-01` scope a window; `--all` captures every session.
+  - **`atlas session list`** shows recent sessions with their dates and titles
+    (read-only, no `VAULT_PATH` required).
+  - Backed by a new standalone script,
+    [`scripts/save_sessions.py`](scripts/save_sessions.py), wired through the
+    audit trail like every other action. The session store location is
+    configurable via `CLAUDE_SESSIONS_DIR` (defaults to the macOS Cowork path),
+    so it runs on any platform and is fully testable; missing/empty stores and
+    malformed transcript lines are handled gracefully.
+- **New scheduled skill — `daily-session-capture`.** Runs nightly via
+  `ATLAS_TRIGGER=scheduled atlas session save --since 24h` so the day's Cowork
+  work lands in the vault as part of the unattended audit trail. Added to the
+  **`knowledge`** pack alongside the nightly index and RAG embed, and documented
+  in [`docs/CLI-REFERENCE.md`](docs/CLI-REFERENCE.md) and
+  [`docs/TUTORIAL.md`](docs/TUTORIAL.md) (Hour 3 — "Going Autonomous").
+
 ## [1.0.0] — 2026-06-03
 
 ### Added
