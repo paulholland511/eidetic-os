@@ -153,6 +153,20 @@ def approx_tokens(text: str) -> int:
     return max(1, len(text) // CHARS_PER_TOK)
 
 
+_FRONTMATTER_RE = re.compile(r"^---[ \t]*\n.*?\n---[ \t]*\n?", re.DOTALL)
+
+
+def strip_frontmatter(text: str) -> str:
+    """Remove a leading YAML frontmatter block, if present.
+
+    Frontmatter is metadata (its tags are extracted separately), not prose — so
+    it should not be embedded as its own chunk. Returns ``text`` unchanged when
+    there is no leading ``---`` block.
+    """
+    match = _FRONTMATTER_RE.match(text)
+    return text[match.end():] if match else text
+
+
 def extract_frontmatter_tags(text: str) -> list[str]:
     """Extract tags from YAML frontmatter, supporting inline [a, b] and block - item forms."""
     fm_match = re.match(r"^---\s*\n(.*?)\n---", text, re.DOTALL)
@@ -190,7 +204,7 @@ def chunk_text(text: str, filename: str) -> list[dict]:
     the vault root.
     """
     return rag.semantic_chunk(
-        text, filename, VAULT_DIR,
+        strip_frontmatter(text), filename, VAULT_DIR,
         target_tokens=CHUNK_TOKENS, overlap_tokens=OVERLAP_TOKENS,
     )
 

@@ -24,6 +24,24 @@ class TestTextHelpers:
         assert embed_vault.get_doc_type("totally-unknown") == "misc"
 
 
+class TestStripFrontmatter:
+    def test_strips_leading_block(self) -> None:
+        assert embed_vault.strip_frontmatter("---\ntags: [a]\n---\nbody") == "body"
+
+    def test_no_frontmatter_unchanged(self) -> None:
+        assert embed_vault.strip_frontmatter("no frontmatter") == "no frontmatter"
+
+    def test_chunk_text_excludes_frontmatter(self, tmp_path, monkeypatch) -> None:
+        # A note that is frontmatter + one heading + one line is a single chunk,
+        # and the YAML never leaks into the embedded text.
+        monkeypatch.setattr(embed_vault, "VAULT_DIR", tmp_path)
+        text = "---\ntags: [wiki]\ndate: 2026-06-03\n---\n# Title\n\nShort body.\n"
+        chunks = embed_vault.chunk_text(text, str(tmp_path / "n.md"))
+        assert len(chunks) == 1
+        assert chunks[0]["heading"] == "Title"
+        assert "tags:" not in chunks[0]["chunk_text"]
+
+
 class TestFrontmatterTags:
     def test_inline_tags(self) -> None:
         text = "---\ntags: [alpha, beta, gamma]\n---\nbody"

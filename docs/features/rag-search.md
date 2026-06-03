@@ -36,6 +36,8 @@ fixed character window:
   paragraph larger than the hard cap is windowed as a fallback.
 - Every chunk records its **nearest heading**, so results show which section
   they came from, and no chunk is ever cut mid-sentence.
+- A note's **YAML frontmatter is stripped** before chunking (its tags are already
+  captured as metadata), so the raw `---` block is never embedded as content.
 
 ### 3. Metadata
 
