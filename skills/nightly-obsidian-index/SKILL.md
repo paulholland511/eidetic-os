@@ -49,7 +49,7 @@ morning briefing.
    - Keep the frontmatter and header intact at the very top of the file
 8. Update `wiki/log.md` with a sync entry
 9. Commit vault changes to git:
-   - Run `VAULT_PATH={{VAULT_PATH}} python3 {{ATLAS_OS}}/scripts/vault_commit.py --json`
+   - Run `ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} atlas commit --json`
    - Capture the JSON output (commit hash, counts of new/modified/deleted files)
    - If it returns `"status": "clean"`, note "no changes committed" for the briefing
 10. Produce a morning briefing and save to `.claude-morning-briefing.md`:
@@ -59,7 +59,7 @@ morning briefing.
     - Hot cache: confirm updated, list files added this run
     - Flag anything relevant to active projects
     - Flag any changes to system files as high-priority
-    - Include the git changelog: run `VAULT_PATH={{VAULT_PATH}} python3 {{ATLAS_OS}}/scripts/vault_changelog.py --since "24 hours ago" --markdown` and append the output
+    - Include the git changelog: run `ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} atlas changelog --since "24 hours ago" --markdown` and append the output
     - Include the commit hash from step 9 so the briefing is traceable
     - If nothing changed, just say "No changes since last index"
     - Make it scannable in 30 seconds

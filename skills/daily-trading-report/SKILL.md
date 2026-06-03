@@ -33,9 +33,9 @@ Set a timeout of ~180 seconds per agent call.
 
 **Step 3 — Save to vault:**
 Save to `{{VAULT_PATH}}/wiki/sources/trading-briefing-YYYY-MM-DD.md`
-(or run `{{ATLAS_OS}}/scripts/trading_briefing.py`, which writes there for you).
+(or run `ATLAS_TRIGGER=scheduled atlas trading`, which writes there for you).
 
-**Step 4 — Email the report** via `python3 {{ATLAS_OS}}/scripts/send_email.py`:
+**Step 4 — Email the report** via `ATLAS_TRIGGER=scheduled atlas email --json '...'` (routes through the CLI so the run is audited):
 - To: `{{USER_EMAIL}}`
 - Subject: `📊 Market Research — [date]`
 - Dark-themed HTML with: price cards + recommendations, technical indicators,

@@ -17,8 +17,8 @@ vector store.
 1. Request access to `{{VAULT_PATH}}`
 2. Run the full embed script:
    ```bash
-   VAULT_PATH={{VAULT_PATH}} EMBED_HOST={{EMBED_HOST}} EMBED_PORT={{EMBED_PORT}} \
-     python3 {{ATLAS_OS}}/scripts/embed_vault.py --full
+   ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} EMBED_HOST={{EMBED_HOST}} EMBED_PORT={{EMBED_PORT}} \
+     atlas embed --full
    ```
 3. The script will:
    - Walk all `.md` files in the vault (excluding `.obsidian/`, `.git/`, `.rag/`, `.claude/`)

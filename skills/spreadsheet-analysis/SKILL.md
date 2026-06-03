@@ -38,11 +38,11 @@ Read a spreadsheet (`.xlsx` or `.csv`), compute summary statistics and trends, f
    - The plain-language findings, most important first
 2. Index the new note so it is searchable:
    ```bash
-   VAULT_PATH={{VAULT_PATH}} python3 {{ATLAS_OS}}/scripts/embed_vault.py --incremental
+   ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} atlas embed --incremental
    ```
 3. (Optional) If a recipient is configured, email the findings summary:
    ```bash
-   python3 {{ATLAS_OS}}/scripts/send_email.py '{"to":"$SENDER_EMAIL","subject":"📊 Spreadsheet Analysis — [date]","body_html":"..."}'
+   ATLAS_TRIGGER=scheduled atlas email --json '{"to":"$SENDER_EMAIL","subject":"📊 Spreadsheet Analysis — [date]","body_html":"..."}'
    ```
 
 **Constraints:**

@@ -62,7 +62,7 @@ re-runnable artifact:
 - Do NOT edit any other note — only this report file.
 - Re-embed the updated report so it is searchable:
   ```bash
-  VAULT_PATH={{VAULT_PATH}} python3 {{ATLAS_OS}}/scripts/embed_vault.py --incremental
+  ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} atlas embed --incremental
   ```
   (The embeddings endpoint host/port and model are read from env vars; skip
   embedding gracefully if the endpoint is unreachable rather than failing.)

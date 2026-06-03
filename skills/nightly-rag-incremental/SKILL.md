@@ -15,8 +15,8 @@ Run an incremental RAG embed of the vault to keep the vector store up to date.
 1. Request access to `{{VAULT_PATH}}`
 2. Run the incremental embed script:
    ```bash
-   VAULT_PATH={{VAULT_PATH}} EMBED_HOST={{EMBED_HOST}} EMBED_PORT={{EMBED_PORT}} \
-     python3 {{ATLAS_OS}}/scripts/embed_vault.py --incremental
+   ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} EMBED_HOST={{EMBED_HOST}} EMBED_PORT={{EMBED_PORT}} \
+     atlas embed --incremental
    ```
 3. The script will:
    - Check `last_embed.txt` for the timestamp of the last run

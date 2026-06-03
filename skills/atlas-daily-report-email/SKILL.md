@@ -11,7 +11,7 @@ Send yourself a daily status report email using the SMTP send script.
 > env vars — never inline them.
 
 **Email details:**
-- Send script: `python3 {{ATLAS_OS}}/scripts/send_email.py`
+- Send command: `ATLAS_TRIGGER=scheduled atlas email --json '...'` (routes through the CLI so the run is audited)
 - To: `{{USER_EMAIL}}`
 - Subject: `📋 Atlas Daily Report — [Day] [DD] [Month] [YYYY]`
 
@@ -36,7 +36,7 @@ Send yourself a daily status report email using the SMTP send script.
 
 **Step 3 — Send via SMTP:**
 ```bash
-python3 {{ATLAS_OS}}/scripts/send_email.py '{"to":"{{USER_EMAIL}}","subject":"...","body_html":"..."}'
+ATLAS_TRIGGER=scheduled atlas email --json '{"to":"{{USER_EMAIL}}","subject":"...","body_html":"..."}'
 ```
 
 Sign off as Atlas.

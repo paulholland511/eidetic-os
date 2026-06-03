@@ -13,7 +13,7 @@ You are Atlas. Compile the relevant notes from the vault on a given topic into a
 
 1. Request access to `{{VAULT_PATH}}`.
 2. Find the notes relevant to `{{REPORT_TOPIC}}`:
-   - Make sure the RAG index is current first by running `atlas embed --incremental` (wraps `{{ATLAS_OS}}/scripts/embed_vault.py`).
+   - Make sure the RAG index is current first by running `ATLAS_TRIGGER=scheduled atlas embed --incremental` (routes through the CLI so the run is audited).
    - Semantic search: embed the query `{{REPORT_TOPIC}}` against the vector store using the endpoint at `http://{{EMBED_HOST}}:{{EMBED_PORT}}/v1/embeddings` (model from `EMBED_MODEL`), then rank the chunks in `$RAG_DIR/vectors.json` (default `{{VAULT_PATH}}/.rag/vectors.json`) by cosine similarity and keep the top 15–20.
    - Cross-check with a filename/heading grep over `{{VAULT_PATH}}/**/*.md` (exclude `.git`, `.rag`, `.claude`, `.obsidian`) so you don't miss notes the embeddings ranked low.
 3. Read the full text of each matched note. De-duplicate overlapping content and note the source filename for each fact so the report can be traced back.
@@ -33,7 +33,7 @@ You are Atlas. Compile the relevant notes from the vault on a given topic into a
 1. Verify the file was written and is non-empty; report its path, format, page count, and which vault notes fed into it.
 2. (Optional) If the report is meant to be shared, email it as an attachment:
    ```bash
-   python3 {{ATLAS_OS}}/scripts/send_email.py '{"to":"<recipient>","subject":"Report — {{REPORT_TOPIC}}","body_html":"...","attachments":["{{OUTPUT_DIR}}/<report-topic-slug>-[YYYY-MM-DD].docx"]}'
+   ATLAS_TRIGGER=scheduled atlas email --json '{"to":"<recipient>","subject":"Report — {{REPORT_TOPIC}}","body_html":"...","attachments":["{{OUTPUT_DIR}}/<report-topic-slug>-[YYYY-MM-DD].docx"]}'
    ```
    Credentials come from `SMTP_APP_PASSWORD` / `SENDER_EMAIL`.
 

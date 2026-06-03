@@ -12,7 +12,7 @@ Scan your inbox for unread and important mail since the last run, summarise and 
 > inbox, never delete, archive, or reply to mail.
 
 **Email details:**
-- Send script: `python3 {{ATLAS_OS}}/scripts/send_email.py`
+- Send command: `ATLAS_TRIGGER=scheduled atlas email --json '...'` (routes through the CLI so the run is audited)
 - To: `{{USER_EMAIL}}`
 - Subject: `📥 Inbox Triage — [Day] [DD] [Month] [YYYY]`
 
@@ -47,7 +47,7 @@ Scan your inbox for unread and important mail since the last run, summarise and 
 
 1. Send via SMTP:
    ```bash
-   python3 {{ATLAS_OS}}/scripts/send_email.py '{"to":"{{USER_EMAIL}}","subject":"...","body_html":"..."}'
+   ATLAS_TRIGGER=scheduled atlas email --json '{"to":"{{USER_EMAIL}}","subject":"...","body_html":"..."}'
    ```
 2. On success, write the newest processed message's UID/date back to
    `$STATE_DIR/inbox_triage_last_run.txt` so the next run starts where this one

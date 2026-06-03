@@ -44,7 +44,7 @@ Send a polished HTML email with:
 - From: `SENDER_EMAIL` (env var)
 - To: `{{USER_EMAIL}}`
 - Subject: `{{NEWSLETTER_BRAND}} — [date range]`
-- Use `python3 {{ATLAS_OS}}/scripts/send_email.py`
+- Use `ATLAS_TRIGGER=scheduled atlas email --json '...'` (routes through the CLI so the run is audited)
 
 ## Also save to vault
 

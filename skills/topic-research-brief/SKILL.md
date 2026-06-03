@@ -34,8 +34,7 @@ Run several rounds of web research on a topic, cross-check the sources, and writ
 **Step 3 — Index and confirm:**
 
 1. Re-index the vault so the new note is searchable:
-   - Incremental: `VAULT_PATH={{VAULT_PATH}} atlas embed`
-   - Or directly: `python3 {{ATLAS_OS}}/scripts/embed_vault.py` (reads `VAULT_PATH` from the env)
+   - Incremental: `ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} atlas embed` (routes through the CLI so the run is audited; reads `VAULT_PATH` from the env)
 2. Confirm the note exists at the expected path and that the embed run reported it as added/modified.
 3. Output a short run summary: note path, source count, number of rounds, and any claims left flagged as unverified.
 

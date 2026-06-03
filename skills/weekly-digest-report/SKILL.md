@@ -10,7 +10,7 @@ Compile a weekly digest of what changed in the vault and email it as a polished 
 > `SMTP_APP_PASSWORD` / `SENDER_EMAIL` env vars — never inline them.
 
 **Email details:**
-- Send script: `python3 {{ATLAS_OS}}/scripts/send_email.py`
+- Send command: `ATLAS_TRIGGER=scheduled atlas email --json '...'` (routes through the CLI so the run is audited)
 - To: `{{USER_EMAIL}}`
 - Subject: `📰 Weekly Vault Digest — [DD]–[DD] [Month] [YYYY]`
 
@@ -18,8 +18,8 @@ Compile a weekly digest of what changed in the vault and email it as a polished 
 
 1. Pull the past week's vault activity from git history:
    ```bash
-   VAULT_PATH={{VAULT_PATH}} \
-     python3 {{ATLAS_OS}}/scripts/vault_changelog.py --since "7 days ago" --json
+   ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} \
+     atlas changelog --since "7 days ago" --json
    ```
 2. From that output, bucket the changed `.md` files:
    - **New notes** — files added this week (group by top-level folder)
@@ -28,7 +28,7 @@ Compile a weekly digest of what changed in the vault and email it as a polished 
 3. For the highlights, surface themes rather than raw file lists — run a couple
    of semantic queries to find the week's most substantive material:
    ```bash
-   atlas embed --query "key decisions and research from the last week" --top 8
+   ATLAS_TRIGGER=scheduled atlas embed --query "key decisions and research from the last week" --top 8
    ```
    Read the top hits and summarise each in one sentence (title + the takeaway).
    Do NOT paste raw note bodies into the email — distil.
@@ -46,7 +46,7 @@ Use status pills / coloured section headers for scannability (e.g. green=decisio
 
 **Step 3 — Send via SMTP:**
 ```bash
-python3 {{ATLAS_OS}}/scripts/send_email.py '{"to":"{{USER_EMAIL}}","subject":"📰 Weekly Vault Digest — ...","body_html":"..."}'
+ATLAS_TRIGGER=scheduled atlas email --json '{"to":"{{USER_EMAIL}}","subject":"📰 Weekly Vault Digest — ...","body_html":"..."}'
 ```
 
 **If nothing changed this week:** send a short "quiet week — no notable vault changes" digest rather than skipping, so the report cadence stays predictable. Run unattended; do not modify any vault notes.

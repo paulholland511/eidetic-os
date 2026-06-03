@@ -12,7 +12,7 @@ yourself a report.
 
 **Preferred path — run the script:**
 ```bash
-VAULT_PATH={{VAULT_PATH}} python3 {{ATLAS_OS}}/scripts/health_check.py --json
+ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} atlas health --json
 ```
 It probes every subsystem and returns structured JSON. Use that as the basis for
 the email. The subsystems it checks:
@@ -31,9 +31,9 @@ the email. The subsystems it checks:
 
 **Auto-fix what you safely can:**
 - If `.git/index.lock` exists: `git worktree prune && rm -f {{VAULT_PATH}}/.git/index.lock`
-- If the working tree is dirty: commit with `vault_commit.py`
+- If the working tree is dirty: commit with `ATLAS_TRIGGER=scheduled atlas commit`
 
-**Email the report** using `python3 {{ATLAS_OS}}/scripts/send_email.py`:
+**Email the report** using `ATLAS_TRIGGER=scheduled atlas email --json '...'` (routes through the CLI so the run is audited):
 - To: `{{USER_EMAIL}}`
 - Subject: `🏥 Atlas Weekly Health Check — [date]`
 - Include every subsystem status and any action items.
