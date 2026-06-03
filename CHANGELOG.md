@@ -6,6 +6,8 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-06-03
+
 ### Added
 - **Migration guide — v0.3.0 → v1.0.** A new
   [`docs/MIGRATION.md`](docs/MIGRATION.md) walks existing installs through the
@@ -386,7 +388,8 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Documentation: setup, architecture, rebuild runbook, scheduled tasks, data
   classification; `SECURITY.md`, `CONTRIBUTING.md`, MIT `LICENSE`.
 
-[Unreleased]: https://github.com/paulholland511/atlas-os/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/paulholland511/atlas-os/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/paulholland511/atlas-os/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/paulholland511/atlas-os/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/paulholland511/atlas-os/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/paulholland511/atlas-os/releases/tag/v0.1.0
