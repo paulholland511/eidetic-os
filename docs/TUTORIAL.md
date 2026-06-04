@@ -542,6 +542,15 @@ it's derived, git-ignored, and rebuildable.
 > `--incremental`, so you usually don't run `atlas graph` by hand either — but
 > now you know what it produces and why.
 
+**See it.** Once you have the dashboard extra installed
+(`pip install 'atlas-os[dashboard]'`), `atlas graph --open` launches an
+interactive **D3 viewer** of your vault in the browser — nodes coloured by type,
+with zoom, pan, search, and a click-through panel of each note's links and
+backlinks. It's one of seven panels in the full **web dashboard** (`atlas
+dashboard`, covered under [Going autonomous](#hours-524--going-autonomous)),
+alongside health, the audit trail, scheduled tasks, skills, vector stats, and RAG
+search.
+
 At this point you have a vault that is **version-controlled** (Hour 1),
 **semantically searchable** (`vectors.db`), and **linked** (`graph.json`).
 Everything so far you ran by hand. Hour 3 makes it run itself.
@@ -903,6 +912,40 @@ atlas skills --sync     # regenerates "Skills Catalog.md" in your vault
 > install ships. Because it's a normal vault note, any agent that searches your
 > vault (via RAG) can see the full menu of automations it can invoke — without
 > you describing them each time. It's auto-generated; don't hand-edit it.
+
+### Watch it all from one place: the web dashboard
+
+Everything you've been checking from the command line — health, the audit trail,
+scheduled tasks, skills, the knowledge graph, vector stats, and RAG search — also
+has a **local web dashboard**. Install the extra and launch it:
+
+```bash
+pip install 'atlas-os[dashboard]'
+atlas dashboard                 # serves http://127.0.0.1:8501 and opens a browser
+```
+
+Seven panels, all read live from the same modules the CLI uses (so there's no
+second source of truth), in a clean dark theme — Flask + Jinja2 only, no build
+step. It binds to `127.0.0.1` and is read-only apart from the one-click skill-pack
+install buttons. Full details: [`docs/features/dashboard.md`](features/dashboard.md).
+
+### Share and discover skills: the marketplace
+
+Once you've written a skill worth sharing — or want to pull one in from someone
+else — use the **skills marketplace**:
+
+```bash
+atlas skills search trading                 # search every registry by keyword/tag
+atlas skills publish ./my-skill             # validate + package a skill to share
+atlas skills registry add https://example.com/registry.json   # add a community registry
+atlas skills registry list                  # show configured registries + counts
+```
+
+`publish` schema-validates the skill folder and writes a `<name>-<version>.tar.gz`
+with a generated `manifest.json`; registries are plain JSON, so a "registry" can
+be a URL or a local file your team shares. Dependencies between skills resolve
+automatically (dependencies install first). Full details:
+[`docs/features/skills-marketplace.md`](features/skills-marketplace.md).
 
 ### Tips for growing your vault organically
 

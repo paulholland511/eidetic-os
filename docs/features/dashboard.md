@@ -9,6 +9,8 @@ scheduled tasks, the skills catalog, the knowledge graph, vector-store stats, an
 RAG search — in a clean dark theme, with no build step and only one client-side
 dependency (D3, used by the graph page).
 
+![The Atlas OS web dashboard](../../dashboard-screenshot.png)
+
 It is a **view** over your machine, never a second source of truth: every number
 is read live from the existing Atlas OS modules (`vectordb`, `audit`, `_skills`,
 `packs`, and `atlas doctor`'s own checks). It reads from your local machine only.

@@ -32,9 +32,12 @@ Everything below is **in the box today** — not roadmap, not "coming soon":
 - 📋 **Audit trail** — append-only JSONL logging every autonomous action (ISO 27001 aligned)
 - 🐳 **Docker support** — `Dockerfile` + `docker-compose.yml` included
 - 🩺 **Smart diagnostics** — `atlas doctor --fix` detects and repairs issues automatically
-- ✅ **290+ automated tests** with CI/CD on every push
+- ✅ **400+ automated tests** with CI/CD on every push
 - 💾 **Session capture** — every Cowork conversation saved to your vault twice daily
 - 📚 **160+ skills catalogue** with one-command `atlas skills install-pack`
+- 📊 **Web dashboard** (`atlas dashboard`) — seven live panels: health, audit, tasks, skills, knowledge graph, vectors, RAG search
+- 🛒 **Skills marketplace** — search, publish, and install community skills (`atlas skills search` / `publish` / `registry`)
+- 🕸️ **Visual knowledge graph** — interactive D3 view of how your notes connect (`atlas graph --open`)
 
 ---
 
@@ -100,10 +103,21 @@ scaffold a vault, and run your first task:
 
 👉 **[docs/QUICKSTART.md](docs/QUICKSTART.md)**
 
+**Install** — clone, create a venv, install the `atlas` CLI:
+
+![Installing Atlas OS](install.gif)
+
 ```bash
 git clone https://github.com/paulholland511/atlas-os.git && cd atlas-os
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt && pip install -e .
+```
+
+**Set up** — configure and scaffold your vault with the interactive wizard:
+
+![Setting up Atlas OS](setup.gif)
+
+```bash
 cp .env.example .env          # set VAULT_PATH, USER_EMAIL, SMTP_APP_PASSWORD
 atlas init --yes              # scaffold + git-init your vault
 atlas doctor                  # verify
@@ -228,7 +242,7 @@ with your notes* and *running an operating system over them*.
 
 ## Features
 
-Eleven composable systems, each usable on its own:
+Twelve composable systems, each usable on its own:
 
 1. **Session capture** — every Cowork conversation is automatically saved back
    into your vault as a searchable session log (twice daily by default).
@@ -248,21 +262,31 @@ Eleven composable systems, each usable on its own:
    (probed in that order), with `ATLAS_LLM_BACKEND` to force one. Inspect with
    `atlas backends` / `atlas backends test`.
 5. **Knowledge graph** — a wikilink (`[[note]]`) graph with nodes, edges,
-   adjacency, and backlinks for "related notes".
+   adjacency, and backlinks for "related notes", plus an interactive **D3
+   force-directed viewer** (`atlas graph --open`, or the dashboard's `/graph`
+   page) — zoom, pan, search, filter by note type, and click through links and
+   backlinks.
 6. **Git automation** — auto-commit the vault with messages categorised by which
    folders changed, and generate changelogs for a morning briefing.
-7. **Scheduled tasks & skills catalog** — nightly indexing, daily reports,
-   weekly health checks and more, as Claude Cowork skills — plus a self-updating
-   `Skills Catalog.md` in the vault so agents can discover every automation they
-   can invoke.
+7. **Scheduled tasks, skills catalog & marketplace** — nightly indexing, daily
+   reports, weekly health checks and more, as Claude Cowork skills — plus a
+   self-updating `Skills Catalog.md` in the vault so agents can discover every
+   automation they can invoke, and a **skills marketplace** (`atlas skills
+   search` / `publish` / `registry`) for sharing and installing community skills
+   from JSON registries with dependency resolution.
 8. **Email reports** — a credential-free SMTP sender for status reports and
    newsletters (password from the environment, never hardcoded).
 9. **Trading research SDK** *(optional)* — a dependency-light multi-agent
    market-research framework that writes briefings into your vault.
    *Not financial advice.*
-10. **Voice / TTS hooks & dashboard** *(optional)* — health-check probes for a
-   local TTS service, plus a static, single-file operations dashboard.
-11. **Audit trail / logging** — append-only JSONL logging of every autonomous
+10. **Web dashboard** *(optional)* — a local-first Flask web UI (`atlas
+   dashboard`) with seven live panels (system health, audit trail, scheduled
+   tasks, skills, knowledge graph, vector-store stats, RAG search), reading from
+   the same modules the CLI uses. Plus a static, single-file ops dashboard for
+   embedding in your own page. See [the dashboard](#dashboard-optional).
+11. **Voice / TTS hooks** *(optional)* — health-check probes for a local TTS
+   service.
+12. **Audit trail / logging** — append-only JSONL logging of every autonomous
    action (what ran, how it was triggered, the outcome, duration, and what
    changed), with `atlas audit show / tail / export` for inspection and CSV
    compliance reports. ISO 27001 aligned (A.12.4).
@@ -703,6 +727,8 @@ production-grade IR at every stage:
 
 **Search (`atlas search`).** Query the store from the CLI:
 
+![RAG search from the CLI](search.gif)
+
 ```bash
 atlas search "kelly criterion sizing"                 # hybrid + rerank, top 5
 atlas search "trading risk" --folder research --tag trading --top-k 10
@@ -826,6 +852,8 @@ this for you.
 
 A lightweight, local-first **web dashboard** ships in the box. Install the extra
 and launch it:
+
+![Atlas OS web dashboard](dashboard.gif)
 
 ```bash
 pip install 'atlas-os[dashboard]'

@@ -103,8 +103,37 @@ A credential-free SMTP sender (password from env) used by the report tasks.
 A multi-agent market-research framework that writes briefings into the vault.
 Entirely optional and **not financial advice**.
 
-### 9. Dashboard (`dashboard/`)
-A static HTML overview that reads from your own local backend endpoints.
+### 9. Web dashboard (`atlas_os/dashboard/`)
+A lightweight, local-first **Flask web UI** (`atlas dashboard`) over everything
+you already run from the CLI — seven panels: system health, audit trail,
+scheduled tasks, skills, the **knowledge graph viewer**, vector-store stats, and
+RAG search. It is split into a pure, Flask-free data layer
+(`atlas_os/dashboard/data.py`, unit-tested directly, never raising for the
+"not set up yet" states) and a thin Flask routing layer
+(`atlas_os/dashboard/app.py`) over Jinja2 templates. It is a *view* — every
+number is read live from the same modules the CLI uses (`vectordb`, `audit`,
+`_skills`, `packs`, `doctor`), never a second source of truth. The interactive
+**D3 graph viewer** lives at `/graph` (`GET /api/graph` scans the vault live) and
+is openable with `atlas graph --open`. Shipped as the optional `[dashboard]`
+extra (Flask + Jinja2). The original static, single-file
+[`dashboard/`](../dashboard/) overview (backed by your own local JSON endpoints)
+still ships for embedding in your own page.
+
+### 10. Skills marketplace (`atlas_os/marketplace.py`)
+Turns skills from *files in the repo* into something **shareable across installs**.
+A JSON **registry** (`skills/registry.json` ships built-in; add more with
+`atlas skills registry add`) lists skills with discovery metadata; `atlas skills
+search` queries every configured registry, `atlas skills publish` validates a
+skill folder against the schema and packages it to a `<name>-<version>.tar.gz`
+with a generated `manifest.json`, and `SkillRegistry.resolve_dependencies`
+computes the install order (dependencies first), detecting missing deps and
+cycles. All pure data + small I/O helpers, so it's tested with no network.
+
+### 11. Audit trail (`atlas_os/audit.py`)
+An append-only JSONL log of every autonomous action (what ran, how it was
+triggered, the outcome, duration, and what changed), written under an OS-level
+file lock and auto-rotating at 10 MB. Queryable and exportable via `atlas audit
+show / tail / export`.
 
 ## Design principles
 
