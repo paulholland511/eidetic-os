@@ -4,6 +4,7 @@
 {% block heading %}404 — not found{% endblock %}
 {% block content %}
   <div class="empty">
+    {{ icons.icon("alert-triangle", 32) }}
     <p>That page doesn't exist.</p>
     <p><a class="btn-link" href="{{ url_for('health') }}">{{ icons.icon("arrow-left", 14) }} Back to system health</a></p>
   </div>

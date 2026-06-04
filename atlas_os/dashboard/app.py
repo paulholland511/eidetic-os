@@ -12,6 +12,9 @@ module (unlike :mod:`atlas_os.dashboard.data`) requires the optional
 
 from __future__ import annotations
 
+import os
+import platform
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from atlas_os import __version__
@@ -21,14 +24,37 @@ if TYPE_CHECKING:
     from flask import Flask
 
 
-# The navigation shown in the sidebar of every page: (endpoint, label).
-_NAV: tuple[tuple[str, str], ...] = (
-    ("health", "System health"),
-    ("audit", "Audit trail"),
-    ("scheduled", "Scheduled tasks"),
-    ("skills", "Skills"),
-    ("vectors", "Vector store"),
-    ("search", "RAG search"),
+# The sidebar navigation, grouped into labelled sections. Each item is
+# (endpoint, label, one-line description); the description shows as a tooltip and
+# under the label on wide screens. ``icon(endpoint)`` resolves the glyph.
+_NAV_GROUPS: tuple[tuple[str, tuple[tuple[str, str, str], ...]], ...] = (
+    (
+        "Monitor",
+        (
+            ("health", "System health", "Live atlas doctor checks"),
+            ("audit", "Audit trail", "Every autonomous action"),
+            ("scheduled", "Scheduled tasks", "Automations & last runs"),
+        ),
+    ),
+    (
+        "Knowledge",
+        (
+            ("vectors", "Vector store", "The RAG index"),
+            ("search", "RAG search", "Search your vault"),
+        ),
+    ),
+    (
+        "Library",
+        (("skills", "Skills", "Installable agent skills"),),
+    ),
+)
+
+# Flat (endpoint, label) view of the nav — kept for any caller that wants the
+# old shape, and used to know whether an endpoint is a top-level nav target.
+_NAV: tuple[tuple[str, str], ...] = tuple(
+    (endpoint, label)
+    for _group, items in _NAV_GROUPS
+    for endpoint, label, _desc in items
 )
 
 
@@ -62,11 +88,16 @@ def create_app() -> Flask:
 
     @app.context_processor
     def _inject_globals() -> dict[str, object]:
-        """Make the nav, active page, and version available to every template."""
+        """Make the nav, active page, version, and footer facts available everywhere."""
+        vault = os.environ.get("VAULT_PATH") or ""
         return {
             "nav": _NAV,
+            "nav_groups": _NAV_GROUPS,
             "active": request.endpoint,
             "version": __version__,
+            "now": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+            "py_version": platform.python_version(),
+            "vault_path": os.path.expanduser(vault) if vault else None,
         }
 
     # ── routes ─────────────────────────────────────────────────────────────────

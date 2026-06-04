@@ -7,14 +7,16 @@
 {% endblock %}
 
 {% block content %}
-  <form class="search-form" method="get" action="{{ url_for('search') }}">
-    <input type="search" name="q" value="{{ query }}" placeholder="Search your vault…" autofocus>
-    <select name="mode">
+  <form class="searchbar" method="get" action="{{ url_for('search') }}">
+    <span class="searchbar-ico">{{ icons.icon("search", 20) }}</span>
+    <input type="search" name="q" value="{{ query }}"
+           placeholder="Ask your vault anything — projects, decisions, research…" autofocus>
+    <select name="mode" aria-label="Search mode">
       {% for m in ['hybrid', 'vector', 'keyword'] %}
         <option value="{{ m }}" {{ 'selected' if m == mode else '' }}>{{ m }}</option>
       {% endfor %}
     </select>
-    <select name="top_k">
+    <select name="top_k" aria-label="Number of results">
       {% for k in [5, 10, 20] %}
         <option value="{{ k }}" {{ 'selected' if k == top_k else '' }}>top {{ k }}</option>
       {% endfor %}
@@ -22,28 +24,57 @@
     <button type="submit">{{ icons.icon("search", 16) }} Search</button>
   </form>
 
-  {% if result is not none %}
-    {% if not result.ok %}
-      <div class="flash flash-error">{{ result.error }}</div>
-      <p class="note">
-        Hybrid and vector search need the embeddings endpoint running. Try
-        <code>mode: keyword</code> for offline BM25 search.
-      </p>
-    {% elif result.results %}
-      <p class="note">{{ result.results | length }} result{{ '' if result.results | length == 1 else 's' }} for “{{ result.query }}” ({{ result.mode }}).</p>
-      <ol class="results">
-        {% for r in result.results %}
-          <li class="result">
+  {% if result is none %}
+    <div class="search-hint">
+      <div class="hint-row">
+        <span class="hint-chip">{{ icons.icon("zap", 14) }} hybrid</span>
+        <span class="dim">BM25 keyword + vector similarity, reranked</span>
+      </div>
+      <div class="hint-row">
+        <span class="hint-chip">{{ icons.icon("vectors", 14) }} vector</span>
+        <span class="dim">pure semantic similarity (needs embeddings endpoint)</span>
+      </div>
+      <div class="hint-row">
+        <span class="hint-chip">{{ icons.icon("hash", 14) }} keyword</span>
+        <span class="dim">offline BM25 — works without an endpoint</span>
+      </div>
+    </div>
+  {% elif not result.ok %}
+    <div class="flash flash-error">{{ icons.icon("x-circle", 16) }} <span>{{ result.error }}</span></div>
+    <p class="note">
+      Hybrid and vector search need the embeddings endpoint running. Try
+      <code>mode: keyword</code> for offline BM25 search.
+    </p>
+  {% elif result.results %}
+    {% set max_score = (result.results | map(attribute='score') | max) or 1 %}
+    <p class="note">
+      {{ icons.icon("check-circle", 14) }}
+      {{ result.results | length }} result{{ '' if result.results | length == 1 else 's' }}
+      for <strong>“{{ result.query }}”</strong>
+      <span class="badge badge-info">{{ result.mode }}</span>
+    </p>
+    <ol class="results">
+      {% for r in result.results %}
+        {% set rel = ((r.score / max_score * 100) | round | int) if max_score else 0 %}
+        <li class="result">
+          <div class="result-rank">{{ loop.index }}</div>
+          <div class="result-body">
             <div class="result-head">
+              <span class="result-file mono">{{ icons.icon("file", 14) }} {{ r.file }}{% if r.heading %} <span class="result-heading">› {{ r.heading }}</span>{% endif %}</span>
               <span class="score">{{ '%.3f' % r.score }}</span>
-              <span class="result-file mono">{{ r.file }}{% if r.heading %} › {{ r.heading }}{% endif %}</span>
+            </div>
+            <div class="relbar" title="{{ rel }}% of top score">
+              <span class="relbar-fill" style="width: {{ rel }}%"></span>
             </div>
             <p class="result-snippet">{{ r.snippet }}</p>
-          </li>
-        {% endfor %}
-      </ol>
-    {% else %}
-      <div class="empty">No results for “{{ result.query }}”.</div>
-    {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+  {% else %}
+    <div class="empty">
+      {{ icons.icon("search", 32) }}
+      <p>No results for “{{ result.query }}”.</p>
+    </div>
   {% endif %}
 {% endblock %}

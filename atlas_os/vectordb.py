@@ -280,6 +280,13 @@ class VectorStore:
         """The distinct file paths currently in the store."""
         return {r["file"] for r in self._conn.execute("SELECT DISTINCT file FROM chunks")}
 
+    def file_counts(self) -> dict[str, int]:
+        """Chunk count per file path, for storage-breakdown displays."""
+        rows = self._conn.execute(
+            "SELECT file, COUNT(*) AS n FROM chunks GROUP BY file ORDER BY n DESC"
+        )
+        return {str(r["file"]): int(r["n"]) for r in rows}
+
     def _row_to_chunk(self, row: sqlite3.Row, *, with_embedding: bool) -> dict[str, Any]:
         chunk: dict[str, Any] = {
             "id":            row["id"],

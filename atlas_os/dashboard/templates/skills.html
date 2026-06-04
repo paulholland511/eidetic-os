@@ -5,12 +5,48 @@
 {% block subhead %}
   <p class="lede">The agent skills shipped with this install, and the curated packs that bundle them.</p>
 {% endblock %}
+{% block head_aside %}
+  {% set installed_count = overview.skills | selectattr('installed') | list | length %}
+  <div class="head-counts">
+    <span class="count-pill">{{ icons.icon("package", 14) }} {{ overview.skills | length }} skills</span>
+    <span class="count-pill count-pill-ok">{{ icons.icon("check-circle", 14) }} {{ installed_count }} installed</span>
+  </div>
+{% endblock %}
+
+{% macro skill_card(s) %}
+  <a class="app-card" href="{{ url_for('skill_detail', slug=s.slug) }}">
+    <div class="app-card-top">
+      <span class="app-icon">{{ icons.icon('scheduled' if s.cadence != '—' else 'zap', 20) }}</span>
+      {% if s.installed %}
+        <span class="badge badge-ok">{{ icons.icon("check", 12) }} installed</span>
+      {% else %}
+        <span class="badge badge-muted">not installed</span>
+      {% endif %}
+    </div>
+    <span class="app-name">{{ s.name }}</span>
+    <p class="app-desc">{{ s.description }}</p>
+    <div class="app-tags">
+      {% if s.cadence != '—' %}
+        <span class="tag-chip">{{ icons.icon("clock", 11) }} {{ s.cadence }}</span>
+      {% else %}
+        <span class="tag-chip">{{ icons.icon("zap", 11) }} on-demand</span>
+      {% endif %}
+      <span class="tag-chip mono">{{ s.slug }}</span>
+    </div>
+  </a>
+{% endmacro %}
 
 {% block content %}
-  <section class="card">
-    <h2>Skill packs</h2>
+  <section class="card feature-card">
+    <div class="check-card-head">
+      <span class="cat-icon cat-icon-accent">{{ icons.icon("package", 18) }}</span>
+      <div class="check-card-title">
+        <h2>Skill packs</h2>
+        <span class="check-card-sub">Install a whole workflow at once</span>
+      </div>
+    </div>
     <p class="note">
-      Install a whole workflow at once. Skills land in
+      Skills land in
       {% if overview.install_root %}<code>{{ overview.install_root }}</code>{% else %}
       your scheduled-tasks directory (<code>VAULT_PATH</code> not set — set it to enable installs){% endif %}.
     </p>
@@ -18,11 +54,14 @@
       {% for pack in overview.packs %}
         <div class="pack">
           <div class="pack-head">
+            <span class="pack-icon">{{ icons.icon("layers", 16) }}</span>
             <span class="pack-name">{{ pack.name }}</span>
-            <span class="dim">{{ pack.skills | length }} skill{{ '' if pack.skills | length == 1 else 's' }}</span>
+            <span class="badge badge-info">{{ pack.skills | length }} skill{{ '' if pack.skills | length == 1 else 's' }}</span>
           </div>
           <p class="pack-desc">{{ pack.description }}</p>
-          <div class="mono dim pack-skills">{{ pack.skills | join(', ') }}</div>
+          <div class="pack-skills">
+            {% for sk in pack.skills %}<span class="tag-chip mono">{{ sk }}</span>{% endfor %}
+          </div>
           <form method="post" action="{{ url_for('install_pack', name=pack.name) }}">
             <button type="submit" {{ 'disabled' if not overview.install_root else '' }}>
               {{ icons.icon("download", 16) }} Install pack
@@ -33,28 +72,28 @@
     </div>
   </section>
 
-  <section class="card">
-    <h2>All skills ({{ overview.skills | length }})</h2>
-    <table class="data-table">
-      <thead>
-        <tr><th>Skill</th><th>What it does</th><th>Cadence</th><th>Installed</th></tr>
-      </thead>
-      <tbody>
-        {% for s in overview.skills %}
-          <tr>
-            <td><a href="{{ url_for('skill_detail', slug=s.slug) }}">{{ s.name }}</a></td>
-            <td class="desc-cell">{{ s.description }}</td>
-            <td>{{ s.cadence }}</td>
-            <td>
-              {% if s.installed %}
-                <span class="badge badge-ok">yes</span>
-              {% else %}
-                <span class="dim">no</span>
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </section>
+  {% set scheduled_skills = overview.skills | selectattr('cadence', 'ne', '—') | list %}
+  {% set ondemand_skills = overview.skills | rejectattr('cadence', 'ne', '—') | list %}
+
+  {% if scheduled_skills %}
+    <div class="section-head">
+      <span class="section-icon">{{ icons.icon("scheduled", 16) }}</span>
+      <h2 class="section-title">Scheduled automations</h2>
+      <span class="section-count">{{ scheduled_skills | length }}</span>
+    </div>
+    <div class="app-grid">
+      {% for s in scheduled_skills %}{{ skill_card(s) }}{% endfor %}
+    </div>
+  {% endif %}
+
+  {% if ondemand_skills %}
+    <div class="section-head">
+      <span class="section-icon">{{ icons.icon("zap", 16) }}</span>
+      <h2 class="section-title">On-demand skills</h2>
+      <span class="section-count">{{ ondemand_skills | length }}</span>
+    </div>
+    <div class="app-grid">
+      {% for s in ondemand_skills %}{{ skill_card(s) }}{% endfor %}
+    </div>
+  {% endif %}
 {% endblock %}

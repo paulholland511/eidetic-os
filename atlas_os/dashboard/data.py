@@ -340,11 +340,27 @@ def vector_stats() -> dict[str, Any]:
 
     with vectordb.VectorStore(db_path) as store:
         chunk_count = store.count()
-        file_count = len(store.files())
+        counts = store.file_counts()
+        file_count = len(counts)
         cache_size = store.cache_size()
         backend = "sqlite-vec (KNN)" if store.vec_enabled else "brute-force cosine"
 
     db_size = db_path.stat().st_size
+
+    # Per-file chunk breakdown, biggest first, with each file's share of the
+    # index as a percentage so the template can draw proportional bars. Capped at
+    # the top 40 so a 1k-file vault doesn't render a 1k-row table.
+    top_chunks = max(counts.values()) if counts else 0
+    files = [
+        {
+            "file": path,
+            "chunks": n,
+            "share": (n / chunk_count * 100) if chunk_count else 0.0,
+            "bar": (n / top_chunks * 100) if top_chunks else 0.0,
+        }
+        for path, n in list(counts.items())[:40]
+    ]
+    avg_chunks = (chunk_count / file_count) if file_count else 0.0
 
     # Last-embed timestamp (canonical file, then the iCloud-safe fallback).
     last_embed_ts = 0.0
@@ -377,6 +393,9 @@ def vector_stats() -> dict[str, Any]:
         "backend": backend,
         "db_path": str(db_path),
         "last_embed": last_embed,
+        "files": files,
+        "files_truncated": max(0, file_count - len(files)),
+        "avg_chunks": avg_chunks,
     }
 
 
