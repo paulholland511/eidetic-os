@@ -130,9 +130,14 @@ def test_embed_pipeline_writes_vectors(
 
     store = vectordb.VectorStore(db_file)
     try:
-        # One short file → one chunk → one vector, so the count matches md files.
+        # Semantic chunking may split a file into several chunks, so the store
+        # can hold more vectors than there are files. The contract is coverage,
+        # not a 1:1 count: every md file is represented by at least one vector,
+        # and no file is missing or extra.
         md_files = list(sample_vault.rglob("*.md"))
-        assert store.count() == len(md_files)
+        expected_files = {str(p.relative_to(sample_vault)) for p in md_files}
+        assert store.files() == expected_files
+        assert store.count() >= len(md_files)
         for entry in store.all_chunks(with_embedding=True):
             assert entry["file"]
             assert isinstance(entry["embedding"], list) and entry["embedding"]
