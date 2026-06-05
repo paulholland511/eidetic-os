@@ -48,10 +48,21 @@ jobs = []
 # brute-force cosine scan, so this extra is optional. NumPy further speeds the
 # fallback when present.
 vector = ["sqlite-vec>=0.1.6", "numpy>=1.24"]
+# ── Pluggable vector backends (VECTOR_BACKEND) ──────────────────────────────
+# The default SQLite backend needs nothing extra. These opt-in extras swap in an
+# alternative engine for larger or more demanding indexes — pick one with e.g.
+# `pip install 'atlas-os[lancedb]'`, then set VECTOR_BACKEND in your .env.
+# LanceDB: columnar, on-disk, zero-copy scans + rich metadata filtering.
+lancedb = ["lancedb>=0.5"]
+# ChromaDB: a popular embedding database with a persistent local client.
+chroma = ["chromadb>=0.5"]
 # The local web dashboard (`atlas dashboard`). Flask + Jinja2 only — no JS build
 # step, no client-side framework. Kept optional so the core install stays slim.
 dashboard = ["flask>=3.0"]
-all = ["pdfplumber>=0.10", "yfinance>=0.2", "sqlite-vec>=0.1.6", "numpy>=1.24", "flask>=3.0"]
+all = [
+  "pdfplumber>=0.10", "yfinance>=0.2", "sqlite-vec>=0.1.6", "numpy>=1.24",
+  "flask>=3.0", "lancedb>=0.5", "chromadb>=0.5",
+]
 
 [project.urls]
 Homepage = "https://github.com/paulholland511/atlas-os"

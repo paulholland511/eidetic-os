@@ -218,7 +218,7 @@ class VectorStore:
             tags_json = tags if isinstance(tags, str) else json.dumps(tags)
             blob = _pack(embedding)
 
-            cur = self._conn.execute(
+            self._conn.execute(
                 "INSERT INTO chunks(id, file, chunk_text, heading, embedding, "
                 "modified_time, folder, doc_type, tags) "
                 "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?) "
@@ -233,7 +233,15 @@ class VectorStore:
                     entry.get("folder", ""), entry.get("doc_type", ""), tags_json,
                 ),
             )
-            rowid = cur.lastrowid
+            # Resolve the rowid by id rather than trusting cur.lastrowid: on the
+            # ON CONFLICT DO UPDATE path SQLite performs an UPDATE, not an INSERT,
+            # so lastrowid is *not* refreshed and still holds the previous insert's
+            # rowid — syncing the vec index against it would clobber an unrelated
+            # row. Looking it up keeps vec_chunks in true lockstep with chunks.
+            row = self._conn.execute(
+                "SELECT rowid FROM chunks WHERE id = ?", (entry_id,)
+            ).fetchone()
+            rowid = row["rowid"] if row is not None else None
             if self._vec_ready and rowid is not None:
                 # Keep the vec index in lockstep with the canonical row.
                 self._conn.execute("DELETE FROM vec_chunks WHERE rowid = ?", (rowid,))

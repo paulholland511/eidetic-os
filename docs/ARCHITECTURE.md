@@ -78,7 +78,13 @@ cosine scan otherwise — same API, same scores, no hard dependency. Query time
 **Reciprocal Rank Fusion**, **reranked** by TF-IDF, and pre-filtered by metadata
 (folder, doc_type, tag, file type, date). A legacy `vectors.json` is
 auto-migrated to `vectors.db` on first embed (or ahead of time via
-`atlas migrate-vectors`). `build_graph.py` derives a wikilink knowledge graph.
+`atlas migrate-vectors`). The storage engine itself is **pluggable** behind the
+`atlas_os.vector_backend.VectorBackend` interface (`atlas_os/vector_backends/`):
+SQLite is the zero-config default, with optional **LanceDB** and **ChromaDB**
+backends selected via `VECTOR_BACKEND` and populated with
+`atlas migrate-vectors --to <backend>` — see
+[`features/vector-backends.md`](features/vector-backends.md).
+`build_graph.py` derives a wikilink knowledge graph.
 Both run incrementally (nightly) and fully (weekly), indexing your notes, captured
 sessions, and research findings into one searchable corpus.
 

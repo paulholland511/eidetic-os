@@ -10,6 +10,7 @@ setup and the command reference, see [`docs/SETUP.md`](../SETUP.md) and
 | Knowledge vault & frontmatter schemas | [knowledge-vault.md](knowledge-vault.md) | `schemas/`, `templates/` | `atlas schemas`, `atlas init` |
 | Session capture | [session-capture.md](session-capture.md) | `scripts/save_sessions.py` | `atlas session` |
 | Local RAG search | [rag-search.md](rag-search.md) | `scripts/embed_vault.py` | `atlas embed` |
+| Pluggable vector backends | [vector-backends.md](vector-backends.md) | `atlas_os/vector_backend.py`, `atlas_os/vector_backends/` | `atlas migrate-vectors --to` |
 | Knowledge graph | [knowledge-graph.md](knowledge-graph.md) | `scripts/build_graph.py` | `atlas graph` |
 | Git automation | [git-automation.md](git-automation.md) | `scripts/vault_commit.py`, `vault_changelog.py` | `atlas commit`, `atlas changelog` |
 | Scheduled tasks & skills catalog | [skills-and-automation.md](skills-and-automation.md) | `skills/`, `atlas_os/_skills.py` | `atlas skills` |

@@ -6,6 +6,25 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Scalable vector storage — pluggable backends** ([#19](https://github.com/paulholland511/atlas-os/issues/19)).
+  A small `VectorBackend` interface (`insert` / `search` / `delete_by_file` /
+  `count` / `files` / `clear` / `export_chunks`) now sits in front of the RAG
+  store (`atlas_os/vector_backend.py`, `atlas_os/vector_backends/`). **SQLite**
+  stays the zero-config default; opt-in **LanceDB** (`atlas-os[lancedb]` —
+  columnar, on-disk, zero-copy scans) and **ChromaDB** (`atlas-os[chroma]`)
+  backends are selectable via `VECTOR_BACKEND`. `atlas migrate-vectors --to
+  <backend>` copies an existing store into another engine with progress and a
+  verified count match; `atlas doctor` reports the active backend. See
+  [`docs/features/vector-backends.md`](docs/features/vector-backends.md).
+
+### Fixed
+- **Vector-index integrity on re-embed** (`atlas_os/vectordb.py`). On an
+  upsert that *updates* an existing chunk id, the `sqlite-vec` index was synced
+  against a stale `lastrowid` (SQLite refreshes it only on INSERT, not the
+  `ON CONFLICT DO UPDATE` path), which could overwrite an unrelated row's vector
+  and surface the wrong chunk in KNN results. The rowid is now resolved by id.
+
 ## [3.0.0] — Planned
 
 The **[v3.0.0 milestone](https://github.com/paulholland511/atlas-os/milestone/3)**

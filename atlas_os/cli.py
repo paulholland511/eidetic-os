@@ -280,24 +280,117 @@ def search(ctx: typer.Context) -> None:
 def migrate_vectors(
     rag_dir: Path = typer.Option(
         None, "--rag-dir",
-        help="RAG directory holding vectors.json (defaults to $RAG_DIR or $VAULT_PATH/.rag).",
+        help="RAG directory holding the vector store(s) (defaults to $RAG_DIR or $VAULT_PATH/.rag).",
+    ),
+    to: str = typer.Option(
+        None, "--to",
+        help="Target vector backend (sqlite|lancedb|chroma). Copies the current "
+             "store into that engine. Omit to import a legacy vectors.json into SQLite.",
+    ),
+    from_backend: str = typer.Option(
+        None, "--from",
+        help="Source backend for --to (defaults to $VECTOR_BACKEND, else sqlite).",
     ),
     force: bool = typer.Option(
-        False, "--force", help="Re-import even if the SQLite store already has vectors."
+        False, "--force", help="Overwrite the target if it already holds vectors."
     ),
 ) -> None:
-    """Migrate a legacy ``vectors.json`` into the SQLite vector store.
+    """Migrate the vector store — between backends (``--to``) or from legacy JSON.
 
-    Reads the old JSON store and writes every chunk into ``vectors.db`` (created
-    alongside it). Embeds are auto-migrated on first run, so this is only needed
-    to convert an existing index ahead of time, or to re-import with ``--force``.
+    With ``--to lancedb`` (or ``chroma`` / ``sqlite``) this copies every chunk
+    from your current backend into the target engine, shows progress, and verifies
+    the counts match — then you set ``VECTOR_BACKEND`` in ``.env`` to switch over.
+    Without ``--to`` it imports a legacy ``vectors.json`` into the SQLite store, as
+    before (embeds also auto-migrate on first run).
     """
-    from atlas_os import vectordb
-
     rag = rag_dir or _resolve_rag_dir()
     if rag is None:
         _echo_fail("No RAG directory: pass --rag-dir, or set RAG_DIR / VAULT_PATH.")
         raise typer.Exit(code=2)
+
+    if to is not None:
+        _migrate_between_backends(rag, to=to, from_backend=from_backend, force=force)
+        return
+
+    _migrate_legacy_json(rag, force=force)
+
+
+def _migrate_between_backends(
+    rag: Path, *, to: str, from_backend: str | None, force: bool
+) -> None:
+    """Copy the current vector store into another backend engine (``--to``)."""
+    from atlas_os import vector_backend
+
+    try:
+        target_name = vector_backend.resolve_backend_name(to)
+        source_name = vector_backend.resolve_backend_name(from_backend)
+    except ValueError as exc:
+        _echo_fail(str(exc))
+        raise typer.Exit(code=2) from exc
+
+    if source_name == target_name:
+        _echo_warn(
+            f"source and target are both '{source_name}' — nothing to migrate "
+            "(pass --from to copy between two different engines)."
+        )
+        raise typer.Exit(code=0)
+
+    try:
+        source = vector_backend.get_backend(rag, name=source_name)
+    except RuntimeError as exc:  # optional dependency missing
+        _echo_fail(str(exc))
+        raise typer.Exit(code=1) from exc
+
+    expected = source.count()
+    if expected == 0:
+        _echo_warn(f"the '{source_name}' store at {rag} is empty — nothing to migrate.")
+        source.close()
+        raise typer.Exit(code=0)
+
+    try:
+        target = vector_backend.get_backend(rag, name=target_name)
+    except RuntimeError as exc:
+        _echo_fail(str(exc))
+        source.close()
+        raise typer.Exit(code=1) from exc
+
+    try:
+        existing = target.count()
+        if existing and not force:
+            _echo_warn(
+                f"the '{target_name}' store already has {existing} vector(s) — skipping "
+                "(pass --force to overwrite)."
+            )
+            raise typer.Exit(code=0)
+        if existing:
+            target.clear()
+
+        typer.echo(f"  migrating {expected} vector(s): {source_name} → {target_name}…")
+
+        def _progress(done: int) -> None:
+            typer.echo(f"\r    {done}/{expected} copied", nl=False)
+
+        copied = vector_backend.migrate(source, target, on_progress=_progress)
+        typer.echo("")
+        final = target.count()
+    finally:
+        source.close()
+        target.close()
+
+    if final != expected:
+        _echo_fail(
+            f"count mismatch after migration: copied {copied}, target now holds "
+            f"{final}, expected {expected}."
+        )
+        raise typer.Exit(code=1)
+
+    _echo_ok(f"migrated {copied} vector(s): {source_name} → {target_name} (verified {final}).")
+    typer.echo(f"  set VECTOR_BACKEND={target_name} in your .env to use the new store.")
+
+
+def _migrate_legacy_json(rag: Path, *, force: bool) -> None:
+    """Import a legacy ``vectors.json`` into the SQLite store (the original behaviour)."""
+    from atlas_os import vectordb
 
     legacy = rag / "vectors.json"
     if not legacy.exists():
@@ -1787,6 +1880,18 @@ def _rag_checks(now: float) -> list[Check]:
     vectors = vectors_db if vectors_db.exists() else rag_dir / "vectors.json"
     last_embed = rag_dir / "last_embed.txt"
     checks: list[Check] = []
+
+    # Active vector backend (VECTOR_BACKEND): sqlite (default), lancedb, or chroma.
+    from atlas_os.vector_backend import DEFAULT_BACKEND, active_backend_name
+    backend = active_backend_name()
+    if backend.endswith("(invalid)"):
+        checks.append(Check(
+            "RAG", "Backend", "WARN", f"VECTOR_BACKEND={backend}",
+            next_step="set VECTOR_BACKEND to sqlite, lancedb, or chroma in .env",
+        ))
+    else:
+        suffix = " (default)" if backend == DEFAULT_BACKEND else ""
+        checks.append(Check("RAG", "Backend", "OK", f"{backend}{suffix}"))
 
     # Index presence.
     if vectors.exists():
