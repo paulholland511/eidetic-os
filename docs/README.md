@@ -11,12 +11,19 @@ the source — see [**features/**](features/README.md):
 - [Knowledge vault & schemas](features/knowledge-vault.md)
 - [Session capture](features/session-capture.md)
 - [Local RAG search](features/rag-search.md)
+- [Pluggable vector backends](features/vector-backends.md)
 - [Knowledge graph](features/knowledge-graph.md)
 - [Git automation](features/git-automation.md)
+- [Git sync hardening](features/git-hardening.md)
 - [Scheduled tasks & skills catalog](features/skills-and-automation.md)
+- [Skills marketplace / registry](features/skills-marketplace.md)
+- [MCP skills (Model Context Protocol)](features/mcp-skills.md)
+- [Skill security (scan + sandbox)](features/security.md)
+- [Extension architecture](features/extensions.md)
 - [Email reports](features/email-reports.md)
 - [Trading research SDK](features/trading-sdk.md)
 - [Health check & dashboard](features/health-and-dashboard.md)
+- [Web dashboard](features/dashboard.md)
 
 ## Getting started
 

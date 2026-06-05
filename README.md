@@ -42,9 +42,14 @@ Everything below is **in the box today** — not roadmap, not "coming soon":
 - 📋 **Audit trail** — append-only JSONL logging every autonomous action (ISO 27001 aligned)
 - 🐳 **Docker support** — `Dockerfile` + `docker-compose.yml` included
 - 🩺 **Smart diagnostics** — `atlas doctor --fix` detects and repairs issues automatically
-- ✅ **400+ automated tests** with CI/CD on every push
+- ✅ **640+ automated tests** with CI/CD on every push
 - 📚 **160+ skills catalogue** with one-command `atlas skills install-pack`
 - 🛒 **Skills marketplace** — search, publish, and install community skills (`atlas skills search` / `publish` / `registry`)
+- 🧩 **Extension architecture** — a lean core plus opt-in domain extensions (`pip install 'atlas-os[trading]'`), discovered via setuptools entry points
+- 🔗 **MCP-native skills** — every skill is a Model Context Protocol server, usable from Claude Code, Cowork, and any MCP host (`atlas mcp serve`)
+- 🛡️ **Skill security gate** — AST scan (BLOCK / WARN / INFO) plus a sandboxed runtime before community skills run (`atlas security scan`)
+- 🔒 **Hardened git sync** — favour-local merges that never clobber your edits, frontmatter validation, and file locking (`atlas sync`, `atlas validate`)
+- 🗄️ **Pluggable vector storage** — `sqlite-vec` by default, swap in LanceDB or ChromaDB via `VECTOR_BACKEND` (`atlas migrate-vectors --to`)
 
 ---
 
