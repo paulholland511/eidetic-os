@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% import "_icons.html" as icons %}
+{% block title %}System health{% endblock %}
+{% block heading %}System health{% endblock %}
+{% block subhead %}
+  <p class="lede">The live <code>eidetic doctor</code> report — Config, Git, LLM, RAG, and SMTP.</p>
+{% endblock %}
+{% block head_aside %}
+  <span class="head-stamp">{{ icons.icon("clock", 14) }} Checked {{ now }}</span>
+{% endblock %}
+
+{% set cat_icons = {'Config': 'settings', 'Git': 'git', 'LLM': 'cpu', 'RAG': 'database', 'SMTP': 'mail'} %}
+{% set pass_rate = ((report.summary.ok / report.summary.total * 100) | round | int) if report.summary.total else 0 %}
+
+{% block content %}
+  <section class="hero hero-{{ report.overall }}">
+    <div class="hero-gauge">
+      <div class="gauge-ring gauge-{{ report.overall }}" style="--pct: {{ pass_rate }}">
+        <div class="gauge-inner">
+          <span class="gauge-pct">{{ pass_rate }}<span class="gauge-unit">%</span></span>
+          <span class="gauge-cap">pass rate</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-body">
+      <div class="hero-status">
+        <span class="status-chip status-{{ report.overall }}">
+          {{ icons.status_icon(report.overall, 18) }}
+          {% if report.overall == 'ok' %}All systems operational
+          {% elif report.overall == 'warn' %}Operational — warnings present
+          {% else %}Action required{% endif %}
+        </span>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat">
+          <span class="hstat-value">{{ report.summary.total }}</span>
+          <span class="hstat-label">{{ icons.icon("activity", 13) }} Total checks</span>
+        </div>
+        <div class="hstat hstat-ok">
+          <span class="hstat-value">{{ report.summary.ok }}</span>
+          <span class="hstat-label">{{ icons.icon("check-circle", 13) }} Passing</span>
+        </div>
+        <div class="hstat hstat-warn">
+          <span class="hstat-value">{{ report.summary.warn }}</span>
+          <span class="hstat-label">{{ icons.icon("alert-triangle", 13) }} Warnings</span>
+        </div>
+        <div class="hstat hstat-fail">
+          <span class="hstat-value">{{ report.summary.fail }}</span>
+          <span class="hstat-label">{{ icons.icon("x-circle", 13) }} Failing</span>
+        </div>
+      </div>
+      <div class="hero-bar" role="img"
+           aria-label="{{ report.summary.ok }} passing, {{ report.summary.warn }} warning, {{ report.summary.fail }} failing">
+        {% if report.summary.ok %}<span class="seg seg-ok" style="flex: {{ report.summary.ok }}"></span>{% endif %}
+        {% if report.summary.warn %}<span class="seg seg-warn" style="flex: {{ report.summary.warn }}"></span>{% endif %}
+        {% if report.summary.fail %}<span class="seg seg-fail" style="flex: {{ report.summary.fail }}"></span>{% endif %}
+      </div>
+    </div>
+  </section>
+
+  <div class="card-grid">
+    {% for category in report.categories %}
+      {% set ok = category.checks | selectattr('state', 'equalto', 'ok') | list | length %}
+      {% set warn = category.checks | selectattr('state', 'equalto', 'warn') | list | length %}
+      {% set fail = category.checks | selectattr('state', 'equalto', 'fail') | list | length %}
+      {% set cstate = 'fail' if fail else ('warn' if warn else 'ok') %}
+      <section class="card check-card check-card-{{ cstate }}">
+        <div class="check-card-head">
+          <span class="cat-icon cat-icon-{{ cstate }}">{{ icons.icon(cat_icons.get(category.name, 'server'), 18) }}</span>
+          <div class="check-card-title">
+            <h2>{{ category.name }}</h2>
+            <span class="check-card-sub">{{ category.checks | length }} check{{ '' if category.checks | length == 1 else 's' }}</span>
+          </div>
+          <span class="badge badge-{{ cstate }}">
+            {{ icons.status_icon(cstate, 13) }}
+            {% if fail %}{{ fail }} failing{% elif warn %}{{ warn }} warning{% else %}healthy{% endif %}
+          </span>
+        </div>
+        <ul class="check-list">
+          {% for check in category.checks %}
+            <li class="check check-{{ check.state }}">
+              {% if check.next_step and check.status != 'OK' %}
+                <details class="check-row">
+                  <summary>
+                    <span class="check-badge check-badge-{{ check.state }}">{{ icons.status_icon(check.state, 13) }} {{ check.status }}</span>
+                    <span class="check-name">{{ check.name }}</span>
+                    <span class="check-detail">{{ check.detail }}</span>
+                    <span class="check-caret">{{ icons.icon("chevron-down", 16) }}</span>
+                  </summary>
+                  <div class="check-fix">
+                    <span class="fix-label">{{ icons.icon("zap", 13) }} Suggested fix</span>
+                    <span class="fix-text">{{ check.next_step }}</span>
+                  </div>
+                </details>
+              {% else %}
+                <div class="check-row check-row-static">
+                  <span class="check-badge check-badge-{{ check.state }}">{{ icons.status_icon(check.state, 13) }} {{ check.status }}</span>
+                  <span class="check-name">{{ check.name }}</span>
+                  <span class="check-detail">{{ check.detail }}</span>
+                </div>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endfor %}
+  </div>
+{% endblock %}

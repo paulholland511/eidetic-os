@@ -1,4 +1,4 @@
-"""Tests for atlas_os.git_sync and the iCloud fault-in helper.
+"""Tests for eidetic_os.git_sync and the iCloud fault-in helper.
 
 The headline guarantee is that an *automated* sync never corrupts or loses the
 user's work, so the suite races a simulated remote change against a concurrent
@@ -15,7 +15,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from atlas_os import fileio, git_sync
+from eidetic_os import fileio, git_sync
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -32,9 +32,9 @@ def repos(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace:
     automated sync must integrate. Audit writes go to a temp file and the git
     identity is pinned so commits succeed hermetically.
     """
-    monkeypatch.setenv("ATLAS_AUDIT_PATH", str(tmp_path / "audit.jsonl"))
+    monkeypatch.setenv("EIDETIC_AUDIT_PATH", str(tmp_path / "audit.jsonl"))
     for var in ("GIT_AUTHOR_NAME", "GIT_COMMITTER_NAME"):
-        monkeypatch.setenv(var, "Atlas Test")
+        monkeypatch.setenv(var, "Eidetic Test")
     for var in ("GIT_AUTHOR_EMAIL", "GIT_COMMITTER_EMAIL"):
         monkeypatch.setenv(var, "atlas-test@example.com")
 
@@ -141,7 +141,7 @@ class TestSafeSync:
     def test_skips_repo_without_remote(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        monkeypatch.setenv("ATLAS_AUDIT_PATH", str(tmp_path / "audit.jsonl"))
+        monkeypatch.setenv("EIDETIC_AUDIT_PATH", str(tmp_path / "audit.jsonl"))
         repo = tmp_path / "solo"
         repo.mkdir()
         subprocess.run(["git", "init", "-b", "main", str(repo)],
@@ -165,7 +165,7 @@ class TestSafeSync:
         assert not lock.exists()
 
     def test_logs_to_audit_trail(self, repos: SimpleNamespace) -> None:
-        from atlas_os import audit
+        from eidetic_os import audit
 
         git_sync.safe_sync(repos.local)
         entries = audit.read_audit(action="sync")

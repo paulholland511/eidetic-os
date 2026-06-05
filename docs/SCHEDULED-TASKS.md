@@ -1,17 +1,17 @@
 # Scheduled Tasks
 
-Atlas OS automations are Claude Cowork **skills** run on a schedule. Each lives
+Eidetic OS automations are Claude Cowork **skills** run on a schedule. Each lives
 in `skills/<name>/SKILL.md`. The fastest way to install one is the CLI, which
 copies the SKILL.md into your scheduled-tasks directory and fills in the
 `{{PLACEHOLDER}}` tokens from your `.env`:
 
 ```bash
-atlas skills list                       # every available skill (slug + cadence)
-atlas skills show atlas-daily-report-email   # print a skill's SKILL.md
-atlas skills install atlas-daily-report-email
+eidetic skills list                       # every available skill (slug + cadence)
+eidetic skills show atlas-daily-report-email   # print a skill's SKILL.md
+eidetic skills install atlas-daily-report-email
 ```
 
-`install` writes to `$ATLAS_SKILLS_DIR/<name>/SKILL.md` (default
+`install` writes to `$EIDETIC_SKILLS_DIR/<name>/SKILL.md` (default
 `$VAULT_PATH/.claude/skills/<name>/`), substitutes every placeholder it can
 resolve from the environment, and tells you which tokens it left for you to fill
 in by hand. Pass `--force` to overwrite an existing install. Then register it on
@@ -19,16 +19,16 @@ the cadence below. (You can still copy the folder manually if you prefer.)
 
 ## Placeholders used across skills
 
-`atlas skills install` resolves each `{{TOKEN}}` from the environment variable of
+`eidetic skills install` resolves each `{{TOKEN}}` from the environment variable of
 the same name (so `{{VAULT_PATH}}` ← `VAULT_PATH`). Two are special-cased:
-`{{ATLAS_OS}}` resolves to this repo's path automatically, and `{{LLM_PORT}}`
+`{{EIDETIC_OS}}` resolves to this repo's path automatically, and `{{LLM_PORT}}`
 reads `LM_STUDIO_PORT`. Tokens with no value (e.g. `{{JOB_TRACKER_PATH}}`,
 `{{WATCHLIST}}`) are left in place for you to edit.
 
 | Token | Meaning |
 |---|---|
 | `{{VAULT_PATH}}` | Absolute path to your vault |
-| `{{ATLAS_OS}}` | Absolute path to this repo |
+| `{{EIDETIC_OS}}` | Absolute path to this repo |
 | `{{USER_EMAIL}}` | Where reports are sent |
 | `{{EMBED_HOST}}` / `{{EMBED_PORT}}` | Local embeddings endpoint |
 | `{{LLM_PORT}}` | Local chat-completions port |
@@ -69,30 +69,30 @@ reads `LM_STUDIO_PORT`. Tokens with no value (e.g. `{{JOB_TRACKER_PATH}}`,
 
 ## The skills catalog (agent discovery)
 
-Atlas OS keeps a **Skills Catalog** note inside your vault — a single,
+Eidetic OS keeps a **Skills Catalog** note inside your vault — a single,
 always-current index of every skill this install ships. Its purpose is
 *discovery*: any agent that reads or searches your vault (via RAG, or by opening
 the note directly) can see the full menu of automations it can invoke, without
 you having to describe them each time.
 
 ```bash
-atlas skills          # list the catalog in the terminal
-atlas skills --sync   # (re)generate "Skills Catalog.md" in your vault
+eidetic skills          # list the catalog in the terminal
+eidetic skills --sync   # (re)generate "Skills Catalog.md" in your vault
 ```
 
-`atlas init` generates it for you on first setup. The note is built from each
+`eidetic init` generates it for you on first setup. The note is built from each
 `skills/<name>/SKILL.md` frontmatter (its `name` and `description`), so it never
-drifts from the actual skills — **re-run `atlas skills --sync` whenever you add,
+drifts from the actual skills — **re-run `eidetic skills --sync` whenever you add,
 remove, or edit a skill**. It's auto-generated, so don't hand-edit it.
 
 The catalog lands at `Skills Catalog.md` in the vault root (override with
-`atlas skills --sync --output PATH`) and carries `type: reference` frontmatter so
+`eidetic skills --sync --output PATH`) and carries `type: reference` frontmatter so
 the RAG indexer picks it up like any other note. Because it's just a vault note,
 it's covered by the same local-first guarantees as everything else — it never
 leaves your machine.
 
 > Adding your own skill? Drop a `skills/<slug>/SKILL.md` with `name` and
-> `description` frontmatter, then `atlas skills --sync`. It appears in the
+> `description` frontmatter, then `eidetic skills --sync`. It appears in the
 > catalog automatically.
 
 ## Notes on safety

@@ -1,11 +1,11 @@
 # Security Policy
 
-Atlas OS is built local-first and privacy-first. This document describes how
+Eidetic OS is built local-first and privacy-first. This document describes how
 data is handled, how credentials are managed, and how to report a vulnerability.
 
 ## Data classification policy
 
-Atlas OS distinguishes four data classes. The short version:
+Eidetic OS distinguishes four data classes. The short version:
 
 - **Public** — this repo (code, docs, templates). Contains no personal data.
 - **Internal** — your vault notes, RAG vectors, knowledge graph. **Never leave
@@ -26,7 +26,7 @@ Full detail and the data-flow map: [`docs/DATA-CLASSIFICATION.md`](docs/DATA-CLA
 | Email | Sent via *your* SMTP account to recipients *you* specify. |
 | Web search (some tasks) | Queries the public web for news; sends none of your data. |
 
-There is **no telemetry and no analytics**. Atlas OS does not phone home, and
+There is **no telemetry and no analytics**. Eidetic OS does not phone home, and
 the maintainers receive nothing about your usage.
 
 ## Credential management
@@ -77,11 +77,11 @@ but the project is built so that doing the right thing is the default:
 - **A.5.7 — Local processing:** local-first design keeps data on the device;
   external calls are explicit and opt-in.
 - **A.12.4 — Logging & monitoring:** an append-only audit trail
-  ([`atlas_os/audit.py`](atlas_os/audit.py)) records every autonomous action —
+  ([`eidetic_os/audit.py`](eidetic_os/audit.py)) records every autonomous action —
   what ran, how it was triggered (`scheduled`/`manual`/`cli`), the outcome,
   duration, what changed, why, and any error. Entries are written under an
   OS-level file lock and auto-rotated, giving a tamper-evident operational record
-  you can query (`atlas audit show`) and export for review (`atlas audit export
+  you can query (`eidetic audit show`) and export for review (`eidetic audit export
   --format csv`). The log stays on-device under your vault.
 - **Auditability:** automatic, categorised git history of the vault, plus the
   append-only action audit trail above.

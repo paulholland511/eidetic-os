@@ -2,7 +2,7 @@
 
 **Source:** [`trading/`](../../trading/README.md),
 [`scripts/trading_briefing.py`](../../scripts/trading_briefing.py) ·
-**Install:** `atlas-os[trading]`
+**Install:** `eidetic-os[trading]`
 
 > ⚠️ **Not financial advice.** This module is a research/automation template. It
 > does **not** place trades, and nothing it outputs is a recommendation to buy or
@@ -18,7 +18,7 @@ them). Optionally, a bridge turns a briefing into machine-readable signals for a
 
 ## Three pieces (and how they relate)
 
-Atlas OS's trading code has three parts that share *conventions* (signal format,
+Eidetic OS's trading code has three parts that share *conventions* (signal format,
 vault location) but not all imports:
 
 1. **The analyst SDK** — [`trading/core.py`](../../trading/core.py) +
@@ -106,7 +106,7 @@ End-to-end:
    `| Ticker | Status | Recommendation |`, per-ticker detail, and a config footer.
 
 ```bash
-atlas-os ships this as scripts/trading_briefing.py; run via:
+eidetic-os ships this as scripts/trading_briefing.py; run via:
 python3 scripts/trading_briefing.py                 # all TRADING_TICKERS
 python3 scripts/trading_briefing.py --ticker BTC-USD
 python3 scripts/trading_briefing.py --date 2026-06-01
@@ -125,7 +125,7 @@ analyst votes (and a headline signal) → run a Portfolio-Manager step → write
 
 - **PM step** (`run_portfolio_manager`): provider from `--provider` or the config.
   - `claude` → resolve an API key (`env:ANTHROPIC_API_KEY` →
-    `~/.anthropic-api-key` → `~/.config/atlas-os/.env`); use the `anthropic` SDK,
+    `~/.anthropic-api-key` → `~/.config/eidetic-os/.env`); use the `anthropic` SDK,
     else the `claude` CLI, else fall back to local.
   - `local` → `POST {endpoint}/v1/chat/completions` (OpenAI-compatible).
   - The model is asked to debate the votes and return strict JSON

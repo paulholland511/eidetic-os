@@ -1,6 +1,6 @@
-# Atlas OS — Dashboard
+# Eidetic OS — Dashboard
 
-Atlas OS does not bundle a heavyweight dashboard application (it would carry
+Eidetic OS does not bundle a heavyweight dashboard application (it would carry
 personal data and a large `node_modules` tree). Instead you have two options:
 
 ## Option 1 — Static template (included)
@@ -34,7 +34,7 @@ your-dashboard/           # separate repo, NOT committed here
 └── web/                  # React/Svelte frontend
 ```
 
-Have the backend shell out to the Atlas OS scripts (which read everything from
+Have the backend shell out to the Eidetic OS scripts (which read everything from
 env vars) so there is a single source of truth for paths and hosts.
 
 ## Privacy

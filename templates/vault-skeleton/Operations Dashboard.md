@@ -9,7 +9,7 @@ status: seed
 
 # Operations Dashboard
 
-A single-pane overview of your Atlas OS. If you use Obsidian, the
+A single-pane overview of your Eidetic OS. If you use Obsidian, the
 [Dataview](https://blacksmithgu.github.io/obsidian-dataview/) plugin can turn
 the queries below into live tables. Otherwise treat this as a manual checklist.
 

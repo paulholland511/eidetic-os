@@ -54,25 +54,25 @@ except ImportError as e:
     print("then set TRADING_AGENTS_PATH to its location.")
     sys.exit(2)
 
-from _bootstrap import ensure_atlas_os  # noqa: E402
+from _bootstrap import ensure_eidetic_os  # noqa: E402
 
-ensure_atlas_os()
-from atlas_os import fileio, netio, scriptkit  # noqa: E402
+ensure_eidetic_os()
+from eidetic_os import fileio, netio, scriptkit  # noqa: E402
 
 # Configuration (all from environment)
 def _try_import_backends():
-    """Import ``atlas_os.backends`` (adding the repo root to sys.path if needed)."""
+    """Import ``eidetic_os.backends`` (adding the repo root to sys.path if needed)."""
     try:
-        from atlas_os import backends
+        from eidetic_os import backends
         return backends
     except ImportError:
         pass
     for parent in Path(__file__).resolve().parents:
-        if (parent / "atlas_os" / "__init__.py").exists():
+        if (parent / "eidetic_os" / "__init__.py").exists():
             sys.path.insert(0, str(parent))
             break
     try:
-        from atlas_os import backends
+        from eidetic_os import backends
         return backends
     except ImportError:
         return None
@@ -83,12 +83,12 @@ def _resolve_chat() -> tuple[str, str]:
 
     ``LM_STUDIO_URL`` (or ``LM_STUDIO_HOST`` + ``LM_STUDIO_PORT``) still works
     exactly as before. When none is set we auto-detect a backend via
-    :mod:`atlas_os.backends`; ``ATLAS_LLM_MODEL`` overrides the model name.
+    :mod:`eidetic_os.backends`; ``EIDETIC_LLM_MODEL`` overrides the model name.
     """
     url = os.environ.get("LM_STUDIO_URL")
     host = os.environ.get("LM_STUDIO_HOST")
     port = os.environ.get("LM_STUDIO_PORT")
-    model = os.environ.get("LM_STUDIO_MODEL") or os.environ.get("ATLAS_LLM_MODEL")
+    model = os.environ.get("LM_STUDIO_MODEL") or os.environ.get("EIDETIC_LLM_MODEL")
 
     if not url and (host or port):
         url = f"http://{host or 'localhost'}:{port or '5555'}/v1"

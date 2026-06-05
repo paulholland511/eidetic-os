@@ -1,9 +1,9 @@
 # Feature: Session Capture
 
 **Source:** [`scripts/save_sessions.py`](../../scripts/save_sessions.py) ·
-**CLI:** `atlas session save`, `atlas session list`
+**CLI:** `eidetic session save`, `eidetic session list`
 
-This is the feature that gives Atlas OS a memory. Stock Claude forgets everything
+This is the feature that gives Eidetic OS a memory. Stock Claude forgets everything
 between sessions — close the tab and the research, the planning, the reasoning
 behind a decision are gone. Session capture fixes that by folding every Cowork
 conversation back into your vault as a clean, searchable markdown note. **Nothing
@@ -24,7 +24,7 @@ session content of its own.
    standard Claude Code JSONL format. On macOS the store defaults to
    `~/Library/Application Support/Claude/local-agent-mode-sessions`; override it
    with `CLAUDE_SESSIONS_DIR` or `--sessions-dir PATH`.
-2. **Selects the window.** A plain `atlas session save` processes only sessions
+2. **Selects the window.** A plain `eidetic session save` processes only sessions
    new or changed since the last run (see the watermark below). `--since 24h`
    (or `7d`, or an ISO date) captures a fixed window; `--all` captures every
    session ever recorded.
@@ -71,7 +71,7 @@ any agent searching the vault recognise these as captured conversations.
 
 ### The watermark
 
-A watermark in `$VAULT_PATH/.atlas/last_session_save.txt` records the latest
+A watermark in `$VAULT_PATH/.eidetic/last_session_save.txt` records the latest
 `lastActivityAt` timestamp captured so far. A plain `save` only processes
 sessions newer than the watermark, and the watermark never moves backwards — so
 repeated and overlapping runs never double-write a session. This is what makes
@@ -83,21 +83,21 @@ the twice-daily schedule (two 12-hour windows) safe.
 
 | Command / flag | Effect |
 |---|---|
-| `atlas session save` | Capture new/changed sessions since the last run. |
+| `eidetic session save` | Capture new/changed sessions since the last run. |
 | `--since 24h \| 7d \| 2026-06-01` | Capture sessions active in a fixed window. |
 | `--all` | Capture every session ever recorded. |
-| `atlas session list` (`--list`) | List recent sessions; write nothing. |
+| `eidetic session list` (`--list`) | List recent sessions; write nothing. |
 | `--limit N` | Max sessions shown for `list` (default 20). |
 | `--sessions-dir PATH` | Read from a custom Cowork store. |
 | `--json` | Machine-readable summary (for scheduled tasks / the audit trail). |
 
 ```bash
-atlas session list          # what's available
-atlas session save --all    # backfill everything once
-atlas session save          # thereafter: only what's new
+eidetic session list          # what's available
+eidetic session save --all    # backfill everything once
+eidetic session save          # thereafter: only what's new
 ```
 
-Like every script-wrapping command, `atlas session` appends an entry to the
+Like every script-wrapping command, `eidetic session` appends an entry to the
 [audit trail](../../README.md#audit-trail) when it finishes.
 
 ---
@@ -108,11 +108,11 @@ The recommended default is **twice daily**: a morning and an afternoon pass, eac
 covering a 12-hour window, so work lands in the vault close to when it happened.
 
 ```bash
-atlas skills install morning-session-capture     # ~09:00, --since 12h
-atlas skills install afternoon-session-capture   # ~17:00, --since 12h
+eidetic skills install morning-session-capture     # ~09:00, --since 12h
+eidetic skills install afternoon-session-capture   # ~17:00, --since 12h
 ```
 
-Both run `ATLAS_TRIGGER=scheduled atlas session save --since 12h`; the shared
+Both run `EIDETIC_TRIGGER=scheduled eidetic session save --since 12h`; the shared
 watermark means the overlapping windows never double-write. Prefer one nightly
 run? Install `daily-session-capture` (`--since 24h`). Record your cadence in
 `.env`:
@@ -122,7 +122,7 @@ SESSION_CAPTURE_FREQUENCY=twice    # twice (default) | daily | hourly | manual
 ```
 
 The pair also ships in the [`knowledge` pack](../SCHEDULED-TASKS.md):
-`atlas skills install-pack knowledge` sets up session capture alongside the
+`eidetic skills install-pack knowledge` sets up session capture alongside the
 nightly index and RAG embed.
 
 ---

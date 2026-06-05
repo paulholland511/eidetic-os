@@ -13,7 +13,7 @@
       "_key_lookup_order": [
         "env:ANTHROPIC_API_KEY",
         "file:~/.anthropic-api-key",
-        "envfile:~/.config/atlas-os/.env"
+        "envfile:~/.config/eidetic-os/.env"
       ]
     },
 
@@ -40,7 +40,7 @@
   "paths": {
     "briefings_dir": "~/Documents/Obsidian/MyVault/wiki/sources",
     "signals_output": "~/freqtrade/user_data/signals.json",
-    "log_file": "~/.cache/atlas-os/freqtrade_bridge.log"
+    "log_file": "~/.cache/eidetic-os/freqtrade_bridge.log"
   },
 
   "freshness": {

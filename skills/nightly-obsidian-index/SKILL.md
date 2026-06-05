@@ -8,8 +8,8 @@ current. Ensure 100% wiki coverage and maintain the hot cache as a running
 modification log.
 
 > Placeholders: replace `{{VAULT_PATH}}` with your vault path (the `VAULT_PATH`
-> env var). Scripts live in the Atlas OS `scripts/` directory referenced as
-> `{{ATLAS_OS}}/scripts`.
+> env var). Scripts live in the Eidetic OS `scripts/` directory referenced as
+> `{{EIDETIC_OS}}/scripts`.
 
 **Objective:** Detect new or modified notes since the last index run, update all
 index files, ensure wiki completeness, append to the hot cache, and produce a
@@ -49,7 +49,7 @@ morning briefing.
    - Keep the frontmatter and header intact at the very top of the file
 8. Update `wiki/log.md` with a sync entry
 9. Commit vault changes to git:
-   - Run `ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} atlas commit --json`
+   - Run `EIDETIC_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} eidetic commit --json`
    - Capture the JSON output (commit hash, counts of new/modified/deleted files)
    - If it returns `"status": "clean"`, note "no changes committed" for the briefing
 10. Produce a morning briefing and save to `.claude-morning-briefing.md`:
@@ -59,7 +59,7 @@ morning briefing.
     - Hot cache: confirm updated, list files added this run
     - Flag anything relevant to active projects
     - Flag any changes to system files as high-priority
-    - Include the git changelog: run `ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} atlas changelog --since "24 hours ago" --markdown` and append the output
+    - Include the git changelog: run `EIDETIC_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} eidetic changelog --since "24 hours ago" --markdown` and append the output
     - Include the commit hash from step 9 so the briefing is traceable
     - If nothing changed, just say "No changes since last index"
     - Make it scannable in 30 seconds

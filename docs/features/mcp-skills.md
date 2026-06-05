@@ -1,21 +1,21 @@
 # Feature: MCP skills
 
-**Source:** [`atlas_os/mcp_server.py`](../../atlas_os/mcp_server.py),
-[`mcp_client.py`](../../atlas_os/mcp_client.py),
-[`mcp_skill.py`](../../atlas_os/mcp_skill.py) ·
-**CLI:** `atlas mcp serve`, `atlas mcp list-tools`, `atlas skills run <name>`
+**Source:** [`eidetic_os/mcp_server.py`](../../eidetic_os/mcp_server.py),
+[`mcp_client.py`](../../eidetic_os/mcp_client.py),
+[`mcp_skill.py`](../../eidetic_os/mcp_skill.py) ·
+**CLI:** `eidetic mcp serve`, `eidetic mcp list-tools`, `eidetic skills run <name>`
 
-Atlas OS speaks the **Model Context Protocol (MCP)** — the interoperability
+Eidetic OS speaks the **Model Context Protocol (MCP)** — the interoperability
 standard for tool/skill exchange across Claude Code, Cowork, and third-party
 clients. This works in both directions:
 
-- **Atlas OS as an MCP server.** `atlas mcp serve` exposes the core Atlas
+- **Eidetic OS as an MCP server.** `eidetic mcp serve` exposes the core Eidetic
   capabilities (RAG search, embedding, doctor, the skills catalog, the audit
-  trail) as MCP tools, so any MCP host can drive Atlas OS directly.
+  trail) as MCP tools, so any MCP host can drive Eidetic OS directly.
 - **Skills as MCP servers.** Every `SKILL.md` skill is exposed as an MCP tool —
-  **unmodified**. `atlas skills run <name>` serves one skill over stdio; an MCP
+  **unmodified**. `eidetic skills run <name>` serves one skill over stdio; an MCP
   host calls the tool and gets back the skill's ready-to-run instructions.
-- **Atlas OS as an MCP client.** The runtime can launch/connect to any MCP server
+- **Eidetic OS as an MCP client.** The runtime can launch/connect to any MCP server
   — local (stdio subprocess) or remote (HTTP/SSE) — perform the handshake, list
   its tools, and call them.
 
@@ -27,32 +27,32 @@ No async, no third-party SDK — which keeps the base install slim.
 
 ## Why MCP
 
-Atlas skills were an internal registry with a bespoke `SKILL.md` format and a
+Eidetic skills were an internal registry with a bespoke `SKILL.md` format and a
 custom runner. MCP has become the lingua franca for tools and skills. Speaking it
-natively means an Atlas skill is usable from *any* MCP host, and Atlas can consume
+natively means an Eidetic skill is usable from *any* MCP host, and Eidetic can consume
 *any* MCP server as a skill — without a translation layer per integration.
 
 ```
 ┌────────────────────┐        MCP         ┌─────────────────────┐
-│  atlas_os runtime  │◄──────stdio───────►│  skill MCP server   │
+│  eidetic_os runtime  │◄──────stdio───────►│  skill MCP server   │
 │   (MCP client)     │      SSE / HTTP    │  (tools + schemas)  │
 └────────────────────┘                    └─────────────────────┘
         ▲
-        │ also a server-of-servers: `atlas mcp serve` exposes
-        │ Atlas capabilities to Claude Code / Cowork / any host
+        │ also a server-of-servers: `eidetic mcp serve` exposes
+        │ Eidetic capabilities to Claude Code / Cowork / any host
 ```
 
 ---
 
-## Atlas OS as an MCP server
+## Eidetic OS as an MCP server
 
 ```bash
-atlas mcp list-tools        # see what's exposed
-atlas mcp serve             # start the server (stdio; blocks until EOF)
+eidetic mcp list-tools        # see what's exposed
+eidetic mcp serve             # start the server (stdio; blocks until EOF)
 ```
 
 The server exposes five tools, each backed by the same code path as the
-equivalent `atlas` command, so the MCP surface never drifts from the CLI:
+equivalent `eidetic` command, so the MCP surface never drifts from the CLI:
 
 | Tool | Arguments | Returns |
 |---|---|---|
@@ -64,12 +64,12 @@ equivalent `atlas` command, so the MCP surface never drifts from the CLI:
 
 (`*` = required.)
 
-To register Atlas OS with an MCP host, point it at the launch command:
+To register Eidetic OS with an MCP host, point it at the launch command:
 
 ```json
 {
   "mcpServers": {
-    "atlas-os": { "command": "atlas", "args": ["mcp", "serve"] }
+    "eidetic-os": { "command": "eidetic", "args": ["mcp", "serve"] }
   }
 }
 ```
@@ -84,7 +84,7 @@ that already ships works through the MCP layer (the backwards-compatibility
 guarantee).
 
 ```bash
-atlas skills run daily-trading-report
+eidetic skills run daily-trading-report
 ```
 
 This launches a one-skill MCP server over stdio. Calling its tool renders the
@@ -96,7 +96,7 @@ returns the instructions. A host can override tokens per call:
 { "placeholders": { "VAULT_PATH": "/path/to/vault" } }
 ```
 
-Under the hood, [`mcp_skill.py`](../../atlas_os/mcp_skill.py) does the projection:
+Under the hood, [`mcp_skill.py`](../../eidetic_os/mcp_skill.py) does the projection:
 
 - `skill_to_tool(skill)` → one MCP `Tool` whose handler renders the `SKILL.md`.
 - `build_skill_server(slugs=None)` → an `MCPServer` exposing every skill (or a
@@ -104,9 +104,9 @@ Under the hood, [`mcp_skill.py`](../../atlas_os/mcp_skill.py) does the projectio
 
 ---
 
-## Atlas OS as an MCP client
+## Eidetic OS as an MCP client
 
-[`mcp_client.py`](../../atlas_os/mcp_client.py) is a synchronous client over a
+[`mcp_client.py`](../../eidetic_os/mcp_client.py) is a synchronous client over a
 `Transport` abstraction:
 
 - `StdioTransport([...command...])` — launches an MCP server as a subprocess and
@@ -116,9 +116,9 @@ Under the hood, [`mcp_skill.py`](../../atlas_os/mcp_skill.py) does the projectio
 
 ```python
 import sys
-from atlas_os.mcp_client import MCPClient, StdioTransport
+from eidetic_os.mcp_client import MCPClient, StdioTransport
 
-with MCPClient(StdioTransport([sys.executable, "-m", "atlas_os", "mcp", "serve"])) as client:
+with MCPClient(StdioTransport([sys.executable, "-m", "eidetic_os", "mcp", "serve"])) as client:
     client.initialize()                      # handshake + notifications/initialized
     for tool in client.list_tools():         # tools/list
         print(tool.name, "—", tool.description)
@@ -152,11 +152,11 @@ mcp_server:
 ```yaml
 mcp_server:
   transport: stdio
-  command: ["atlas", "skills", "run", "team-search"]
+  command: ["eidetic", "skills", "run", "team-search"]
 ```
 
-The block's shape is validated at publish time (`atlas skills publish`), and
-`atlas skills install` detects it and reports the transport. The runtime turns a
+The block's shape is validated at publish time (`eidetic skills publish`), and
+`eidetic skills install` detects it and reports the transport. The runtime turns a
 block into a live transport with `transport_from_manifest(config)`.
 
 ---
@@ -182,5 +182,5 @@ block into a live transport with `transport_from_manifest(config)`.
   `SKILL.md` format and the skills catalog.
 - [`docs/features/skills-marketplace.md`](skills-marketplace.md) — registries,
   publishing, and the manifest schema.
-- [`docs/CLI-REFERENCE.md`](../CLI-REFERENCE.md) — `atlas mcp` and `atlas skills
+- [`docs/CLI-REFERENCE.md`](../CLI-REFERENCE.md) — `eidetic mcp` and `eidetic skills
   run` reference.

@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea or improvement for Atlas OS
+about: Suggest an idea or improvement for Eidetic OS
 title: "[Feature] "
 labels: enhancement
 assignees: ""
@@ -28,7 +28,7 @@ workarounds, if any.
 ## Additional context
 
 <!--
-Anything else: links, prior art, related issues. Atlas OS is a public,
+Anything else: links, prior art, related issues. Eidetic OS is a public,
 local-first template — features that improve portability, privacy, or safety are
 especially welcome. Keep examples free of personal data or PII.
 -->

@@ -9,7 +9,7 @@ yourself a detailed research report.
 > ⚠️ Not financial advice. Research/automation output only.
 >
 > Placeholders: `{{USER_EMAIL}}` = recipient, `{{VAULT_PATH}}` = vault path,
-> `{{ATLAS_OS}}` = repo path, `{{EMBED_HOST}}:{{LLM_PORT}}` = local LLM endpoint,
+> `{{EIDETIC_OS}}` = repo path, `{{EMBED_HOST}}:{{LLM_PORT}}` = local LLM endpoint,
 > `{{WATCHLIST}}` = comma-separated tickers (configure per user; the example
 > below uses generic crypto/equity tickers).
 
@@ -33,12 +33,12 @@ Set a timeout of ~180 seconds per agent call.
 
 **Step 3 — Save to vault:**
 Save to `{{VAULT_PATH}}/wiki/sources/trading-briefing-YYYY-MM-DD.md`
-(or run `ATLAS_TRIGGER=scheduled atlas trading`, which writes there for you).
+(or run `EIDETIC_TRIGGER=scheduled eidetic trading`, which writes there for you).
 
-**Step 4 — Email the report** via `ATLAS_TRIGGER=scheduled atlas email --json '...'` (routes through the CLI so the run is audited):
+**Step 4 — Email the report** via `EIDETIC_TRIGGER=scheduled eidetic email --json '...'` (routes through the CLI so the run is audited):
 - To: `{{USER_EMAIL}}`
 - Subject: `📊 Market Research — [date]`
 - Dark-themed HTML with: price cards + recommendations, technical indicators,
   Fear & Greed index, each agent report in a card, a final summary table, and a
   prominent **risk warning footer** ("Not financial advice. For research only.")
-- Sign off as Atlas.
+- Sign off as Eidetic.

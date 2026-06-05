@@ -7,7 +7,7 @@ assignees: ""
 ---
 
 <!--
-Before filing: please run `atlas doctor` and skim docs/FAQ.md — many issues are
+Before filing: please run `eidetic doctor` and skim docs/FAQ.md — many issues are
 configuration (missing env vars, vault not a git repo, LLM endpoint unreachable).
 NEVER paste real secrets, API keys, app passwords, vault content, or PII into
 this issue. Redact paths, hostnames, and email addresses.
@@ -35,7 +35,7 @@ What actually happened.
 
 - OS: <!-- e.g. macOS 15.5, Ubuntu 24.04, Windows 11 + WSL2 -->
 - Python version: <!-- output of `python --version` -->
-- Atlas OS version: <!-- output of `atlas --version`, or the git commit SHA -->
+- Eidetic OS version: <!-- output of `eidetic --version`, or the git commit SHA -->
 - Install method: <!-- pip install -e . / uv tool install / pipx / Docker -->
 
 ## Logs / screenshots

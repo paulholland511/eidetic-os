@@ -1,15 +1,15 @@
 # Feature: Pluggable Vector Backends
 
-**Source:** [`atlas_os/vector_backend.py`](../../atlas_os/vector_backend.py),
-[`atlas_os/vector_backends/`](../../atlas_os/vector_backends/) ·
-**CLI:** `atlas migrate-vectors --to <backend>`, `atlas doctor` ·
+**Source:** [`eidetic_os/vector_backend.py`](../../eidetic_os/vector_backend.py),
+[`eidetic_os/vector_backends/`](../../eidetic_os/vector_backends/) ·
+**CLI:** `eidetic migrate-vectors --to <backend>`, `eidetic doctor` ·
 **Config:** `VECTOR_BACKEND` (default `sqlite`) ·
 **Store:** `$RAG_DIR/` (`vectors.db` / `lancedb/` / `chroma/`)
 
 The RAG store began as a single, zero-config **SQLite** database — fast and
 dependency-free for a personal vault. As a vault grows, or as you want on-disk
 zero-copy scans or a different ecosystem, the storage engine should be a
-**choice**, not a hard-coded assumption. Atlas OS now puts a thin interface in
+**choice**, not a hard-coded assumption. Eidetic OS now puts a thin interface in
 front of the store so you can swap the engine without touching the pipeline.
 
 Nothing changes if you do nothing: the default is still SQLite, with no new
@@ -23,8 +23,8 @@ so the core install stays slim.
 | Backend   | `VECTOR_BACKEND` | Install                          | Storage             | Best for |
 |-----------|------------------|----------------------------------|---------------------|----------|
 | SQLite    | `sqlite` (default) | built in (`[vector]` accelerates) | `$RAG_DIR/vectors.db` | Everyone — zero config |
-| LanceDB   | `lancedb`        | `pip install 'atlas-os[lancedb]'` | `$RAG_DIR/lancedb/` | Large indexes: columnar, on-disk, zero-copy scans |
-| ChromaDB  | `chroma`         | `pip install 'atlas-os[chroma]'`  | `$RAG_DIR/chroma/`  | Chroma users / ecosystem integrations |
+| LanceDB   | `lancedb`        | `pip install 'eidetic-os[lancedb]'` | `$RAG_DIR/lancedb/` | Large indexes: columnar, on-disk, zero-copy scans |
+| ChromaDB  | `chroma`         | `pip install 'eidetic-os[chroma]'`  | `$RAG_DIR/chroma/`  | Chroma users / ecosystem integrations |
 
 All three are interchangeable: the same chunk dicts go in, and search returns the
 same `{file, heading, text, score}` shape with `score` a cosine similarity in
@@ -37,7 +37,7 @@ identically — every backend applies the same any-of semantics.
 
 ### The interface
 
-[`VectorBackend`](../../atlas_os/vector_backend.py) is a small ABC every engine
+[`VectorBackend`](../../eidetic_os/vector_backend.py) is a small ABC every engine
 implements:
 
 ```python
@@ -51,12 +51,12 @@ class VectorBackend(ABC):
     def export_chunks(self) -> Iterator[dict]: ...          # for migration
 ```
 
-- **SQLite** ([`sqlite_backend.py`](../../atlas_os/vector_backends/sqlite_backend.py))
-  wraps the existing [`VectorStore`](../../atlas_os/vectordb.py) — `sqlite-vec`
+- **SQLite** ([`sqlite_backend.py`](../../eidetic_os/vector_backends/sqlite_backend.py))
+  wraps the existing [`VectorStore`](../../eidetic_os/vectordb.py) — `sqlite-vec`
   KNN when the extension is present, NumPy/pure-Python cosine otherwise.
-- **LanceDB** ([`lancedb_backend.py`](../../atlas_os/vector_backends/lancedb_backend.py))
+- **LanceDB** ([`lancedb_backend.py`](../../eidetic_os/vector_backends/lancedb_backend.py))
   stores one row per chunk in a `chunks` table and queries with cosine distance.
-- **ChromaDB** ([`chroma_backend.py`](../../atlas_os/vector_backends/chroma_backend.py))
+- **ChromaDB** ([`chroma_backend.py`](../../eidetic_os/vector_backends/chroma_backend.py))
   uses a persistent local collection configured for cosine space.
 
 ### Selection
@@ -67,8 +67,8 @@ backend — importing the optional dependency lazily, so selecting `sqlite` neve
 pulls in `lancedb`/`chromadb` and a missing extra surfaces as a clear install
 hint only when that backend is actually requested.
 
-> **Note on naming.** This sits in `atlas_os/vector_backends/`, deliberately
-> separate from the pre-existing `atlas_os/backends.py`, which detects *LLM*
+> **Note on naming.** This sits in `eidetic_os/vector_backends/`, deliberately
+> separate from the pre-existing `eidetic_os/backends.py`, which detects *LLM*
 > backends (LM Studio, Ollama, …) — a different axis entirely.
 
 ---
@@ -78,14 +78,14 @@ hint only when that backend is actually requested.
 1. **Install the extra** for your target engine:
 
    ```bash
-   pip install 'atlas-os[lancedb]'    # or [chroma]
+   pip install 'eidetic-os[lancedb]'    # or [chroma]
    ```
 
 2. **Migrate your existing store** into it — streamed in batches, with progress
    and a count check:
 
    ```bash
-   atlas migrate-vectors --to lancedb
+   eidetic migrate-vectors --to lancedb
    #   migrating 21430 vector(s): sqlite → lancedb…
    #     21430/21430 copied
    # ✓ migrated 21430 vector(s): sqlite → lancedb (verified 21430).
@@ -104,7 +104,7 @@ hint only when that backend is actually requested.
    VECTOR_BACKEND=lancedb
    ```
 
-4. **Confirm** with `atlas doctor` — the RAG section reports the configured
+4. **Confirm** with `eidetic doctor` — the RAG section reports the configured
    backend:
 
    ```
@@ -123,7 +123,7 @@ Anything embedding or querying programmatically should go through the factory so
 it honours `VECTOR_BACKEND`:
 
 ```python
-from atlas_os.vector_backend import get_backend
+from eidetic_os.vector_backend import get_backend
 
 with get_backend(rag_dir) as store:        # reads VECTOR_BACKEND (default sqlite)
     store.insert(chunks)
@@ -135,15 +135,15 @@ with get_backend(rag_dir) as store:        # reads VECTOR_BACKEND (default sqlit
 ## Scope & limitations
 
 - **What `VECTOR_BACKEND` drives today.** It selects the engine returned by
-  `get_backend()` — which powers `atlas migrate-vectors --to`, `atlas doctor`
-  reporting, and any programmatic use. The bundled `atlas embed` / `atlas search`
+  `get_backend()` — which powers `eidetic migrate-vectors --to`, `eidetic doctor`
+  reporting, and any programmatic use. The bundled `eidetic embed` / `eidetic search`
   pipeline still reads and writes the **SQLite** store directly (its hybrid BM25 +
   rerank path uses store internals beyond the `VectorBackend` interface); routing
   that pipeline through the selected backend is the natural follow-up. So a
   backend switch is **migrate + use via the factory**, not an automatic re-wire of
   the embed/search CLI.
 - **No automatic conversion on switch.** Setting `VECTOR_BACKEND` never copies
-  your data — run `atlas migrate-vectors --to <backend>` first.
+  your data — run `eidetic migrate-vectors --to <backend>` first.
 - **Filtered search** over LanceDB/Chroma over-fetches and applies the shared
   any-of-folder/doc_type/tag filter in Python, so results match SQLite exactly
   (at the cost of scanning more candidates for filtered queries).

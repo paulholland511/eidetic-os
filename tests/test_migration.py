@@ -13,8 +13,8 @@ from pathlib import Path
 
 import pytest
 
-from atlas_os import vector_backend
-from atlas_os.vector_backend import VectorBackend
+from eidetic_os import vector_backend
+from eidetic_os.vector_backend import VectorBackend
 from tests.test_vector_backends import BACKEND_FACTORIES, _entries
 
 _NAMES = list(BACKEND_FACTORIES)

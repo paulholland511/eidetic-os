@@ -1,4 +1,4 @@
-# Atlas OS — Trading SDK (optional module)
+# Eidetic OS — Trading SDK (optional module)
 
 A small, dependency-light multi-agent framework for generating trading
 *research briefings* from a local LLM. Four deterministic / LLM analyst agents

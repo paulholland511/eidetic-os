@@ -1,7 +1,7 @@
 # Feature: Email Reports
 
 **Source:** [`scripts/send_email.py`](../../scripts/send_email.py) ·
-**CLI:** `atlas email`
+**CLI:** `eidetic email`
 
 A credential-free SMTP sender used by the report/newsletter skills. The app
 password comes from the environment; **nothing is hardcoded**. It supports HTML +
@@ -27,11 +27,11 @@ plain-text bodies and file attachments.
 
 ## Usage
 
-For a quick message, `atlas email` takes flags:
+For a quick message, `eidetic email` takes flags:
 
 ```bash
-atlas email --to me@example.com --subject "Daily report" --body "<h1>Hello</h1><p>…</p>"
-atlas email -s "Daily report" -b "plain body" --text --attach /path/report.pdf
+eidetic email --to me@example.com --subject "Daily report" --body "<h1>Hello</h1><p>…</p>"
+eidetic email -s "Daily report" -b "plain body" --text --attach /path/report.pdf
 ```
 
 | Flag | Required | Notes |
@@ -46,7 +46,7 @@ For a list of recipients, both body types, or a scripted payload, use `--json`
 (the same shape `scripts/send_email.py` accepts directly as its argument):
 
 ```bash
-atlas email --json '{
+eidetic email --json '{
   "to": "me@example.com",
   "subject": "Daily report",
   "body_html": "<h1>Hello</h1><p>…</p>",
@@ -71,7 +71,7 @@ atlas email --json '{
 |---|---|---|
 | `SENDER_EMAIL` | `""` (**required**) | from address |
 | `SMTP_APP_PASSWORD` | `""` (**required**) | app password / SMTP password |
-| `SENDER_NAME` | `Atlas` | display name |
+| `SENDER_NAME` | `Eidetic` | display name |
 | `SMTP_SERVER` | `smtp.gmail.com` | SMTP host |
 | `SMTP_PORT` | `587` | STARTTLS port |
 
@@ -87,7 +87,7 @@ For **Gmail**, generate an [app password](https://myaccount.google.com/apppasswo
 - Missing `SMTP_APP_PASSWORD` or `SENDER_EMAIL` exits with code `1` and a setup
   hint.
 - A **failed send returns `False` but still exits 0** — callers can't detect send
-  failure from the exit code alone. `atlas doctor` / `atlas health` report whether
+  failure from the exit code alone. `eidetic doctor` / `eidetic health` report whether
   SMTP is at least *configured* (both required vars present).
 - Sending email is an outward-facing action — when testing manually, send to
   yourself first. The report skills call this for you.

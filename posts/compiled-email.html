@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eidetic OS — 6 ready-to-post promotional drafts</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f5f7;">
+<div style="max-width:760px;margin:0 auto;padding:24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1a1a2e;">
+  <h1 style="font-size:24px;margin:0 0 4px;color:#0f0f23;">Eidetic OS — 6 ready-to-post promotional drafts</h1>
+  <p style="font-size:14px;color:#555;margin:0 0 4px;">Six compiled drafts, one per platform. Each body below preserves the original markdown verbatim, so you can copy the block straight into the target platform.</p>
+  <p style="font-size:13px;color:#777;margin:0 0 24px;">Reddit / Hacker News / Dev.to accept markdown as-is. LinkedIn takes plain text (the <code>**</code> markers won't render there — strip them or use its bold). The repo link is <a href="https://github.com/paulholland511/atlas-os" style="color:#2563eb;">github.com/paulholland511/atlas-os</a>.</p>
+
+  <div style="background:#ffffff;border:1px solid #e2e4e9;border-radius:12px;padding:20px 22px;margin:0 0 18px;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+    <div style="display:inline-block;background:#0f0f23;color:#ffffff;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:5px 12px;border-radius:6px;">1 / 6 &nbsp;·&nbsp; Reddit — r/AI_agents</div>
+    <div style="font-size:16px;font-weight:600;color:#0f0f23;margin:10px 0 6px;line-height:1.4;">I built an open-source personal AI OS on Claude Cowork — it runs my job search, trading research, and knowledge vault autonomously</div>
+    
+    <div style="font-size:13px;color:#888;margin:14px 0 6px;font-weight:600;">Copy the block below ↓</div>
+    <pre style="white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;background:#f7f8fa;border:1px solid #e2e4e9;border-radius:8px;padding:16px;margin:0;font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace;font-size:12.5px;line-height:1.55;color:#1a1a2e;">I&#x27;ve been quietly building this for a few weeks and finally cleaned it up enough to open-source it. It&#x27;s called **Eidetic OS** — a &quot;personal operating system&quot; that sits on top of Claude Cowork and turns it from a stateless chatbot into something that remembers everything and does real work while I&#x27;m away.
+
+The problem I kept hitting: Claude is brilliant but forgets everything between sessions. Close the tab and last week&#x27;s research, yesterday&#x27;s planning, the reasoning behind a decision — all gone. Eidetic OS is the config layer that fixes that.
+
+**What it actually does for me, day to day:**
+
+- **Session capture** — every conversation I have in Cowork gets folded back into my markdown vault as a searchable note, twice a day. Summary, key actions taken, files touched. Nothing is lost between sessions.
+- **RAG search over everything** — months later I can ask &quot;what did we decide about X?&quot; and get the real answer, retrieved by *meaning*, not keyword. Conversations, research, code reviews — all indexed into the same store.
+- **Trading research** — a local-first multi-agent market-research module writes briefings straight into the vault (not financial advice, obviously).
+- **Job tracker updates** — a scheduled skill scans email each morning for application updates and edits the tracker for me.
+- **Email briefings** — I wake up to an indexed vault, a committed git history, and a briefing in my inbox, all done overnight.
+
+**Tech stack:**
+
+- Python 3.11+, CLI-first (`eidetic &lt;command&gt;`)
+- **SQLite vector store** (`sqlite-vec` KNN, NumPy cosine fallback) — scales way past a single JSON file
+- **Hybrid retrieval**: Okapi BM25 + vector ranking fused with Reciprocal Rank Fusion, then reranked by TF-IDF cosine. Semantic chunking on heading/paragraph boundaries, embedding cache keyed by `(model, text)`.
+- **Pluggable local LLM backends** — auto-detects LM Studio, Ollama, llama.cpp, or any OpenAI-compatible endpoint. No API keys needed for the core.
+- **Flask dashboard** with seven live panels (health, audit, tasks, skills, knowledge graph, vector stats, RAG search)
+- **160+ skills catalogue**, installable with one command
+- D3.js force-directed knowledge graph viewer
+- Append-only JSONL audit trail (every autonomous action logged), 400+ tests, CI/CD
+
+The whole thing is local-first by default — notes, embeddings, and the knowledge graph never leave my machine unless I explicitly wire up an external endpoint. No telemetry. The &quot;database&quot; is a folder of markdown, the &quot;API&quot; is small inspectable Python scripts, and history is plain git. All diffable, portable, yours.
+
+**GitHub (MIT, demo GIF in the README):** https://github.com/paulholland511/atlas-os
+
+`pip install eidetic-os` (or `pipx` / `uv tool install`).
+
+**What&#x27;s next (v3.0):** an extension architecture splitting a lean core from the domain verticals, making the skill framework speak **MCP** (each skill an MCP server, usable from any MCP host), a security gate that runs AST static analysis + a sandboxed runtime on community skills before install, git-sync hardening, and a pluggable vector backend (LanceDB / ChromaDB alongside sqlite-vec).
+
+Happy to go deep on any of it — the hybrid search, the session-capture pipeline, the local-LLM auto-detection, whatever. AMA.</pre>
+  </div>
+  <hr style="border:none;border-top:2px solid #d6d9e0;margin:28px 0;">
+
+  <div style="background:#ffffff;border:1px solid #e2e4e9;border-radius:12px;padding:20px 22px;margin:0 0 18px;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+    <div style="display:inline-block;background:#0f0f23;color:#ffffff;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:5px 12px;border-radius:6px;">2 / 6 &nbsp;·&nbsp; Reddit — r/ObsidianMD</div>
+    <div style="font-size:16px;font-weight:600;color:#0f0f23;margin:10px 0 6px;line-height:1.4;">I built a RAG pipeline that turns my Obsidian vault into a searchable AI knowledge base — open source</div>
+    
+    <div style="font-size:13px;color:#888;margin:14px 0 6px;font-weight:600;">Copy the block below ↓</div>
+    <pre style="white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;background:#f7f8fa;border:1px solid #e2e4e9;border-radius:8px;padding:16px;margin:0;font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace;font-size:12.5px;line-height:1.55;color:#1a1a2e;">Like a lot of people here, my vault had become a graveyard — hundreds of notes I&#x27;d never find again unless I remembered the exact title. I wanted to be able to ask it questions and have it actually *understand* what I&#x27;d written, not just match keywords. So I built the tooling for that and open-sourced it. It&#x27;s called Eidetic OS.
+
+It works with **any** vault structure — top-level folders just carry meaning if you want them to. No plugin to install in Obsidian; it&#x27;s a Python CLI that reads and writes plain markdown, so your vault stays portable.
+
+**The bits Obsidian people will care about:**
+
+**Semantic search over your notes.** It chunks every note on heading/paragraph boundaries (whole paragraphs up to a token budget, not blind character windows), embeds them via a *local* LLM into a SQLite vector store, and answers queries with hybrid retrieval — Okapi BM25 fused with vector ranking via Reciprocal Rank Fusion, then reranked by TF-IDF cosine. You can filter by folder, tag, note type, or date *before* the search runs:
+
+```
+eidetic search &quot;kelly criterion sizing&quot;
+eidetic search &quot;trading risk&quot; --folder research --tag trading --top-k 10
+eidetic search &quot;kelly&quot; --mode keyword          # BM25 only, no LLM needed
+```
+
+**Twice-daily auto-index.** A scheduled task re-embeds only the notes that changed since the last run, keeps your frontmatter schemas consistent, and auto-commits the vault with messages categorised by which folders changed. You wake up to a tidy, indexed vault.
+
+**Session capture → wiki notes.** This is the part I use most. Every conversation I have with Claude gets written back into the vault as a searchable session-log note, and then indexed alongside everything else. So my AI conversations become part of my knowledge base instead of vanishing.
+
+**Knowledge graph viewer.** It walks the vault, resolves your `[[wikilinks]]` into nodes/edges/backlinks, and renders a D3.js force-directed graph in the browser — zoom, pan, search, filter by note type, click through links and backlinks. Like Obsidian&#x27;s graph but driven off the RAG layer, so &quot;related notes&quot; actually means semantically related.
+
+Everything is **local-first** — the embeddings and graph live in a git-ignored `.rag/` folder and never leave your machine. The vault is the source of truth; everything derived is reproducible. No telemetry, no cloud, MIT licensed.
+
+**GitHub:** https://github.com/paulholland511/atlas-os
+
+You need a local embeddings model (LM Studio or Ollama with `nomic-embed-text` works out of the box). Without one, all the vault management still works — only the semantic search needs the endpoint.
+
+Curious whether anyone else here has tried to build proper RAG over their vault, and what you landed on for chunking.</pre>
+  </div>
+  <hr style="border:none;border-top:2px solid #d6d9e0;margin:28px 0;">
+
+  <div style="background:#ffffff;border:1px solid #e2e4e9;border-radius:12px;padding:20px 22px;margin:0 0 18px;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+    <div style="display:inline-block;background:#0f0f23;color:#ffffff;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:5px 12px;border-radius:6px;">3 / 6 &nbsp;·&nbsp; Reddit — r/LocalLLaMA</div>
+    <div style="font-size:16px;font-weight:600;color:#0f0f23;margin:10px 0 6px;line-height:1.4;">Eidetic OS — personal AI OS with pluggable local LLM backends (LM Studio, Ollama, llama.cpp)</div>
+    
+    <div style="font-size:13px;color:#888;margin:14px 0 6px;font-weight:600;">Copy the block below ↓</div>
+    <pre style="white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;background:#f7f8fa;border:1px solid #e2e4e9;border-radius:8px;padding:16px;margin:0;font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace;font-size:12.5px;line-height:1.55;color:#1a1a2e;">I built a personal &quot;AI operating system&quot; around my local models and open-sourced it. The whole thing is designed so your own local inference stack is the default, not an afterthought — no API keys needed for the core features, nothing leaves the box unless you explicitly wire up an external endpoint.
+
+**The local-LLM angle:**
+
+- **Backend auto-detection.** It probes for LM Studio, Ollama, llama.cpp, and any custom OpenAI-compatible endpoint (in that order) and just uses whatever&#x27;s reachable. Force one with `EIDETIC_LLM_BACKEND=ollama`. Inspect with `eidetic backends` / `eidetic backends test`.
+- **Two roles, two models.** Embeddings run against `nomic-embed-text`; chat/reasoning runs against whatever you&#x27;ve got loaded (qwen has been my daily driver). Both are just OpenAI-compatible calls to your local server, so swap in anything.
+- **Everything local by default.** Embeddings, the vector store, and the knowledge graph all live on disk. No telemetry, ever. The only external calls are ones you turn on yourself (e.g. SMTP for email reports).
+- **Dashboard shows backend health.** The Flask dashboard has a live panel for which backend is up and whether inference/embeddings are responding, alongside vector-store stats and RAG search.
+
+**What it does with your local models:** it builds a RAG knowledge base over a folder of markdown — semantic chunking, embed via your endpoint into a SQLite vector store (sqlite-vec KNN, NumPy cosine fallback), then hybrid retrieval at query time (BM25 + vector fused with Reciprocal Rank Fusion, reranked by TF-IDF). It also captures every Claude conversation back into the vault and indexes it, so your local search gets richer over time. There&#x27;s an embedding cache keyed by `(model, text)` so a full re-embed skips anything unchanged — handy when you&#x27;re iterating on chunking against a slow local model.
+
+Degrades gracefully: with no LLM running at all, the vault management, git automation, and keyword (BM25-only) search still work — only semantic search and the trading module need an endpoint.
+
+```bash
+pip install eidetic-os
+eidetic backends            # see what&#x27;s reachable
+eidetic embed --full        # build the vector store
+eidetic search &quot;kelly criterion&quot; --mode vector
+```
+
+**GitHub (MIT):** https://github.com/paulholland511/atlas-os
+
+v3.0 is adding a pluggable `VectorBackend` interface — sqlite-vec stays the zero-config default, with LanceDB (zero-copy disk queries) and ChromaDB as options, plus documented benchmarks at 1K/10K/100K chunks. Interested in what backends/embedding models people here are running for vault-scale RAG.</pre>
+  </div>
+  <hr style="border:none;border-top:2px solid #d6d9e0;margin:28px 0;">
+
+  <div style="background:#ffffff;border:1px solid #e2e4e9;border-radius:12px;padding:20px 22px;margin:0 0 18px;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+    <div style="display:inline-block;background:#0f0f23;color:#ffffff;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:5px 12px;border-radius:6px;">4 / 6 &nbsp;·&nbsp; Hacker News — Show HN</div>
+    <div style="font-size:16px;font-weight:600;color:#0f0f23;margin:10px 0 6px;line-height:1.4;">Show HN: Eidetic OS – Open-source personal AI operating system (Python, local LLMs)</div>
+    <div style="font-size:13px;color:#444;margin:2px 0;"><strong>URL:</strong> <a href="https://github.com/paulholland511/atlas-os" style="color:#2563eb;">https://github.com/paulholland511/atlas-os</a></div>
+    <div style="font-size:13px;color:#888;margin:14px 0 6px;font-weight:600;">Copy the block below ↓</div>
+    <pre style="white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;background:#f7f8fa;border:1px solid #e2e4e9;border-radius:8px;padding:16px;margin:0;font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace;font-size:12.5px;line-height:1.55;color:#1a1a2e;">Eidetic OS is a configuration layer that turns Claude Cowork into a persistent, local-first system over a folder of markdown. The core idea is knowledge persistence: stock Claude forgets everything between sessions, so Eidetic captures every conversation back into a vault as a searchable note (twice daily by default), indexes it, and lets you retrieve it by meaning months later. The &quot;database&quot; is plain markdown, the &quot;API&quot; is a set of small inspectable Python scripts, and history is plain git — all diffable, portable, and yours.
+
+The retrieval side is a local RAG pipeline: notes are chunked on heading/paragraph boundaries, embedded via your own OpenAI-compatible LLM, and stored in a SQLite vector store (sqlite-vec KNN index, with a NumPy cosine fallback when the extension isn&#x27;t installed). Queries use hybrid search — Okapi BM25 fused with vector ranking via Reciprocal Rank Fusion, then reranked by TF-IDF cosine — with metadata filtering by folder/tag/type/date before the vector search. There&#x27;s also a wikilink knowledge graph with a D3 viewer, a Flask dashboard, scheduled autonomous tasks, and an append-only JSONL audit trail logging every action.
+
+It&#x27;s deliberately local-first and pluggable: it auto-detects LM Studio, Ollama, llama.cpp, or any OpenAI-compatible endpoint, ships with no credentials or PII (everything is a template you point at your own vault and LLM), and makes no external calls unless you explicitly wire one up. No telemetry. MIT licensed, 400+ tests, on PyPI (`pip install eidetic-os`). Next up is an extension architecture, MCP-native skills, and a sandboxed security gate for community code. Feedback welcome, especially on the retrieval design.</pre>
+  </div>
+  <hr style="border:none;border-top:2px solid #d6d9e0;margin:28px 0;">
+
+  <div style="background:#ffffff;border:1px solid #e2e4e9;border-radius:12px;padding:20px 22px;margin:0 0 18px;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+    <div style="display:inline-block;background:#0f0f23;color:#ffffff;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:5px 12px;border-radius:6px;">5 / 6 &nbsp;·&nbsp; LinkedIn</div>
+    
+    
+    <div style="font-size:13px;color:#888;margin:14px 0 6px;font-weight:600;">Copy the block below ↓</div>
+    <pre style="white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;background:#f7f8fa;border:1px solid #e2e4e9;border-radius:8px;padding:16px;margin:0;font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace;font-size:12.5px;line-height:1.55;color:#1a1a2e;">I&#x27;ve been building something over the past few weeks that I think points at where personal productivity is heading.
+
+The frustration that started it: AI assistants are brilliant but stateless. Every conversation begins from zero. Last week&#x27;s research, the reasoning behind a decision, the context you painstakingly built up — gone the moment you close the tab. We&#x27;ve all got this incredibly capable tool with no memory.
+
+So I built **Eidetic OS** — a personal, local-first &quot;operating system&quot; that turns Claude into something that actually remembers and acts on its own.
+
+What it does:
+
+→ Captures every AI conversation back into a private knowledge vault, automatically, twice a day — so research, decisions, and planning are preserved permanently, not lost between sessions.
+
+→ Makes that vault searchable by *meaning* through a local RAG pipeline. Months later you can ask &quot;what did we conclude about X?&quot; and get the real answer.
+
+→ Runs scheduled work autonomously overnight — indexing, briefings, reports — so you wake up to a system that&#x27;s already done a day&#x27;s housekeeping.
+
+→ Runs entirely on your own machine. Your notes and data never leave it unless you explicitly choose otherwise. No telemetry. For anyone who takes privacy and data ownership seriously, that&#x27;s the whole point.
+
+The thread running through all of it is **institutional memory for an individual** — the compounding context that makes a long-tenured colleague valuable, but for your own AI-assisted work. In my world at Skill Capital, where the edge is in what you remember about a market, a thesis, or a conversation six months ago, that compounding context is everything.
+
+It&#x27;s open source under MIT — on GitHub and PyPI (`pip install eidetic-os`). I&#x27;d genuinely love feedback from anyone building in this space, and contributions are welcome.
+
+The future of personal productivity isn&#x27;t a smarter chatbot. It&#x27;s a system that remembers everything you&#x27;ve done and keeps working while you sleep.
+
+🔗 https://github.com/paulholland511/atlas-os
+
+#AI #OpenSource #Productivity #LocalFirst #KnowledgeManagement #Python #RAG #PrivacyByDesign</pre>
+  </div>
+  <hr style="border:none;border-top:2px solid #d6d9e0;margin:28px 0;">
+
+  <div style="background:#ffffff;border:1px solid #e2e4e9;border-radius:12px;padding:20px 22px;margin:0 0 18px;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+    <div style="display:inline-block;background:#0f0f23;color:#ffffff;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:5px 12px;border-radius:6px;">6 / 6 &nbsp;·&nbsp; Dev.to</div>
+    <div style="font-size:16px;font-weight:600;color:#0f0f23;margin:10px 0 6px;line-height:1.4;">How I Built a Personal AI Operating System with Claude, Python, and Local LLMs</div>
+    <div style="font-size:13px;color:#444;margin:2px 0;"><strong>Tags:</strong> #ai #python #opensource #rag</div>
+    <div style="font-size:13px;color:#888;margin:14px 0 6px;font-weight:600;">Copy the block below ↓</div>
+    <pre style="white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;background:#f7f8fa;border:1px solid #e2e4e9;border-radius:8px;padding:16px;margin:0;font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace;font-size:12.5px;line-height:1.55;color:#1a1a2e;">&gt; *Add a hero image / architecture diagram here — see the ASCII version below for what to draw.*
+
+Claude is a brilliant assistant with one fatal flaw for daily work: it&#x27;s stateless. Close the tab and the context is gone. Last week&#x27;s research, yesterday&#x27;s planning, the reasoning behind a decision — all of it evaporates at the session boundary.
+
+I got tired of re-explaining myself, so I built a configuration layer that fixes it. It&#x27;s called **Eidetic OS** — an open-source, local-first &quot;operating system&quot; that turns Claude into something that remembers everything and runs work autonomously while I&#x27;m away. Here&#x27;s how it&#x27;s put together and the decisions behind it.
+
+## What it actually does
+
+Three things, composably:
+
+1. **Captures every conversation** back into a markdown vault as a searchable note, twice a day.
+2. **Indexes that vault** with a local RAG pipeline so you can retrieve anything by meaning.
+3. **Runs scheduled tasks autonomously** — nightly indexing, morning briefings, email reports.
+
+The result is a &quot;second brain&quot; that gets smarter the more you use it, and runs entirely on your own machine.
+
+## The architecture
+
+```
+            ┌──────────────────────────────┐
+            │        Claude Cowork          │
+            │  skills · scheduled tasks ·   │
+            │  memory · MCP tools           │
+            └───────────────┬───────────────┘
+                            │ invokes
+     ┌──────────────────────┼──────────────────────┐
+     ▼                      ▼                      ▼
+┌──────────┐      ┌──────────────────┐     ┌──────────────┐
+│ eidetic CLI│◀─rw─▶│  Markdown vault   │     │  Local LLM    │
+│ (Python) │      │  notes · git      │     │  embed + chat │
+└────┬─────┘      └──────────────────┘     └──────┬───────┘
+     ▼                                            │
+┌──────────┐    vectors.db + graph.json  ◀────────┘
+│  .rag/   │    (SQLite, git-ignored, reproducible)
+└──────────┘
+```
+
+The vault is the **source of truth**. Everything in `.rag/` is derived and reproducible — back up your markdown and your secrets, rebuild the rest. Config lives entirely in environment variables; there are no paths, hosts, or secrets in code.
+
+## Key decisions
+
+**Why SQLite for vectors, not a vector DB.** I started with a single `vectors.json` and it didn&#x27;t scale. I moved to a SQLite store (`vectors.db`) that uses the `sqlite-vec` KNN index when the extension is available and falls back to a NumPy cosine scan when it isn&#x27;t. SQLite gave me incremental insert/delete, per-file/per-batch checkpointing (an interrupted embed resumes instead of restarting), and zero infrastructure — no daemon, no Docker, just a file. For a personal-scale knowledge base that&#x27;s exactly the right trade-off.
+
+**Why hybrid search, not pure vectors.** Pure vector search misses exact-match terms (a function name, a ticker, an acronym). Pure keyword search misses paraphrase. So I fuse both: Okapi BM25 lexical ranking and vector ranking combined with **Reciprocal Rank Fusion**, then reranked by TF-IDF cosine to the query. Chunking is semantic — split on heading/paragraph boundaries up to a token budget rather than blind character windows — and there&#x27;s an embedding cache keyed by `(model, text)` so a full rebuild skips unchanged chunks.
+
+```python
+# Hybrid retrieval, conceptually:
+vector_hits  = vector_search(query_embedding, top_k=50)
+keyword_hits = bm25_search(query, top_k=50)
+fused        = reciprocal_rank_fusion(vector_hits, keyword_hits)
+results      = rerank_by_tfidf(fused, query)[:top_k]
+```
+
+**Why Flask, not React.** The dashboard reads from the same Python modules the CLI uses, so the UI is a thin presentation layer over logic that&#x27;s already tested. A React SPA would have meant a second codebase, a build step, and an API contract to keep in sync — all to display seven panels of mostly-static data. Server-rendered Flask was less code, fewer moving parts, and `pip install &#x27;eidetic-os[dashboard]&#x27;` away. Boring on purpose.
+
+**Why pluggable local LLMs.** It auto-detects LM Studio, Ollama, llama.cpp, or any OpenAI-compatible endpoint (probed in that order). Embeddings run against `nomic-embed-text`; chat against whatever you&#x27;ve loaded. No API keys for the core features, and nothing leaves the machine unless you wire up an external endpoint yourself.
+
+## What the CLI looks like
+
+```bash
+eidetic init                       # interactive setup, scaffolds + git-inits a vault
+eidetic backends                   # what local LLM is reachable?
+eidetic embed --incremental        # embed only what changed since last run
+eidetic search &quot;kelly criterion sizing&quot; --folder research --top-k 10
+eidetic graph --open               # D3 force-directed knowledge graph in the browser
+eidetic dashboard                  # Flask UI, seven live panels
+eidetic audit show                 # append-only JSONL log of every autonomous action
+```
+
+The unit of work is a **skill** — a Claude Cowork prompt that runs on a schedule and orchestrates the Python tooling. That&#x27;s the line between *chatting with your notes* and *running an operating system over them*. There&#x27;s a catalogue of 160+ of them installable with one command.
+
+## What I learned
+
+- **Boring infrastructure wins for personal tools.** A folder of markdown + SQLite + git beats a &quot;real&quot; stack because it&#x27;s diffable, portable, and survives me losing interest in maintaining it. Everything is inspectable.
+- **Hybrid retrieval is worth the complexity.** The quality jump from vector-only to BM25 + RRF + rerank was the single biggest improvement in how useful the search felt.
+- **Local-first changes what you&#x27;re willing to store.** When the embeddings never leave your disk, you stop self-censoring what you put in the vault — and that&#x27;s exactly what makes the retrieval valuable.
+- **Make it degrade gracefully.** With no LLM running, vault management, git automation, and keyword search still work. Don&#x27;t make the whole system depend on the one optional piece.
+
+## Try it
+
+It&#x27;s MIT licensed, has 400+ tests and CI, and is on PyPI:
+
+```bash
+pip install eidetic-os      # or pipx / uv tool install
+```
+
+**GitHub:** https://github.com/paulholland511/atlas-os
+
+Next up is an extension architecture that splits a lean core from the domain verticals, making the skill framework speak **MCP** (each skill an MCP server), and a sandboxed security gate that runs AST static analysis on community skills before install. Contributions and feedback very welcome — especially on the retrieval design.</pre>
+  </div>
+
+  <p style="font-size:12px;color:#999;text-align:center;margin:28px 0 0;">Compiled from posts/ · Eidetic OS</p>
+</div>
+</body>
+</html>

@@ -26,10 +26,10 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from _bootstrap import ensure_atlas_os
+from _bootstrap import ensure_eidetic_os
 
-ensure_atlas_os()
-from atlas_os import gitutil, scriptkit  # noqa: E402
+ensure_eidetic_os()
+from eidetic_os import gitutil, scriptkit  # noqa: E402
 
 VAULT = Path(os.path.expanduser(os.environ.get("VAULT_PATH", "."))).resolve()
 

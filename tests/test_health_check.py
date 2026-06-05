@@ -98,7 +98,7 @@ def test_format_human_includes_summary() -> None:
         health_check.combine("Down svc", [("a", False, "bad")]),
     ]
     out = health_check.format_human(results)
-    assert "Atlas OS Health Check" in out
+    assert "Eidetic OS Health Check" in out
     assert "Summary: 1 up · 0 degraded · 1 down" in out
 
 

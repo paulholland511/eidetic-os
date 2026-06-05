@@ -1,9 +1,9 @@
 # Feature: Scheduled Tasks & the Skills Catalog
 
-**Source:** [`skills/`](../../skills), [`atlas_os/_skills.py`](../../atlas_os/_skills.py) ·
-**CLI:** `atlas skills` · **Catalog:** `<vault>/Skills Catalog.md`
+**Source:** [`skills/`](../../skills), [`eidetic_os/_skills.py`](../../eidetic_os/_skills.py) ·
+**CLI:** `eidetic skills` · **Catalog:** `<vault>/Skills Catalog.md`
 
-This is the "operating system" part of Atlas OS: **autonomous agents that take
+This is the "operating system" part of Eidetic OS: **autonomous agents that take
 action on a schedule**, plus a self-updating catalog so agents can discover what
 they can run.
 
@@ -14,7 +14,7 @@ they can run.
 Each automation is a **skill** — a `SKILL.md` prompt in `skills/<name>/` with
 YAML frontmatter (`name`, `description`) followed by the instructions an agent
 follows. Claude Cowork runs it on a schedule (or on demand). A skill orchestrates
-the Python tooling (`atlas embed`, `atlas commit`, …) and your connected MCP
+the Python tooling (`eidetic embed`, `eidetic commit`, …) and your connected MCP
 tools (email, web search, files).
 
 Skills are written to run **unattended** — they make reasonable choices rather
@@ -38,7 +38,7 @@ than asking questions. Review a skill before enabling it.
 
 Copy `skills/<slug>/` into your Claude scheduled-tasks directory (`SCHEDULED_DIR`),
 replace the `{{PLACEHOLDER}}` tokens with your real values, and register it on its
-cadence. Placeholder tokens (`{{VAULT_PATH}}`, `{{ATLAS_OS}}`, `{{USER_EMAIL}}`,
+cadence. Placeholder tokens (`{{VAULT_PATH}}`, `{{EIDETIC_OS}}`, `{{USER_EMAIL}}`,
 `{{EMBED_HOST}}`/`{{LLM_PORT}}`, `{{JOB_TRACKER_PATH}}`, `{{WATCHLIST}}`, …) are
 documented in [`docs/SCHEDULED-TASKS.md`](../SCHEDULED-TASKS.md).
 
@@ -49,13 +49,13 @@ documented in [`docs/SCHEDULED-TASKS.md`](../SCHEDULED-TASKS.md).
 
 ## The skills catalog (agent discovery)
 
-Atlas OS generates a **`Skills Catalog.md`** note inside your vault — an
+Eidetic OS generates a **`Skills Catalog.md`** note inside your vault — an
 always-current index of every skill — so any agent that reads or searches the
 vault can discover the full menu of automations it can invoke.
 
 ### How it works
 
-`atlas_os/_skills.py` parses each `skills/*/SKILL.md`'s YAML frontmatter
+`eidetic_os/_skills.py` parses each `skills/*/SKILL.md`'s YAML frontmatter
 (`name`, `description`), pairs it with a suggested cadence, and renders a markdown
 note:
 
@@ -68,18 +68,18 @@ note:
 ### Usage
 
 ```bash
-atlas skills          # list the catalog in the terminal
-atlas skills --sync   # (re)generate Skills Catalog.md in the vault
+eidetic skills          # list the catalog in the terminal
+eidetic skills --sync   # (re)generate Skills Catalog.md in the vault
 ```
 
-`atlas init` generates it on first setup. **Re-run `atlas skills --sync` whenever
+`eidetic init` generates it on first setup. **Re-run `eidetic skills --sync` whenever
 you add, remove, or edit a skill** — it's auto-generated, so don't hand-edit it.
 
 ### Adding your own skill
 
 1. Create `skills/<slug>/SKILL.md` with `name` + `description` frontmatter and the
    prompt body.
-2. `atlas skills --sync` — it appears in the catalog automatically.
+2. `eidetic skills --sync` — it appears in the catalog automatically.
 3. Install it into your scheduled-tasks directory and register a cadence.
 
 ---
@@ -89,7 +89,7 @@ you add, remove, or edit a skill** — it's auto-generated, so don't hand-edit i
 | Variable | Default | Purpose |
 |---|---|---|
 | `VAULT_PATH` | — (**required** for `--sync`) | where the catalog is written |
-| `SCHEDULED_DIR` | `~/Documents/Claude/Scheduled` | where installed skills live (probed by `atlas health`) |
+| `SCHEDULED_DIR` | `~/Documents/Claude/Scheduled` | where installed skills live (probed by `eidetic health`) |
 | `USER_EMAIL` | — | recipient for report skills |
 
 See also: [`docs/SCHEDULED-TASKS.md`](../SCHEDULED-TASKS.md) (cadences, placeholder

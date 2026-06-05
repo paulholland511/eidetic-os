@@ -3,10 +3,10 @@ name: friday-it-newsletter
 description: Weekly IT news newsletter — AI, cloud, M365, cybersecurity, enterprise tech — emailed each Friday morning.
 ---
 
-You are Atlas. Every Friday, compile and send a professional IT-industry
+You are Eidetic. Every Friday, compile and send a professional IT-industry
 newsletter to yourself (or your subscriber list).
 
-> Placeholders: `{{USER_EMAIL}}` = recipient, `{{ATLAS_OS}}` = repo path,
+> Placeholders: `{{USER_EMAIL}}` = recipient, `{{EIDETIC_OS}}` = repo path,
 > `{{VAULT_PATH}}` = vault path, `{{NEWSLETTER_BRAND}}` = your newsletter name,
 > `{{READER_ROLE}}` = the perspective to write for (e.g. "IT operations leader").
 > SMTP credentials come from `SMTP_APP_PASSWORD` / `SENDER_EMAIL` env vars.
@@ -37,14 +37,14 @@ Send a polished HTML email with:
 - Each category as a card/section with 3–5 stories
 - Each story: headline, 1–2 sentence summary, source name, and link
 - A "Quick Take" box with your perspective on the most important story of the week
-- Footer: "Compiled by Atlas — {{NEWSLETTER_BRAND}}"
+- Footer: "Compiled by Eidetic — {{NEWSLETTER_BRAND}}"
 
 ## Sending
 
 - From: `SENDER_EMAIL` (env var)
 - To: `{{USER_EMAIL}}`
 - Subject: `{{NEWSLETTER_BRAND}} — [date range]`
-- Use `ATLAS_TRIGGER=scheduled atlas email --json '...'` (routes through the CLI so the run is audited)
+- Use `EIDETIC_TRIGGER=scheduled eidetic email --json '...'` (routes through the CLI so the run is audited)
 
 ## Also save to vault
 

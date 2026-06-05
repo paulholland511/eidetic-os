@@ -1,11 +1,11 @@
-"""Tests for atlas_os.netio — timeouts, retries, and clear network errors."""
+"""Tests for eidetic_os.netio — timeouts, retries, and clear network errors."""
 
 from __future__ import annotations
 
 import pytest
 import requests
 
-from atlas_os import netio
+from eidetic_os import netio
 
 
 class _Resp:

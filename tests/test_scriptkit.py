@@ -1,4 +1,4 @@
-"""Tests for atlas_os.scriptkit — exit codes, structured errors, error_boundary."""
+"""Tests for eidetic_os.scriptkit — exit codes, structured errors, error_boundary."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from atlas_os import fileio, gitutil, netio, scriptkit
+from eidetic_os import fileio, gitutil, netio, scriptkit
 
 
 class TestEmitError:

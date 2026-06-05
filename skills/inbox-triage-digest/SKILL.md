@@ -5,14 +5,14 @@ description: Inbox triage digest — scan unread/important mail since the last r
 
 Scan your inbox for unread and important mail since the last run, summarise and categorise each message, and email yourself a concise triage digest.
 
-> Placeholders: `{{USER_EMAIL}}` = recipient, `{{ATLAS_OS}}` = the Atlas OS repo
+> Placeholders: `{{USER_EMAIL}}` = recipient, `{{EIDETIC_OS}}` = the Eidetic OS repo
 > path. Inbox (IMAP) and SMTP credentials come from env vars
 > (`IMAP_HOST` / `IMAP_USER` / `IMAP_APP_PASSWORD`, `SMTP_APP_PASSWORD` /
 > `SENDER_EMAIL`) — never inline them. This runs unattended: read-only on the
 > inbox, never delete, archive, or reply to mail.
 
 **Email details:**
-- Send command: `ATLAS_TRIGGER=scheduled atlas email --json '...'` (routes through the CLI so the run is audited)
+- Send command: `EIDETIC_TRIGGER=scheduled eidetic email --json '...'` (routes through the CLI so the run is audited)
 - To: `{{USER_EMAIL}}`
 - Subject: `📥 Inbox Triage — [Day] [DD] [Month] [YYYY]`
 
@@ -47,7 +47,7 @@ Scan your inbox for unread and important mail since the last run, summarise and 
 
 1. Send via SMTP:
    ```bash
-   ATLAS_TRIGGER=scheduled atlas email --json '{"to":"{{USER_EMAIL}}","subject":"...","body_html":"..."}'
+   EIDETIC_TRIGGER=scheduled eidetic email --json '{"to":"{{USER_EMAIL}}","subject":"...","body_html":"..."}'
    ```
 2. On success, write the newest processed message's UID/date back to
    `$STATE_DIR/inbox_triage_last_run.txt` so the next run starts where this one
@@ -59,4 +59,4 @@ Scan your inbox for unread and important mail since the last run, summarise and 
 - Read-only on the inbox — never delete, archive, mark as read, move, or reply.
 - Never inline credentials; read them from the env vars above.
 
-Sign off as Atlas.
+Sign off as Eidetic.

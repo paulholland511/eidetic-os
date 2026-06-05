@@ -54,7 +54,7 @@ SCHEMAS: dict[str, dict[str, Any]] = {
     "code-solutions": {
         "required": ["title", "date", "type", "tags", "author", "commit",
                      "complexity", "files_changed", "indexed"],
-        "defaults": {"author": "Atlas", "indexed": True, "tags": [],
+        "defaults": {"author": "Eidetic", "indexed": True, "tags": [],
                      "complexity": "moderate", "commit": "unknown", "files_changed": 0},
     },
     "memory": {

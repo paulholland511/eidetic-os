@@ -71,7 +71,7 @@ def _sample_transcript() -> list[dict]:
 @pytest.fixture()
 def vault(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     v = tmp_path / "vault"
-    (v / ".atlas").mkdir(parents=True, exist_ok=True)
+    (v / ".eidetic").mkdir(parents=True, exist_ok=True)
     monkeypatch.setenv("VAULT_PATH", str(v))
     return v
 

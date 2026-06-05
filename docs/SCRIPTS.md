@@ -1,6 +1,6 @@
 # Script & CLI Reference
 
-Complete reference for every executable in Atlas OS: what it does, how to call
+Complete reference for every executable in Eidetic OS: what it does, how to call
 it, every flag, the environment variables it reads, and what it writes. All
 scripts read configuration from the environment — see
 [`CONFIGURATION.md`](CONFIGURATION.md).
@@ -8,34 +8,34 @@ scripts read configuration from the environment — see
 ## Two ways to run
 
 If you installed the package (`uv tool install` / `pipx` / `pip install -e .`),
-the **`atlas` CLI** wraps every script and auto-loads your `.env` — no manual
+the **`eidetic` CLI** wraps every script and auto-loads your `.env` — no manual
 `source` needed. Each subcommand forwards its flags straight through:
 
 ```bash
-atlas embed --full --batch-size 16      # == python3 scripts/embed_vault.py --full --batch-size 16
-atlas commit --dry-run
-atlas schemas --folder projects
+eidetic embed --full --batch-size 16      # == python3 scripts/embed_vault.py --full --batch-size 16
+eidetic commit --dry-run
+eidetic schemas --folder projects
 ```
 
 | CLI command | Wraps |
 |---|---|
-| `atlas embed` | `scripts/embed_vault.py` |
-| `atlas graph` | `scripts/build_graph.py` |
-| `atlas commit` | `scripts/vault_commit.py` |
-| `atlas changelog` | `scripts/vault_changelog.py` |
-| `atlas health` | `scripts/health_check.py` |
-| `atlas email` | `scripts/send_email.py` |
-| `atlas schemas` | `schemas/enforce_schemas.py` |
+| `eidetic embed` | `scripts/embed_vault.py` |
+| `eidetic graph` | `scripts/build_graph.py` |
+| `eidetic commit` | `scripts/vault_commit.py` |
+| `eidetic changelog` | `scripts/vault_changelog.py` |
+| `eidetic health` | `scripts/health_check.py` |
+| `eidetic email` | `scripts/send_email.py` |
+| `eidetic schemas` | `schemas/enforce_schemas.py` |
 
-CLI-only commands (no script equivalent): `atlas init` and `atlas doctor` (see
-[SETUP.md](SETUP.md)), and the `atlas skills` family —
+CLI-only commands (no script equivalent): `eidetic init` and `eidetic doctor` (see
+[SETUP.md](SETUP.md)), and the `eidetic skills` family —
 
-- `atlas skills` — list the agent skills catalog (`--sync` (re)generates the
+- `eidetic skills` — list the agent skills catalog (`--sync` (re)generates the
   `Skills Catalog.md` note in your vault).
-- `atlas skills list` — list every available skill (slug + cadence).
-- `atlas skills show <name>` — print a skill's `SKILL.md`.
-- `atlas skills install <name>` — copy a skill into your scheduled-tasks
-  directory (`$ATLAS_SKILLS_DIR`, default `$VAULT_PATH/.claude/skills/<name>/`),
+- `eidetic skills list` — list every available skill (slug + cadence).
+- `eidetic skills show <name>` — print a skill's `SKILL.md`.
+- `eidetic skills install <name>` — copy a skill into your scheduled-tasks
+  directory (`$EIDETIC_SKILLS_DIR`, default `$VAULT_PATH/.claude/skills/<name>/`),
   filling `{{PLACEHOLDER}}` tokens from `.env` (`--force` to overwrite).
 
 See [SCHEDULED-TASKS.md](SCHEDULED-TASKS.md#the-skills-catalog-agent-discovery).
@@ -47,7 +47,7 @@ set -a; source .env; set +a
 python3 scripts/<name>.py [flags]
 ```
 
-The flags below are identical whether you call `atlas <cmd>` or the script.
+The flags below are identical whether you call `eidetic <cmd>` or the script.
 
 | Script | One-liner |
 |---|---|
@@ -67,7 +67,7 @@ The flags below are identical whether you call `atlas <cmd>` or the script.
 
 The RAG pipeline. Chunks markdown (~500 tokens, 50 overlap) and optionally PDFs,
 embeds each chunk via your OpenAI-compatible endpoint, and stores vectors in a
-SQLite store at `$RAG_DIR/vectors.db` (via `atlas_os.vectordb`, with a legacy
+SQLite store at `$RAG_DIR/vectors.db` (via `eidetic_os.vectordb`, with a legacy
 `vectors.json` auto-migrated on first run). Writes are incremental — per file,
 per batch. After a **full** run it also rebuilds the knowledge graph (it shells
 out to `build_graph.py`).
@@ -105,7 +105,7 @@ python3 scripts/embed_vault.py --full --checkpoint-interval 50 --batch-size 16
 **Writes:** `$RAG_DIR/vectors.db`, `$RAG_DIR/graph.json` (after `--full`),
 `$RAG_DIR/last_embed.txt`.
 **Needs:** a running embeddings endpoint. Chunking is **semantic** (splits on
-heading/paragraph boundaries via [`atlas_os/rag.py`](../atlas_os/rag.py)), and an
+heading/paragraph boundaries via [`eidetic_os/rag.py`](../eidetic_os/rag.py)), and an
 **embedding cache** keyed by `(model, text)` skips re-embedding unchanged chunks
 across runs — including full rebuilds.
 
@@ -113,8 +113,8 @@ across runs — including full rebuilds.
 
 ## `rag_search.py`
 
-Query the RAG store from the command line (also exposed as `atlas search`). Runs
-the advanced retrieval pipeline in [`atlas_os/rag.py`](../atlas_os/rag.py):
+Query the RAG store from the command line (also exposed as `eidetic search`). Runs
+the advanced retrieval pipeline in [`eidetic_os/rag.py`](../eidetic_os/rag.py):
 **BM25 + vector hybrid** fusion (Reciprocal Rank Fusion), an optional **TF-IDF
 rerank**, and metadata pre-filtering by folder, doc_type, tag, file type, and a
 modified-time window.

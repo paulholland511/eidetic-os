@@ -1,38 +1,38 @@
-# Atlas OS — CLI Reference & Stability Contract
+# Eidetic OS — CLI Reference & Stability Contract
 
-**Applies to:** `atlas-os` **v0.3.0** · single binary entry point: `atlas`
+**Applies to:** `eidetic-os` **v0.3.0** · single binary entry point: `eidetic`
 
-This document is the authoritative reference for every `atlas` command, flag,
+This document is the authoritative reference for every `eidetic` command, flag,
 argument, and environment variable. It was generated from the live CLI
-(`atlas <command> --help`) and the underlying scripts — it documents exactly
+(`eidetic <command> --help`) and the underlying scripts — it documents exactly
 what exists, not what is planned.
 
 It also serves as a **stability contract**. The commands, flags, exit codes, and
-environment variables described here are the public interface of Atlas OS. See
+environment variables described here are the public interface of Eidetic OS. See
 [Stability promise](#stability-promise) at the end for what that guarantees.
 
 - [Overview](#overview)
 - [Global flags](#global-flags)
 - [Commands at a glance](#commands-at-a-glance)
 - [Command reference](#command-reference)
-  - [`atlas init`](#atlas-init)
-  - [`atlas doctor`](#atlas-doctor)
-  - [`atlas health`](#atlas-health)
-  - [`atlas embed`](#atlas-embed)
-  - [`atlas search`](#atlas-search)
-  - [`atlas migrate-vectors`](#atlas-migrate-vectors)
-  - [`atlas commit`](#atlas-commit)
-  - [`atlas changelog`](#atlas-changelog)
-  - [`atlas graph`](#atlas-graph)
-  - [`atlas email`](#atlas-email)
-  - [`atlas trading`](#atlas-trading)
-  - [`atlas skills`](#atlas-skills)
-  - [`atlas backends`](#atlas-backends)
-  - [`atlas audit`](#atlas-audit)
-  - [`atlas security`](#atlas-security)
-  - [`atlas schemas`](#atlas-schemas)
-  - [`atlas session`](#atlas-session)
-  - [`atlas extensions`](#atlas-extensions)
+  - [`eidetic init`](#eidetic-init)
+  - [`eidetic doctor`](#eidetic-doctor)
+  - [`eidetic health`](#eidetic-health)
+  - [`eidetic embed`](#eidetic-embed)
+  - [`eidetic search`](#eidetic-search)
+  - [`eidetic migrate-vectors`](#eidetic-migrate-vectors)
+  - [`eidetic commit`](#eidetic-commit)
+  - [`eidetic changelog`](#eidetic-changelog)
+  - [`eidetic graph`](#eidetic-graph)
+  - [`eidetic email`](#eidetic-email)
+  - [`eidetic trading`](#eidetic-trading)
+  - [`eidetic skills`](#eidetic-skills)
+  - [`eidetic backends`](#eidetic-backends)
+  - [`eidetic audit`](#eidetic-audit)
+  - [`eidetic security`](#eidetic-security)
+  - [`eidetic schemas`](#eidetic-schemas)
+  - [`eidetic session`](#eidetic-session)
+  - [`eidetic extensions`](#eidetic-extensions)
 - [Environment variables reference](#environment-variables-reference)
 - [Exit codes reference](#exit-codes-reference)
 - [Stability promise](#stability-promise)
@@ -41,20 +41,20 @@ environment variables described here are the public interface of Atlas OS. See
 
 ## Overview
 
-`atlas` is the single command-line interface to Atlas OS. One command wraps the
+`eidetic` is the single command-line interface to Eidetic OS. One command wraps the
 whole system: onboarding, the RAG pipeline, the knowledge graph, git automation,
 email reports, the trading briefing, the skills catalog, the LLM-backend probe,
 and the audit trail.
 
 ```text
-atlas [GLOBAL OPTIONS] COMMAND [ARGS]...
+eidetic [GLOBAL OPTIONS] COMMAND [ARGS]...
 ```
 
 Two equivalent ways to invoke it:
 
 ```bash
-atlas <command>            # installed console script (pip/uv install)
-python -m atlas_os <command>   # module form (works from a source checkout)
+eidetic <command>            # installed console script (pip/uv install)
+python -m eidetic_os <command>   # module form (works from a source checkout)
 ```
 
 **Configuration comes from the environment.** A `.env` in the current directory
@@ -64,25 +64,25 @@ cwd `.env` wins over the repo-root one. Commands that need a specific variable
 it is missing, so a half-configured feature fails fast rather than part-way
 through.
 
-Running `atlas` with no command prints help. Run `atlas --help` or
-`atlas <command> --help` at any time for the same information shown here.
+Running `eidetic` with no command prints help. Run `eidetic --help` or
+`eidetic <command> --help` at any time for the same information shown here.
 
 ---
 
 ## Global flags
 
-These apply to the top-level `atlas` command:
+These apply to the top-level `eidetic` command:
 
 | Flag | Short | Description |
 |---|---|---|
-| `--version` | `-V` | Print `atlas-os <version>` and exit. |
+| `--version` | `-V` | Print `eidetic-os <version>` and exit. |
 | `--help` | | Show help and exit. Works on every command and subcommand. |
 | `--install-completion` | | Install shell tab-completion for the current shell. |
 | `--show-completion` | | Print the completion script (to copy or customize). |
 
 ```console
-$ atlas --version
-atlas-os 0.3.0
+$ eidetic --version
+eidetic-os 0.3.0
 ```
 
 ---
@@ -91,53 +91,53 @@ atlas-os 0.3.0
 
 | Command | What it does |
 |---|---|
-| [`atlas init`](#atlas-init) | Interactive onboarding — detect your LLM, write `.env`, scaffold the vault. |
-| [`atlas doctor`](#atlas-doctor) | Diagnose the setup by category, offer fixes (`--fix`), emit JSON (`--json`). |
-| [`atlas health`](#atlas-health) | Full subsystem health probe. |
-| [`atlas embed`](#atlas-embed) | Build / refresh the RAG vector store. |
-| [`atlas search`](#atlas-search) | Query the store: hybrid (BM25 + vector) search with reranking. |
-| [`atlas migrate-vectors`](#atlas-migrate-vectors) | Migrate the vector store between backends (`--to`) or import a legacy `vectors.json`. |
-| [`atlas commit`](#atlas-commit) | Auto-commit the vault with a categorised message. |
-| [`atlas changelog`](#atlas-changelog) | Summarise vault changes over a time window. |
-| [`atlas sync`](#atlas-sync) | Safely pull remote vault changes with a favour-local merge. |
-| [`atlas validate`](#atlas-validate) | Validate YAML frontmatter across the vault (or staged files). |
-| [`atlas graph`](#atlas-graph) | Rebuild the wikilink knowledge graph. |
-| [`atlas email`](#atlas-email) | Send an email via SMTP. |
-| [`atlas trading`](#atlas-trading) | Generate a trading research briefing *(bundled extension)*. |
-| [`atlas skills`](#atlas-skills) | List, show, and install the agent skills, individually or as packs. |
-| [`atlas backends`](#atlas-backends) | Show detected LLM backends; `test` runs an inference. |
-| [`atlas audit`](#atlas-audit) | Inspect the append-only audit trail. |
-| [`atlas security`](#atlas-security) | Scan skills for dangerous code; review the install security audit. |
-| [`atlas dashboard`](#atlas-dashboard) | Launch the local web dashboard *(needs the `dashboard` extra)*. |
-| [`atlas schemas`](#atlas-schemas) | Enforce per-folder frontmatter schemas. |
-| [`atlas session`](#atlas-session) | Save Cowork chat transcripts to the vault. |
-| [`atlas extensions`](#atlas-extensions) | List and inspect the optional extensions plugged into Atlas OS. |
+| [`eidetic init`](#eidetic-init) | Interactive onboarding — detect your LLM, write `.env`, scaffold the vault. |
+| [`eidetic doctor`](#eidetic-doctor) | Diagnose the setup by category, offer fixes (`--fix`), emit JSON (`--json`). |
+| [`eidetic health`](#eidetic-health) | Full subsystem health probe. |
+| [`eidetic embed`](#eidetic-embed) | Build / refresh the RAG vector store. |
+| [`eidetic search`](#eidetic-search) | Query the store: hybrid (BM25 + vector) search with reranking. |
+| [`eidetic migrate-vectors`](#eidetic-migrate-vectors) | Migrate the vector store between backends (`--to`) or import a legacy `vectors.json`. |
+| [`eidetic commit`](#eidetic-commit) | Auto-commit the vault with a categorised message. |
+| [`eidetic changelog`](#eidetic-changelog) | Summarise vault changes over a time window. |
+| [`eidetic sync`](#eidetic-sync) | Safely pull remote vault changes with a favour-local merge. |
+| [`eidetic validate`](#eidetic-validate) | Validate YAML frontmatter across the vault (or staged files). |
+| [`eidetic graph`](#eidetic-graph) | Rebuild the wikilink knowledge graph. |
+| [`eidetic email`](#eidetic-email) | Send an email via SMTP. |
+| [`eidetic trading`](#eidetic-trading) | Generate a trading research briefing *(bundled extension)*. |
+| [`eidetic skills`](#eidetic-skills) | List, show, and install the agent skills, individually or as packs. |
+| [`eidetic backends`](#eidetic-backends) | Show detected LLM backends; `test` runs an inference. |
+| [`eidetic audit`](#eidetic-audit) | Inspect the append-only audit trail. |
+| [`eidetic security`](#eidetic-security) | Scan skills for dangerous code; review the install security audit. |
+| [`eidetic dashboard`](#eidetic-dashboard) | Launch the local web dashboard *(needs the `dashboard` extra)*. |
+| [`eidetic schemas`](#eidetic-schemas) | Enforce per-folder frontmatter schemas. |
+| [`eidetic session`](#eidetic-session) | Save Cowork chat transcripts to the vault. |
+| [`eidetic extensions`](#eidetic-extensions) | List and inspect the optional extensions plugged into Eidetic OS. |
 
 **CLI-native vs. script-wrapping.** `init`, `doctor`, `skills`, `backends`,
 `audit`, `sync`, and `validate` are implemented in the CLI itself. The rest forward their flags 1:1 to a
 script under `scripts/` (or `schemas/`), so you can also run those directly,
 e.g. `python3 scripts/embed_vault.py --full`. Every script-wrapping command
-appends an entry to the [audit trail](#atlas-audit) recording what ran, how it
+appends an entry to the [audit trail](#eidetic-audit) recording what ran, how it
 was triggered, the outcome, duration, and what changed.
 
 ---
 
 ## Command reference
 
-### `atlas init`
+### `eidetic init`
 
 Interactive onboarding: detect your LLM, write `.env`, scaffold the vault.
 
 Walks a fresh machine from nothing to a working setup — finds your vault and
-local LLM, generates a `.env`, builds the vault directory tree (`​.atlas/`,
+local LLM, generates a `.env`, builds the vault directory tree (`​.eidetic/`,
 `.rag/`, `wiki/`), generates the skills catalog, optionally initialises a git
-repo in the vault, and finally runs the [`doctor`](#atlas-doctor) checks to
+repo in the vault, and finally runs the [`doctor`](#eidetic-doctor) checks to
 confirm it all works.
 
 **Usage**
 
 ```text
-atlas init [OPTIONS]
+eidetic init [OPTIONS]
 ```
 
 **Flags**
@@ -165,17 +165,17 @@ warnings; a closing message flags any FAILs). `--yes` never prompts.
 **Examples**
 
 ```bash
-atlas init                       # full interactive wizard
-atlas init --yes                 # accept every default, no prompts
-atlas init --vault ~/notes --yes # point at a specific vault, non-interactive
-atlas init --force               # regenerate .env over an existing one
+eidetic init                       # full interactive wizard
+eidetic init --yes                 # accept every default, no prompts
+eidetic init --vault ~/notes --yes # point at a specific vault, non-interactive
+eidetic init --force               # regenerate .env over an existing one
 ```
 
 ---
 
-### `atlas doctor`
+### `eidetic doctor`
 
-Validate the Atlas OS setup, diagnose problems, and offer fixes.
+Validate the Eidetic OS setup, diagnose problems, and offer fixes.
 
 Checks are **grouped by category** and colour-coded (green OK / yellow WARN /
 red FAIL), and every non-OK row prints an actionable **next step**:
@@ -183,15 +183,15 @@ red FAIL), and every non-OK row prints an actionable **next step**:
 - **Config** — Python version (≥ 3.11) and `VAULT_PATH` (set + exists).
 - **Git** — whether the vault is a git repo, plus detection of stale
   `index.lock` / `HEAD.lock` / ref locks left by an interrupted git process.
-- **Sync** — the last successful `atlas sync` from the audit trail, plus any
+- **Sync** — the last successful `eidetic sync` from the audit trail, plus any
   files left in an unresolved merge-conflict state (see
   [git-hardening.md](features/git-hardening.md)).
-- **LLM** — probes the active (or `ATLAS_LLM_BACKEND`-forced) backend. If it's
+- **LLM** — probes the active (or `EIDETIC_LLM_BACKEND`-forced) backend. If it's
   down, shows a clear diagnosis (*"LM Studio at host:port is not responding. Is
   it running?"*) and lists any reachable backends as alternatives. Also checks
   the embeddings endpoint that RAG depends on.
 - **RAG** — whether a vector index exists, whether it's stale (last embed > 24h
-  ago → suggests `atlas embed --incremental`), and whether the key files
+  ago → suggests `eidetic embed --incremental`), and whether the key files
   (`vectors.db`, `last_embed.txt`) have been offloaded to iCloud ("dataless").
 - **SMTP** — whether email credentials are configured (links to the tutorial).
 
@@ -203,7 +203,7 @@ even under `--fix`. Without `--fix`, every fix is offered interactively.
 **Usage**
 
 ```text
-atlas doctor [OPTIONS]
+eidetic doctor [OPTIONS]
 ```
 
 **Flags**
@@ -215,7 +215,7 @@ atlas doctor [OPTIONS]
 | `--help` | Show help and exit. |
 
 **Environment variables** — reads `VAULT_PATH`, `RAG_DIR`, `EMBED_HOST`,
-`EMBED_PORT`, `EMBED_URL`, `ATLAS_LLM_BACKEND` (+ the backend `*_URL` vars),
+`EMBED_PORT`, `EMBED_URL`, `EIDETIC_LLM_BACKEND` (+ the backend `*_URL` vars),
 `SENDER_EMAIL`, `SMTP_APP_PASSWORD`.
 
 **JSON shape** — `--json` prints `{"checks": [{category, name, status, detail,
@@ -229,21 +229,21 @@ check reports FAIL.
 **Examples**
 
 ```bash
-atlas doctor              # diagnose and offer fixes interactively
-atlas doctor --fix        # auto-apply safe fixes (e.g. clear stale git locks)
-atlas doctor --json       # machine-readable health report
+eidetic doctor              # diagnose and offer fixes interactively
+eidetic doctor --fix        # auto-apply safe fixes (e.g. clear stale git locks)
+eidetic doctor --json       # machine-readable health report
 ```
 
 ---
 
-### `atlas health`
+### `eidetic health`
 
 Full subsystem health probe. Wraps `scripts/health_check.py`.
 
 **Usage**
 
 ```text
-atlas health [OPTIONS]
+eidetic health [OPTIONS]
 ```
 
 **Flags**
@@ -260,30 +260,30 @@ configuration error.
 **Examples**
 
 ```bash
-atlas health
-atlas health --json
-atlas health --quiet      # for cron / scripting: check $?
+eidetic health
+eidetic health --json
+eidetic health --quiet      # for cron / scripting: check $?
 ```
 
 ---
 
-### `atlas embed`
+### `eidetic embed`
 
 Build / refresh the RAG vector store. Wraps `scripts/embed_vault.py`.
 
 Reads your markdown vault, chunks and embeds it via an OpenAI-compatible
 embeddings endpoint, and writes the vectors into a **SQLite store**
-(`$RAG_DIR/vectors.db`, via [`atlas_os/vectordb.py`](../atlas_os/vectordb.py)).
+(`$RAG_DIR/vectors.db`, via [`eidetic_os/vectordb.py`](../eidetic_os/vectordb.py)).
 Writes are **incremental** — only the touched files' chunks are replaced — and
 each batch is committed as it lands, so an interrupted run resumes rather than
 corrupting the index. A legacy `vectors.json` is auto-migrated on first run (see
-[`atlas migrate-vectors`](#atlas-migrate-vectors)). Exactly one mode flag is
+[`eidetic migrate-vectors`](#eidetic-migrate-vectors)). Exactly one mode flag is
 required.
 
 **Usage**
 
 ```text
-atlas embed (--full | --incremental | --test N | --folder NAME | --pdfs-only) \
+eidetic embed (--full | --incremental | --test N | --folder NAME | --pdfs-only) \
             [--checkpoint-interval N] [--batch-size N]
 ```
 
@@ -310,26 +310,26 @@ configuration error (`VAULT_PATH` unset or an invalid mode flag).
 **Examples**
 
 ```bash
-atlas embed --full                # re-embed everything
-atlas embed --incremental         # only changed notes
-atlas embed --test 5              # smoke-test the endpoint on 5 files
-atlas embed --folder Research     # one folder only
-atlas embed --full --batch-size 16
+eidetic embed --full                # re-embed everything
+eidetic embed --incremental         # only changed notes
+eidetic embed --test 5              # smoke-test the endpoint on 5 files
+eidetic embed --folder Research     # one folder only
+eidetic embed --full --batch-size 16
 ```
 
 ---
 
-### `atlas search`
+### `eidetic search`
 
 Query the RAG store from the command line. Wraps `scripts/rag_search.py`, which
-runs the advanced retrieval pipeline in [`atlas_os/rag.py`](../atlas_os/rag.py):
+runs the advanced retrieval pipeline in [`eidetic_os/rag.py`](../eidetic_os/rag.py):
 semantic-chunked content, **BM25 + vector hybrid** fusion (Reciprocal Rank
 Fusion), an optional **TF-IDF rerank**, and metadata pre-filtering.
 
 **Usage**
 
 ```text
-atlas search QUERY [--top-k N] [--mode hybrid|vector|keyword]
+eidetic search QUERY [--top-k N] [--mode hybrid|vector|keyword]
                    [--folder NAME ...] [--doc-type TYPE ...] [--tag TAG ...]
                    [--file-type EXT ...] [--since WHEN] [--until WHEN]
                    [--no-rerank] [--json]
@@ -357,15 +357,15 @@ query embedding, `EMBED_URL` (or `EMBED_HOST` + `EMBED_PORT`), `EMBED_MODEL`, an
 **Examples**
 
 ```bash
-atlas search "kelly criterion sizing"                       # hybrid + rerank
-atlas search "trading risk" --folder research --tag trading --top-k 10
-atlas search "embeddings" --mode vector --file-type md --since 30d
-atlas search "decision log" --mode keyword --json           # offline, scriptable
+eidetic search "kelly criterion sizing"                       # hybrid + rerank
+eidetic search "trading risk" --folder research --tag trading --top-k 10
+eidetic search "embeddings" --mode vector --file-type md --since 30d
+eidetic search "decision log" --mode keyword --json           # offline, scriptable
 ```
 
 ---
 
-### `atlas migrate-vectors`
+### `eidetic migrate-vectors`
 
 Migrate the vector store — **between backends** (`--to`) or from a **legacy
 `vectors.json`** into SQLite (without `--to`).
@@ -388,7 +388,7 @@ with `--force`. The legacy `vectors.json` is left in place.
 **Usage**
 
 ```text
-atlas migrate-vectors [--rag-dir PATH] [--to BACKEND] [--from BACKEND] [--force]
+eidetic migrate-vectors [--rag-dir PATH] [--to BACKEND] [--from BACKEND] [--force]
 ```
 
 **Flags**
@@ -413,16 +413,16 @@ backend name.
 **Examples**
 
 ```bash
-atlas migrate-vectors                       # convert $RAG_DIR/vectors.json → vectors.db
-atlas migrate-vectors --rag-dir ~/vault/.rag
-atlas migrate-vectors --force               # re-import, replacing the existing DB
-atlas migrate-vectors --to lancedb          # copy current store → LanceDB, verify counts
-atlas migrate-vectors --from sqlite --to chroma --force
+eidetic migrate-vectors                       # convert $RAG_DIR/vectors.json → vectors.db
+eidetic migrate-vectors --rag-dir ~/vault/.rag
+eidetic migrate-vectors --force               # re-import, replacing the existing DB
+eidetic migrate-vectors --to lancedb          # copy current store → LanceDB, verify counts
+eidetic migrate-vectors --from sqlite --to chroma --force
 ```
 
 ---
 
-### `atlas commit`
+### `eidetic commit`
 
 Auto-commit the vault with a categorised message. Wraps
 `scripts/vault_commit.py`.
@@ -430,7 +430,7 @@ Auto-commit the vault with a categorised message. Wraps
 **Usage**
 
 ```text
-atlas commit [--dry-run] [--json]
+eidetic commit [--dry-run] [--json]
 ```
 
 **Flags**
@@ -449,21 +449,21 @@ error; `2` `VAULT_PATH` unset.
 **Examples**
 
 ```bash
-atlas commit
-atlas commit --dry-run
-atlas commit --json
+eidetic commit
+eidetic commit --dry-run
+eidetic commit --json
 ```
 
 ---
 
-### `atlas changelog`
+### `eidetic changelog`
 
 Summarise vault changes over a window. Wraps `scripts/vault_changelog.py`.
 
 **Usage**
 
 ```text
-atlas changelog [--since WINDOW] [--markdown] [--json]
+eidetic changelog [--since WINDOW] [--markdown] [--json]
 ```
 
 **Flags**
@@ -482,26 +482,26 @@ atlas changelog [--since WINDOW] [--markdown] [--json]
 **Examples**
 
 ```bash
-atlas changelog
-atlas changelog --since "7 days ago" --markdown
-atlas changelog --since 2026-06-01 --json
+eidetic changelog
+eidetic changelog --since "7 days ago" --markdown
+eidetic changelog --since 2026-06-01 --json
 ```
 
 ---
 
-### `atlas sync`
+### `eidetic sync`
 
 Safely pull remote vault changes with a **favour-local** merge. Uses
 `git merge -X ours` so an automated or remote change never overwrites a
 concurrent human edit; an unresolvable conflict aborts the merge (your working
 tree is left untouched) and is reported. Stale git locks are cleared first, and
-every outcome is written to the [audit trail](#atlas-audit). See
+every outcome is written to the [audit trail](#eidetic-audit). See
 [git-hardening.md](features/git-hardening.md).
 
 **Usage**
 
 ```text
-atlas sync [--remote NAME] [--branch NAME] [--json]
+eidetic sync [--remote NAME] [--branch NAME] [--json]
 ```
 
 **Flags**
@@ -522,14 +522,14 @@ git error; `2` `VAULT_PATH` unset.
 **Examples**
 
 ```bash
-atlas sync
-atlas sync --remote origin --branch main
-atlas sync --json
+eidetic sync
+eidetic sync --remote origin --branch main
+eidetic sync --json
 ```
 
 ---
 
-### `atlas validate`
+### `eidetic validate`
 
 Validate YAML frontmatter across the vault — the same gate that runs before every
 automated commit. Flags broken YAML, unterminated frontmatter blocks, missing
@@ -538,7 +538,7 @@ required keys, and malformed dates.
 **Usage**
 
 ```text
-atlas validate [--staged] [--require KEYS] [--json]
+eidetic validate [--staged] [--require KEYS] [--json]
 ```
 
 **Flags**
@@ -558,14 +558,14 @@ frontmatter; `2` `VAULT_PATH` unset.
 **Examples**
 
 ```bash
-atlas validate
-atlas validate --staged
-atlas validate --require id,title --json
+eidetic validate
+eidetic validate --staged
+eidetic validate --require id,title --json
 ```
 
 ---
 
-### `atlas graph`
+### `eidetic graph`
 
 Rebuild the wikilink knowledge graph. Wraps `scripts/build_graph.py`.
 
@@ -575,7 +575,7 @@ the RAG directory, printing node/edge counts and the most-connected notes.
 **Usage**
 
 ```text
-atlas graph [--json]
+eidetic graph [--json]
 ```
 
 **Flags**
@@ -593,12 +593,12 @@ location, default `$VAULT_PATH/.rag`).
 **Example**
 
 ```bash
-atlas graph
+eidetic graph
 ```
 
 ---
 
-### `atlas email`
+### `eidetic email`
 
 Send an email via SMTP, from `--subject`/`--body` flags or a raw `--json`
 payload. Wraps `scripts/send_email.py`.
@@ -606,7 +606,7 @@ payload. Wraps `scripts/send_email.py`.
 **Usage**
 
 ```text
-atlas email [--to ADDR] (-s SUBJECT -b BODY | --json PAYLOAD) \
+eidetic email [--to ADDR] (-s SUBJECT -b BODY | --json PAYLOAD) \
             [--text] [-a FILE]...
 ```
 
@@ -636,29 +636,29 @@ Reads `USER_EMAIL` (default recipient), `SENDER_NAME`, `SMTP_SERVER` (default
 **Examples**
 
 ```bash
-atlas email -s "Hi" -b "<p>Hello</p>" --to me@example.com
-atlas email -s "Plain note" -b "Hello" --text --to me@example.com
-atlas email -s "Report" -b "<p>Attached</p>" -a report.pdf -a data.csv
-atlas email --json '{"to":"me@example.com","subject":"Hi","body_html":"<p>Hi</p>"}'
+eidetic email -s "Hi" -b "<p>Hello</p>" --to me@example.com
+eidetic email -s "Plain note" -b "Hello" --text --to me@example.com
+eidetic email -s "Report" -b "<p>Attached</p>" -a report.pdf -a data.csv
+eidetic email --json '{"to":"me@example.com","subject":"Hi","body_html":"<p>Hi</p>"}'
 ```
 
 ---
 
-### `atlas trading`
+### `eidetic trading`
 
 Generate a trading research briefing. Wraps `scripts/trading_briefing.py`.
 
 > **Bundled extension.** As of v3.0 this command is provided by the bundled
-> `trading` extension (`atlas_os/extensions/trading/`), not the core — see
-> [`atlas extensions`](#atlas-extensions). Needs the third-party `TradingAgents`
+> `trading` extension (`eidetic_os/extensions/trading/`), not the core — see
+> [`eidetic extensions`](#eidetic-extensions). Needs the third-party `TradingAgents`
 > package and a running local LLM endpoint; install the extra with
-> `pip install 'atlas-os[trading]'`. Reads `VAULT_PATH` and `LM_STUDIO_*` from
+> `pip install 'eidetic-os[trading]'`. Reads `VAULT_PATH` and `LM_STUDIO_*` from
 > the env.
 
 **Usage**
 
 ```text
-atlas trading [--ticker SYMBOL] [--date YYYY-MM-DD] [--dry-run] [--json]
+eidetic trading [--ticker SYMBOL] [--date YYYY-MM-DD] [--dry-run] [--json]
 ```
 
 **Flags**
@@ -682,32 +682,32 @@ atlas trading [--ticker SYMBOL] [--date YYYY-MM-DD] [--dry-run] [--json]
 **Examples**
 
 ```bash
-atlas trading --dry-run
-atlas trading --ticker BTC-USD
-atlas trading --date 2026-06-02 --json
+eidetic trading --dry-run
+eidetic trading --ticker BTC-USD
+eidetic trading --date 2026-06-02 --json
 ```
 
 ---
 
-### `atlas skills`
+### `eidetic skills`
 
-List, show, and install the agent skills shipped with Atlas OS. Run with no
+List, show, and install the agent skills shipped with Eidetic OS. Run with no
 subcommand to list the catalog.
 
 **Usage**
 
 ```text
-atlas skills [--sync] [--output PATH]
-atlas skills list
-atlas skills show NAME
-atlas skills install NAME [--force]
-atlas skills run NAME
-atlas skills packs
-atlas skills install-pack NAME [--force]
-atlas skills search [QUERY]
-atlas skills publish PATH [--output DIR]
-atlas skills registry add URL
-atlas skills registry list
+eidetic skills [--sync] [--output PATH]
+eidetic skills list
+eidetic skills show NAME
+eidetic skills install NAME [--force]
+eidetic skills run NAME
+eidetic skills packs
+eidetic skills install-pack NAME [--force]
+eidetic skills search [QUERY]
+eidetic skills publish PATH [--output DIR]
+eidetic skills registry add URL
+eidetic skills registry list
 ```
 
 **Top-level flags** (apply when run with no subcommand)
@@ -724,8 +724,8 @@ atlas skills registry list
 |---|---|---|---|
 | `list` | | | List every available skill (slug + cadence + description). |
 | `show` | `NAME` | | Print a skill's `SKILL.md` to stdout. |
-| `install` | `NAME` | `--force` | Install a skill into the scheduled-tasks dir, filling in `{{PLACEHOLDER}}` tokens from the environment. The skill's source is **security-scanned first** (see [`atlas security`](#atlas-security)): a `BLOCK` finding refuses the install outright, `WARN` findings require `--force`. `--force` also overwrites an existing install. An MCP-server skill (one with an `mcp_server` manifest block) is detected and its transport reported. |
-| `run` | `NAME` | | Run a skill as an **MCP server** over stdio (launches, serves, exits on EOF). The skill's `SKILL.md` is exposed as an MCP tool, so any MCP host can call it. See [`atlas mcp`](#atlas-mcp). |
+| `install` | `NAME` | `--force` | Install a skill into the scheduled-tasks dir, filling in `{{PLACEHOLDER}}` tokens from the environment. The skill's source is **security-scanned first** (see [`eidetic security`](#eidetic-security)): a `BLOCK` finding refuses the install outright, `WARN` findings require `--force`. `--force` also overwrites an existing install. An MCP-server skill (one with an `mcp_server` manifest block) is detected and its transport reported. |
+| `run` | `NAME` | | Run a skill as an **MCP server** over stdio (launches, serves, exits on EOF). The skill's `SKILL.md` is exposed as an MCP tool, so any MCP host can call it. See [`eidetic mcp`](#eidetic-mcp). |
 | `packs` | | | List the pre-built skill packs (curated bundles for common workflows), with each pack's skill count and members. |
 | `install-pack` | `NAME` | `--force` | Install every skill in a pack at once, each filled exactly as `install` would. Already-installed members are skipped unless `--force` is passed. |
 | `search` | `[QUERY]` | | Search the configured registries (the **marketplace**) by keyword or tag — matches name, description, and tags. An empty query lists everything. |
@@ -737,7 +737,7 @@ atlas skills registry list
 community marketplace. A *registry* is a JSON document (`registry.json`) listing
 skills with metadata (name, version, description, author, tags, dependencies,
 download URL). The built-in registry (`skills/registry.json`) ships with every
-Atlas OS install and is always searched; add more with `registry add`. See
+Eidetic OS install and is always searched; add more with `registry add`. See
 [`docs/features/skills-marketplace.md`](features/skills-marketplace.md) for the
 schema and the publish/share workflow.
 
@@ -750,11 +750,11 @@ schema and the publish/share workflow.
 | `trading` | 2 | Trading intelligence — daily trading report, on-demand topic research briefs. |
 
 **Environment variables** — `--sync` and the default install location need
-`VAULT_PATH`. `install` / `install-pack` write to `$ATLAS_SKILLS_DIR` if set,
+`VAULT_PATH`. `install` / `install-pack` write to `$EIDETIC_SKILLS_DIR` if set,
 otherwise `$VAULT_PATH/.claude/skills/<name>/`; placeholder values are pulled
 from the environment / `.env` (e.g. `SCHEDULED_DIR`, email vars). The registry
-config file is resolved from `ATLAS_REGISTRIES_PATH` → `$VAULT_PATH/.atlas/registries.json`
-→ `./.atlas/registries.json`.
+config file is resolved from `EIDETIC_REGISTRIES_PATH` → `$VAULT_PATH/.eidetic/registries.json`
+→ `./.eidetic/registries.json`.
 
 **Exit codes** — `0` success; `1` install error (including a security `BLOCK`,
 or `WARN` findings without `--force`), validation failure on `publish`, registry
@@ -764,35 +764,35 @@ name, or missing `SKILL.md`.
 **Examples**
 
 ```bash
-atlas skills                                  # list the catalog
-atlas skills list
-atlas skills show atlas-daily-report-email
-atlas skills install atlas-daily-report-email # deploy one, filling placeholders
-atlas skills install atlas-daily-report-email --force
-atlas skills --sync                           # regenerate the catalog note
-atlas skills packs                            # list the curated skill packs
-atlas skills install-pack knowledge           # install a whole workflow at once
-atlas skills install-pack trading --force     # reinstall, overwriting existing
-atlas skills search trading                   # search the marketplace by keyword/tag
-atlas skills publish ./my-skill               # validate + package a skill to share
-atlas skills registry add https://example.com/registry.json
-atlas skills registry list                    # show configured registries
+eidetic skills                                  # list the catalog
+eidetic skills list
+eidetic skills show atlas-daily-report-email
+eidetic skills install atlas-daily-report-email # deploy one, filling placeholders
+eidetic skills install atlas-daily-report-email --force
+eidetic skills --sync                           # regenerate the catalog note
+eidetic skills packs                            # list the curated skill packs
+eidetic skills install-pack knowledge           # install a whole workflow at once
+eidetic skills install-pack trading --force     # reinstall, overwriting existing
+eidetic skills search trading                   # search the marketplace by keyword/tag
+eidetic skills publish ./my-skill               # validate + package a skill to share
+eidetic skills registry add https://example.com/registry.json
+eidetic skills registry list                    # show configured registries
 ```
 
 ---
 
-### `atlas backends`
+### `eidetic backends`
 
-Show detected LLM backends; `atlas backends test` runs an inference.
+Show detected LLM backends; `eidetic backends test` runs an inference.
 
-Atlas OS talks to any OpenAI-compatible LLM server. With no argument it probes
+Eidetic OS talks to any OpenAI-compatible LLM server. With no argument it probes
 every configured backend (LM Studio, Ollama, llama.cpp, a custom
 OpenAI-compatible URL) and prints a reachability report, marking the active one.
 
 **Usage**
 
 ```text
-atlas backends [ACTION]
+eidetic backends [ACTION]
 ```
 
 **Arguments**
@@ -807,26 +807,26 @@ atlas backends [ACTION]
 |---|---|
 | `--help` | Show help and exit. |
 
-**Environment variables** — `ATLAS_LLM_BACKEND` forces a backend
+**Environment variables** — `EIDETIC_LLM_BACKEND` forces a backend
 (`lmstudio` / `ollama` / `llamacpp` / `openai-compatible`), skipping detection.
-`ATLAS_LLM_MODEL` overrides the reported chat model. Per-backend base URLs:
+`EIDETIC_LLM_MODEL` overrides the reported chat model. Per-backend base URLs:
 `LM_STUDIO_URL` / `LM_STUDIO_ENDPOINT`, `OLLAMA_URL`, `LLAMACPP_URL`,
 `OPENAI_COMPATIBLE_URL` / `OPENAI_BASE_URL`. API key (first set wins):
-`ATLAS_LLM_API_KEY`, `EMBED_API_KEY`, `OPENAI_API_KEY`.
+`EIDETIC_LLM_API_KEY`, `EMBED_API_KEY`, `OPENAI_API_KEY`.
 
 **Exit codes** — `0` success; `1` no backend reachable when running `test`; `2`
-an invalid `ATLAS_LLM_BACKEND` value or unknown action.
+an invalid `EIDETIC_LLM_BACKEND` value or unknown action.
 
 **Examples**
 
 ```bash
-atlas backends           # list detected backends, mark the active one
-atlas backends test      # verify inference end-to-end
+eidetic backends           # list detected backends, mark the active one
+eidetic backends test      # verify inference end-to-end
 ```
 
 ---
 
-### `atlas audit`
+### `eidetic audit`
 
 Inspect the append-only audit trail of autonomous actions. Every
 script-wrapping command appends an entry recording action, trigger, status,
@@ -835,9 +835,9 @@ duration, and what changed.
 **Usage**
 
 ```text
-atlas audit show [--limit N] [--action NAME] [--since WINDOW]
-atlas audit tail
-atlas audit export [--format csv|json] [--output FILE] [--action NAME] [--since WINDOW]
+eidetic audit show [--limit N] [--action NAME] [--since WINDOW]
+eidetic audit tail
+eidetic audit export [--format csv|json] [--output FILE] [--action NAME] [--since WINDOW]
 ```
 
 **Subcommands**
@@ -861,8 +861,8 @@ atlas audit export [--format csv|json] [--output FILE] [--action NAME] [--since 
 | `--action` | | | Filter by action name. |
 | `--since` | | | Only entries since e.g. `30d`. |
 
-**Environment variables** — the log lives at `$ATLAS_AUDIT_PATH` if set,
-otherwise `$VAULT_PATH/.atlas/audit.jsonl`.
+**Environment variables** — the log lives at `$EIDETIC_AUDIT_PATH` if set,
+otherwise `$VAULT_PATH/.eidetic/audit.jsonl`.
 
 **Exit codes** — `0` success; `2` a bad `--since` value or an invalid
 `--format`.
@@ -870,17 +870,17 @@ otherwise `$VAULT_PATH/.atlas/audit.jsonl`.
 **Examples**
 
 ```bash
-atlas audit show
-atlas audit show --action commit --since 7d
-atlas audit show -n 50
-atlas audit tail
-atlas audit export --format csv -o audit-report.csv
-atlas audit export --format json --since 30d
+eidetic audit show
+eidetic audit show --action commit --since 7d
+eidetic audit show -n 50
+eidetic audit tail
+eidetic audit export --format csv -o audit-report.csv
+eidetic audit export --format json --since 30d
 ```
 
 ---
 
-### `atlas security`
+### `eidetic security`
 
 Scan community skills for dangerous code and review the install security audit.
 See [`docs/features/security.md`](features/security.md) for the full guide.
@@ -888,8 +888,8 @@ See [`docs/features/security.md`](features/security.md) for the full guide.
 **Usage**
 
 ```text
-atlas security scan PATH
-atlas security report [--since WINDOW] [--limit N]
+eidetic security scan PATH
+eidetic security report [--since WINDOW] [--limit N]
 ```
 
 **Subcommands**
@@ -901,8 +901,8 @@ atlas security report [--since WINDOW] [--limit N]
 
 **Severities** — `BLOCK` makes a skill un-installable (not even with `--force`);
 `WARN` requires `--force` to install; `INFO` is advisory. The install gate in
-[`atlas skills install`](#atlas-skills) uses exactly these rules, and a complementary
-runtime sandbox (`atlas_os/sandbox.py`) caps CPU/memory/time/network when a
+[`eidetic skills install`](#eidetic-skills) uses exactly these rules, and a complementary
+runtime sandbox (`eidetic_os/sandbox.py`) caps CPU/memory/time/network when a
 skill's code is actually executed.
 
 **Exit codes** — `scan`: `0` if no `BLOCK` findings, `1` if any `BLOCK` finding,
@@ -911,26 +911,26 @@ skill's code is actually executed.
 **Examples**
 
 ```bash
-atlas security scan ./my-skill/          # scan a skill directory
-atlas security scan ./my-skill/code.py   # scan a single file
-atlas security report                     # summarise install attempts
-atlas security report --since 30d -n 20
+eidetic security scan ./my-skill/          # scan a skill directory
+eidetic security scan ./my-skill/code.py   # scan a single file
+eidetic security report                     # summarise install attempts
+eidetic security report --since 30d -n 20
 ```
 
 ---
 
-### `atlas dashboard`
+### `eidetic dashboard`
 
 Launch the lightweight local web dashboard — system health, the audit trail,
 scheduled tasks, the skills catalog, vector-store stats, and RAG search — in a
-clean dark theme. Implemented in the CLI (`atlas_os/dashboard/`); reads live from
+clean dark theme. Implemented in the CLI (`eidetic_os/dashboard/`); reads live from
 the same modules the other commands use, so it's a *view*, never a second source
 of truth.
 
 Needs the optional dashboard extra (Flask + Jinja2, no client-side framework):
 
 ```bash
-pip install 'atlas-os[dashboard]'
+pip install 'eidetic-os[dashboard]'
 ```
 
 If the extra isn't installed, the command prints a one-line install hint and
@@ -939,7 +939,7 @@ exits rather than throwing a traceback.
 **Usage**
 
 ```text
-atlas dashboard [--host HOST] [--port PORT] [--open/--no-open] [--debug]
+eidetic dashboard [--host HOST] [--port PORT] [--open/--no-open] [--debug]
 ```
 
 **Flags**
@@ -958,7 +958,7 @@ directory). Never expose it on a public interface with vault data behind it. See
 
 ---
 
-### `atlas schemas`
+### `eidetic schemas`
 
 Enforce per-folder frontmatter schemas on the markdown vault. Wraps
 `schemas/enforce_schemas.py`.
@@ -966,7 +966,7 @@ Enforce per-folder frontmatter schemas on the markdown vault. Wraps
 **Usage**
 
 ```text
-atlas schemas [--dry-run] [--folder NAME] [--verbose]
+eidetic schemas [--dry-run] [--folder NAME] [--verbose]
 ```
 
 **Flags**
@@ -985,14 +985,14 @@ atlas schemas [--dry-run] [--folder NAME] [--verbose]
 **Examples**
 
 ```bash
-atlas schemas --dry-run
-atlas schemas --folder Research --verbose
-atlas schemas
+eidetic schemas --dry-run
+eidetic schemas --folder Research --verbose
+eidetic schemas
 ```
 
 ---
 
-### `atlas session`
+### `eidetic session`
 
 Save Claude Cowork chat transcripts to the vault as clean session-log notes.
 Wraps `scripts/save_sessions.py`. Has two subcommands: `save` and `list`.
@@ -1006,8 +1006,8 @@ id and overwritten in place, so re-running is idempotent.
 **Usage**
 
 ```text
-atlas session save [--since WINDOW | --all] [--sessions-dir PATH] [--json]
-atlas session list [--limit N] [--sessions-dir PATH] [--json]
+eidetic session save [--since WINDOW | --all] [--sessions-dir PATH] [--json]
+eidetic session list [--limit N] [--sessions-dir PATH] [--json]
 ```
 
 **`save` flags**
@@ -1021,7 +1021,7 @@ atlas session list [--limit N] [--sessions-dir PATH] [--json]
 | `--help` | | Show help and exit. |
 
 With no window flag, `save` captures everything new or changed since the last
-run, tracked by a watermark in `$VAULT_PATH/.atlas/last_session_save.txt`.
+run, tracked by a watermark in `$VAULT_PATH/.eidetic/last_session_save.txt`.
 
 **`list` flags**
 
@@ -1042,20 +1042,20 @@ path `~/Library/Application Support/Claude/local-agent-mode-sessions`).
 **Examples**
 
 ```bash
-atlas session list
-atlas session save                 # new/changed since last run
-atlas session save --since 12h     # half-day window (twice-daily capture, the default)
-atlas session save --since 24h     # the day's sessions (single nightly capture)
-atlas session save --all --json
+eidetic session list
+eidetic session save                 # new/changed since last run
+eidetic session save --since 12h     # half-day window (twice-daily capture, the default)
+eidetic session save --since 24h     # the day's sessions (single nightly capture)
+eidetic session save --all --json
 ```
 
 ---
 
-### `atlas extensions`
+### `eidetic extensions`
 
 List and inspect the optional, domain-specific **extensions** plugged into
-Atlas OS. Extensions (trading, voice, jobs, plus any third-party ones) are
-discovered via the `atlas_os.extensions` entry-point group and the bundled
+Eidetic OS. Extensions (trading, voice, jobs, plus any third-party ones) are
+discovered via the `eidetic_os.extensions` entry-point group and the bundled
 built-ins, then loaded onto the CLI at startup so their subcommands are always
 present. See [`docs/features/extensions.md`](features/extensions.md) for the full
 guide, including how to write your own.
@@ -1063,8 +1063,8 @@ guide, including how to write your own.
 **Usage**
 
 ```text
-atlas extensions list
-atlas extensions info <name>
+eidetic extensions list
+eidetic extensions info <name>
 ```
 
 **Subcommands**
@@ -1080,54 +1080,54 @@ missing dependency); `2` unknown extension name.
 **Examples**
 
 ```bash
-atlas extensions list
-atlas extensions info trading
-atlas extensions info voice
+eidetic extensions list
+eidetic extensions info trading
+eidetic extensions info voice
 ```
 
 ---
 
-### `atlas mcp`
+### `eidetic mcp`
 
-Run Atlas OS as a **Model Context Protocol** server, or inspect the MCP tools it
+Run Eidetic OS as a **Model Context Protocol** server, or inspect the MCP tools it
 exposes. This lets any MCP host (Claude Code, Cowork, third-party clients) drive
-Atlas OS directly. See [`docs/features/mcp-skills.md`](features/mcp-skills.md)
+Eidetic OS directly. See [`docs/features/mcp-skills.md`](features/mcp-skills.md)
 for the full guide.
 
 **Usage**
 
 ```text
-atlas mcp serve
-atlas mcp list-tools [--json]
+eidetic mcp serve
+eidetic mcp list-tools [--json]
 ```
 
 **Subcommands**
 
 | Subcommand | Description |
 |---|---|
-| `serve` | Start Atlas OS as an MCP server over stdio. Exposes `search`, `embed`, `doctor`, `skills_list`, and `audit_query` as MCP tools. Blocks, speaking JSON-RPC over stdin/stdout, until the input stream closes. |
+| `serve` | Start Eidetic OS as an MCP server over stdio. Exposes `search`, `embed`, `doctor`, `skills_list`, and `audit_query` as MCP tools. Blocks, speaking JSON-RPC over stdin/stdout, until the input stream closes. |
 | `list-tools` | Show the MCP tools the server exposes (name, description, arguments). Pass `--json` for the machine-readable tool definitions. |
 
 **Examples**
 
 ```bash
-atlas mcp list-tools
-atlas mcp list-tools --json
+eidetic mcp list-tools
+eidetic mcp list-tools --json
 
-# Point an MCP host at Atlas OS with the launch command:
-#   command: atlas
+# Point an MCP host at Eidetic OS with the launch command:
+#   command: eidetic
 #   args: ["mcp", "serve"]
-atlas mcp serve
+eidetic mcp serve
 ```
 
 To run a single **skill** as its own MCP server (launches, serves, exits on
-EOF), use `atlas skills run <name>` — see [`atlas skills`](#atlas-skills).
+EOF), use `eidetic skills run <name>` — see [`eidetic skills`](#eidetic-skills).
 
 ---
 
 ## Environment variables reference
 
-Every variable Atlas OS reads. Set them in a `.env` (auto-loaded) or your shell.
+Every variable Eidetic OS reads. Set them in a `.env` (auto-loaded) or your shell.
 Defaults shown are the built-in fallbacks; see [`.env.example`](../.env.example)
 and [`docs/CONFIGURATION.md`](CONFIGURATION.md) for the annotated source.
 
@@ -1137,12 +1137,12 @@ and [`docs/CONFIGURATION.md`](CONFIGURATION.md) for the annotated source.
 |---|---|---|
 | `VAULT_PATH` | — (required by most commands) | Absolute path to your markdown vault. |
 | `RAG_DIR` | `$VAULT_PATH/.rag` | Where the RAG vector store and graph are written. |
-| `ATLAS_AUDIT_PATH` | `$VAULT_PATH/.atlas/audit.jsonl` | Location of the append-only audit log. |
-| `ATLAS_TRIGGER` | `cli` | Tag recorded in the audit trail for how a command ran (a scheduler sets `scheduled`). |
+| `EIDETIC_AUDIT_PATH` | `$VAULT_PATH/.eidetic/audit.jsonl` | Location of the append-only audit log. |
+| `EIDETIC_TRIGGER` | `cli` | Tag recorded in the audit trail for how a command ran (a scheduler sets `scheduled`). |
 | `SCHEDULED_DIR` | — | Where your Claude scheduled-task `SKILL.md` folders live. |
-| `ATLAS_SKILLS_DIR` | `$VAULT_PATH/.claude/skills` | Where `atlas skills install` writes installed skills. |
-| `CLAUDE_SESSIONS_DIR` | macOS Cowork session store | Where `atlas session` reads Cowork transcripts from. |
-| `SESSION_CAPTURE_FREQUENCY` | `twice` | Intended cadence for the session-capture skills: `twice` (morning + afternoon, each `--since 12h`), `daily` (one nightly `--since 24h` run), `hourly` (every hour, heavy users), or `manual` (no schedule — run `atlas session save` yourself). A scheduling hint you wire your cron/skills to; documents intent rather than enforcing it. |
+| `EIDETIC_SKILLS_DIR` | `$VAULT_PATH/.claude/skills` | Where `eidetic skills install` writes installed skills. |
+| `CLAUDE_SESSIONS_DIR` | macOS Cowork session store | Where `eidetic session` reads Cowork transcripts from. |
+| `SESSION_CAPTURE_FREQUENCY` | `twice` | Intended cadence for the session-capture skills: `twice` (morning + afternoon, each `--since 12h`), `daily` (one nightly `--since 24h` run), `hourly` (every hour, heavy users), or `manual` (no schedule — run `eidetic session save` yourself). A scheduling hint you wire your cron/skills to; documents intent rather than enforcing it. |
 
 ### Embeddings (RAG)
 
@@ -1158,9 +1158,9 @@ and [`docs/CONFIGURATION.md`](CONFIGURATION.md) for the annotated source.
 
 | Variable | Default | Controls |
 |---|---|---|
-| `ATLAS_LLM_BACKEND` | — (auto-detect) | Force a backend: `lmstudio` / `ollama` / `llamacpp` / `openai-compatible`. |
-| `ATLAS_LLM_MODEL` | — | Override the chat model name reported to callers. |
-| `ATLAS_LLM_API_KEY` | — | API key for the chat backend (falls back to `EMBED_API_KEY`, then `OPENAI_API_KEY`). |
+| `EIDETIC_LLM_BACKEND` | — (auto-detect) | Force a backend: `lmstudio` / `ollama` / `llamacpp` / `openai-compatible`. |
+| `EIDETIC_LLM_MODEL` | — | Override the chat model name reported to callers. |
+| `EIDETIC_LLM_API_KEY` | — | API key for the chat backend (falls back to `EMBED_API_KEY`, then `OPENAI_API_KEY`). |
 | `LM_STUDIO_URL` | `http://$LM_STUDIO_HOST:$LM_STUDIO_PORT/v1` | LM Studio base URL (includes `/v1`; used by `trading_briefing.py`). |
 | `LM_STUDIO_ENDPOINT` | `http://$LM_STUDIO_HOST:$LM_STUDIO_PORT` | LM Studio base URL (no `/v1`; used by `trading/`). |
 | `LM_STUDIO_HOST` | `localhost` | LM Studio host (chat completions). |
@@ -1176,12 +1176,12 @@ and [`docs/CONFIGURATION.md`](CONFIGURATION.md) for the annotated source.
 | Variable | Default | Controls |
 |---|---|---|
 | `SENDER_EMAIL` | — (required to send) | The account that sends reports. |
-| `SENDER_NAME` | `Atlas` | Display name on outgoing mail. |
+| `SENDER_NAME` | `Eidetic` | Display name on outgoing mail. |
 | `SMTP_SERVER` | `smtp.gmail.com` | SMTP server hostname. |
 | `SMTP_PORT` | `587` | SMTP server port. |
 | `SMTP_APP_PASSWORD` | — (required to send) | SMTP app password — never commit it. |
 | `SMTP_TIMEOUT` | `30` | SMTP connect/read timeout, seconds. |
-| `USER_EMAIL` | — | Default recipient for reports / `atlas email`. |
+| `USER_EMAIL` | — | Default recipient for reports / `eidetic email`. |
 
 ### Trading (optional)
 
@@ -1206,7 +1206,7 @@ and [`docs/CONFIGURATION.md`](CONFIGURATION.md) for the annotated source.
 
 ## Exit codes reference
 
-Atlas OS uses a small, stable set of exit codes across every command, so scripts
+Eidetic OS uses a small, stable set of exit codes across every command, so scripts
 and schedulers can branch on `$?`:
 
 | Code | Name | Meaning |
@@ -1229,7 +1229,7 @@ With `--json`, error output is structured as
 ## Stability promise
 
 **These interfaces are stable as of v1.0.** The following are the public,
-supported contract of Atlas OS:
+supported contract of Eidetic OS:
 
 - **Command names** — every command and subcommand listed above.
 - **Flags and arguments** — their names, short forms, accepted values, and
@@ -1252,9 +1252,9 @@ changing the shape of documented JSON output.
 - Exact human-readable output text, colours, spacing, and progress formatting.
 - New commands, new flags, and new environment variables that are additive and
   backward-compatible.
-- Internal script module layout under `scripts/` and `atlas_os/` (run commands
-  through `atlas`, not by importing internals).
-- The optional [`atlas trading`](#atlas-trading) component, which depends on a
+- Internal script module layout under `scripts/` and `eidetic_os/` (run commands
+  through `eidetic`, not by importing internals).
+- The optional [`eidetic trading`](#eidetic-trading) component, which depends on a
   third-party package and is best-effort.
 
 Deprecations will be announced in [`CHANGELOG.md`](../CHANGELOG.md) at least one
@@ -1262,7 +1262,7 @@ minor release before removal, with the replacement documented here.
 
 ---
 
-*Generated from the live CLI for `atlas-os` v0.3.0. To regenerate after a CLI
-change, run `atlas <command> --help` for each command and update this file. See
+*Generated from the live CLI for `eidetic-os` v0.3.0. To regenerate after a CLI
+change, run `eidetic <command> --help` for each command and update this file. See
 also [`docs/CONFIGURATION.md`](CONFIGURATION.md) for the annotated env-var source
 and [`docs/SCRIPTS.md`](SCRIPTS.md) for the underlying scripts.*

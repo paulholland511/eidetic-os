@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Render the per-topic animated terminal GIFs for the Atlas OS README and docs.
+"""Render the per-topic animated terminal GIFs for the Eidetic OS README and docs.
 
 Produces four focused screencasts that supplement the headline ``demo.gif``:
 
-    install.gif    `pip install atlas-os` + version check (animated download bar)
-    setup.gif      `atlas init` interactive wizard, with typed answers
-    search.gif     `atlas search` hybrid RAG results
-    dashboard.gif  `atlas dashboard` launch + health summary
+    install.gif    `pip install eidetic-os` + version check (animated download bar)
+    setup.gif      `eidetic init` interactive wizard, with typed answers
+    search.gif     `eidetic search` hybrid RAG results
+    dashboard.gif  `eidetic dashboard` launch + health summary
 
 Shares the look of ``scripts/make_demo_gif.py`` (macOS terminal chrome, Menlo,
 typewriter prompts, supersampled text). Pure synthetic output, Pillow only.
@@ -227,28 +227,28 @@ class Builder:
 
 # ── 1. install.gif ────────────────────────────────────────────────────────────
 def build_install() -> Builder:
-    b = Builder("atlas — ~/atlas-os — zsh")
-    b.cmd("pip install atlas-os")
-    b.reveal(L(S("Collecting atlas-os", FG)))
+    b = Builder("eidetic — ~/atlas-os — zsh")
+    b.cmd("pip install eidetic-os")
+    b.reveal(L(S("Collecting eidetic-os", FG)))
     b.hold(350)
-    b.progress_download("Downloading atlas_os-1.2.0-py3-none-any.whl (45 kB)", 45.0, steps=30)
+    b.progress_download("Downloading eidetic_os-1.2.0-py3-none-any.whl (45 kB)", 45.0, steps=30)
     b.hold(500)
-    b.reveal(L(S("Installing collected packages: atlas-os", FG)))
+    b.reveal(L(S("Installing collected packages: eidetic-os", FG)))
     b.hold(900)
-    b.reveal(L(S("Successfully installed atlas-os-1.2.0", GREEN, bold=True)))
+    b.reveal(L(S("Successfully installed eidetic-os-1.2.0", GREEN, bold=True)))
     b.hold(1400)
-    b.cmd("atlas --version")
-    b.reveal(L(S("Atlas OS ", BOLD_W, bold=True), S("v1.2.0", CYAN, bold=True)))
+    b.cmd("eidetic --version")
+    b.reveal(L(S("Eidetic OS ", BOLD_W, bold=True), S("v1.2.0", CYAN, bold=True)))
     b.end_prompt(2400)
     return b
 
 
 # ── 2. setup.gif ──────────────────────────────────────────────────────────────
 def build_setup() -> Builder:
-    b = Builder("atlas — ~/atlas-os — zsh")
-    b.cmd("atlas init")
+    b = Builder("eidetic — ~/atlas-os — zsh")
+    b.cmd("eidetic init")
     b.reveal(L())
-    b.reveal(L(S("  ▲  Atlas OS — Interactive Setup", CYAN, bold=True)))
+    b.reveal(L(S("  ▲  Eidetic OS — Interactive Setup", CYAN, bold=True)))
     b.reveal(L())
     # typed input: vault path (pause = user reading the prompt before typing)
     b.append(L(S("  Vault path [~/vault]: ", FG), S("~/Documents/my-vault", BLUE)))
@@ -273,7 +273,7 @@ def build_setup() -> Builder:
     b.reveal(L(S("  ✓ ", GREEN), S(".env written", FG)))
     b.reveal(L())
     b.hold(600)
-    b.reveal(L(S("  ✓ You're ready! ", GREEN, bold=True), S("Run 'atlas doctor' to verify.", FG)))
+    b.reveal(L(S("  ✓ You're ready! ", GREEN, bold=True), S("Run 'eidetic doctor' to verify.", FG)))
     b.end_prompt(2600)
     return b
 
@@ -289,8 +289,8 @@ def _result(score: str, path: str, heading: str, snippet: str) -> list[Line]:
 
 
 def build_search() -> Builder:
-    b = Builder("atlas — ~/atlas-os — zsh")
-    b.cmd('atlas search "kubernetes deployment strategy"')
+    b = Builder("eidetic — ~/atlas-os — zsh")
+    b.cmd('eidetic search "kubernetes deployment strategy"')
     b.reveal(L())
     b.reveal(L(S("Searching ", FG), S("2,451", BOLD_W, bold=True), S(" chunks across ", FG), S("312", BOLD_W, bold=True), S(" files…", FG)))
     b.reveal(L())
@@ -320,9 +320,9 @@ def build_search() -> Builder:
 
 # ── 4. dashboard.gif ──────────────────────────────────────────────────────────
 def build_dashboard() -> Builder:
-    b = Builder("atlas — ~/atlas-os — zsh")
-    b.cmd("atlas dashboard")
-    b.reveal(L(S("  ▲  Atlas OS Dashboard", CYAN, bold=True)))
+    b = Builder("eidetic — ~/atlas-os — zsh")
+    b.cmd("eidetic dashboard")
+    b.reveal(L(S("  ▲  Eidetic OS Dashboard", CYAN, bold=True)))
     b.reveal(L(S("Starting on ", FG), S("http://localhost:8501", BLUE), S("…", FG)))
     b.reveal(L())
     b.hold(1100)

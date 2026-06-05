@@ -1,4 +1,4 @@
-"""Smoke tests for the unified ``atlas`` CLI.
+"""Smoke tests for the unified ``eidetic`` CLI.
 
 These are hermetic — they exercise the Typer app in-process via ``CliRunner``
 and never shell out to the underlying scripts or touch the network.
@@ -15,9 +15,9 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from atlas_os import __version__, cli
-from atlas_os._probe import Endpoint
-from atlas_os.cli import app
+from eidetic_os import __version__, cli
+from eidetic_os._probe import Endpoint
+from eidetic_os.cli import app
 
 runner = CliRunner()
 
@@ -60,7 +60,7 @@ def test_vault_command_requires_vault_path(monkeypatch: pytest.MonkeyPatch) -> N
 
 
 def test_email_requires_smtp_secrets(monkeypatch: pytest.MonkeyPatch) -> None:
-    """`atlas email` refuses to run without SMTP credentials."""
+    """`eidetic email` refuses to run without SMTP credentials."""
     monkeypatch.delenv("SENDER_EMAIL", raising=False)
     monkeypatch.delenv("SMTP_APP_PASSWORD", raising=False)
     result = runner.invoke(app, ["email", "--subject", "hi", "--body", "x", "--to", "a@b.c"])
@@ -100,13 +100,13 @@ def _wizard_sandbox(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator
 def test_init_yes_scaffolds_vault_and_writes_env(
     _no_backend: None, _wizard_sandbox: Path, tmp_path: Path
 ) -> None:
-    """`atlas init --yes` builds the vault tree, writes .env, and runs doctor."""
+    """`eidetic init --yes` builds the vault tree, writes .env, and runs doctor."""
     vault = tmp_path / "vault"
     result = runner.invoke(app, ["init", "--yes", "--vault", str(vault)])
 
     assert result.exit_code == 0, result.stdout
     # Vault directory tree exists.
-    for sub in (".atlas", ".rag", "wiki"):
+    for sub in (".eidetic", ".rag", "wiki"):
         assert (vault / sub).is_dir(), f"missing {sub}/"
     # .env was written into the sandbox with the chosen vault path.
     env_path = _wizard_sandbox / ".env"
@@ -214,7 +214,7 @@ def test_detect_default_vault_finds_obsidian_subfolder(
 # ─────────────────────────────────────────────────────────────────────────────
 # doctor — diagnostics, fixes, --fix, --json
 # ─────────────────────────────────────────────────────────────────────────────
-from atlas_os.backends import Backend, BackendStatus  # noqa: E402
+from eidetic_os.backends import Backend, BackendStatus  # noqa: E402
 
 
 def _by_name(results: list[cli.Check], name: str) -> cli.Check:
@@ -364,7 +364,7 @@ def test_doctor_json_output(_offline_llm: None, _vault: Path) -> None:
 def test_doctor_fix_clears_locks_without_prompting(
     _offline_llm: None, _vault: Path
 ) -> None:
-    """`atlas doctor --fix` auto-applies the safe lock-cleanup, no input needed."""
+    """`eidetic doctor --fix` auto-applies the safe lock-cleanup, no input needed."""
     subprocess.run(["git", "init", "-q"], cwd=_vault, check=True)
     lock = _vault / ".git" / "index.lock"
     lock.write_text("", encoding="utf-8")

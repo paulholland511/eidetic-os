@@ -5,4 +5,4 @@ contact_links:
     about: Do NOT open a public issue for security problems — follow the disclosure process in SECURITY.md.
   - name: Question / troubleshooting
     url: https://github.com/paulholland511/atlas-os/blob/main/docs/FAQ.md
-    about: Check the FAQ and run `atlas doctor` before filing — most issues are configuration.
+    about: Check the FAQ and run `eidetic doctor` before filing — most issues are configuration.

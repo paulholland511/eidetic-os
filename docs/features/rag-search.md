@@ -1,12 +1,12 @@
 # Feature: Local RAG Search
 
 **Source:** [`scripts/embed_vault.py`](../../scripts/embed_vault.py),
-[`atlas_os/rag.py`](../../atlas_os/rag.py),
+[`eidetic_os/rag.py`](../../eidetic_os/rag.py),
 [`scripts/rag_search.py`](../../scripts/rag_search.py) ·
-**CLI:** `atlas embed`, `atlas search` ·
-**Store:** `$RAG_DIR/vectors.db` (SQLite, via `atlas_os/vectordb.py`)
+**CLI:** `eidetic embed`, `eidetic search` ·
+**Store:** `$RAG_DIR/vectors.db` (SQLite, via `eidetic_os/vectordb.py`)
 
-Atlas OS turns your markdown vault into a searchable knowledge base by
+Eidetic OS turns your markdown vault into a searchable knowledge base by
 **semantically chunking** each note, embedding the chunks with a **local**
 OpenAI-compatible model, and storing them in a **SQLite** vector store. Search is
 **hybrid** — it fuses vector similarity with BM25 lexical scoring and reranks the
@@ -25,7 +25,7 @@ empty PDFs (no extractable text) are skipped with a warning.
 
 ### 2. Semantic chunking
 
-Documents are split by `atlas_os.rag.semantic_chunk()` on **structure**, not a
+Documents are split by `eidetic_os.rag.semantic_chunk()` on **structure**, not a
 fixed character window:
 
 - Split first on **markdown heading boundaries** (`#`–`######`), then on
@@ -85,7 +85,7 @@ Each embedded chunk becomes a row in the SQLite store, carrying the same fields:
 ```
 
 Rows are written **incrementally** into `vectors.db` (a `chunks` table holding the
-text, metadata, and packed `float32` embedding) via `atlas_os.vectordb.VectorStore`.
+text, metadata, and packed `float32` embedding) via `eidetic_os.vectordb.VectorStore`.
 Only the touched files' chunks are replaced, and each batch is committed as it
 lands — so an interrupted embed resumes rather than leaving a half-written index.
 Similarity search uses the `sqlite-vec` KNN index when the `[vector]` extra is
@@ -103,11 +103,11 @@ and rebuilds `graph.json`. See [knowledge-graph.md](knowledge-graph.md).
 
 | Command | Behaviour |
 |---|---|
-| `atlas embed --full` | Re-embed **everything** from scratch, then rebuild the graph. |
-| `atlas embed --incremental` | Embed only files with `mtime` newer than the last run (`last_embed.txt`); resumable via checkpoints. |
-| `atlas embed --test N` | Embed the first `N` files only — a fast endpoint/connectivity check. Merges into the existing store. |
-| `atlas embed --folder NAME` | Embed only files under top-level folder `NAME`. Merges into the existing store. |
-| `atlas embed --pdfs-only` | Embed only PDF files (full pass over PDFs). |
+| `eidetic embed --full` | Re-embed **everything** from scratch, then rebuild the graph. |
+| `eidetic embed --incremental` | Embed only files with `mtime` newer than the last run (`last_embed.txt`); resumable via checkpoints. |
+| `eidetic embed --test N` | Embed the first `N` files only — a fast endpoint/connectivity check. Merges into the existing store. |
+| `eidetic embed --folder NAME` | Embed only files under top-level folder `NAME`. Merges into the existing store. |
+| `eidetic embed --pdfs-only` | Embed only PDF files (full pass over PDFs). |
 
 Modifiers: `--checkpoint-interval N` (default 50), `--batch-size N` (default 40).
 
@@ -128,10 +128,10 @@ incremental selection.
 
 ---
 
-## Search (`atlas search`)
+## Search (`eidetic search`)
 
 Query the store from the CLI via [`scripts/rag_search.py`](../../scripts/rag_search.py),
-which runs the advanced pipeline in [`atlas_os/rag.py`](../../atlas_os/rag.py).
+which runs the advanced pipeline in [`eidetic_os/rag.py`](../../eidetic_os/rag.py).
 Three modes:
 
 - **`vector`** — embed the query, rank by **cosine similarity** (the `sqlite-vec`
@@ -150,17 +150,17 @@ criteria), plus a `--since` / `--until` modified-time window (`24h`/`7d`/`2w`/
 `YYYY-MM-DD`).
 
 ```bash
-atlas search "kelly criterion sizing"                       # hybrid + rerank
-atlas search "trading risk" --folder research --tag trading --top-k 10
-atlas search "embeddings" --mode vector --file-type md --since 30d
-atlas search "decision log" --mode keyword --json           # offline, scriptable
+eidetic search "kelly criterion sizing"                       # hybrid + rerank
+eidetic search "trading risk" --folder research --tag trading --top-k 10
+eidetic search "embeddings" --mode vector --file-type md --since 30d
+eidetic search "decision log" --mode keyword --json           # offline, scriptable
 ```
 
 Programmatically, `embed_vault.search(query, top_k, mode, filters, rerank)` is the
 simple entry point and `embed_vault.advanced_search(...)` adds the rich date /
 file-type filtering. The building blocks (`semantic_chunk`, `BM25`,
 `reciprocal_rank_fusion`, `tfidf_rerank`, `filter_chunks`) live in
-[`atlas_os/rag.py`](../../atlas_os/rag.py).
+[`eidetic_os/rag.py`](../../eidetic_os/rag.py).
 
 ---
 
@@ -189,16 +189,16 @@ vault.
 - **Folder → doc_type** — edit `DOC_TYPE_MAP` to match your vault's folders.
 - **Throughput** — raise `--batch-size` if your endpoint handles it; lower
   `INTER_CALL_DELAY` for local servers.
-- **BM25 parameters** — tune `k1` / `b` in `atlas_os.rag.BM25`; adjust the RRF
-  `k` or swap the reranker in `atlas_os.rag`.
+- **BM25 parameters** — tune `k1` / `b` in `eidetic_os.rag.BM25`; adjust the RRF
+  `k` or swap the reranker in `eidetic_os.rag`.
 
 ## Troubleshooting
 
 - *Embeddings unreachable* — `curl http://$EMBED_HOST:$EMBED_PORT/v1/models`;
   set `EMBED_URL` if the path differs.
-- *PDFs skipped* — install `pdfplumber` (`atlas-os[pdf]`); scanned PDFs need OCR
+- *PDFs skipped* — install `pdfplumber` (`eidetic-os[pdf]`); scanned PDFs need OCR
   first.
-- *Stale results* — run `atlas embed --incremental` (nightly task automates it).
+- *Stale results* — run `eidetic embed --incremental` (nightly task automates it).
 
 See also: [knowledge-graph.md](knowledge-graph.md) ·
 [knowledge-vault.md](knowledge-vault.md) ·

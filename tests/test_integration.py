@@ -1,4 +1,4 @@
-"""End-to-end integration tests for the ``atlas`` CLI.
+"""End-to-end integration tests for the ``eidetic`` CLI.
 
 Unlike the hermetic unit suites (which monkeypatch internals or stub the
 network), these tests run *real* pipelines: a real temp vault on disk, real git
@@ -31,8 +31,8 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from atlas_os import audit, cli
-from atlas_os.cli import app
+from eidetic_os import audit, cli
+from eidetic_os.cli import app
 
 pytestmark = pytest.mark.integration
 
@@ -44,7 +44,7 @@ runner = CliRunner()
 # ──────────────────────────────────────────────────────────────────────────────
 @pytest.fixture()
 def wizard_sandbox(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
-    """Run ``atlas init`` against a sandbox, never the developer's checkout.
+    """Run ``eidetic init`` against a sandbox, never the developer's checkout.
 
     ``init`` writes ``.env`` to ``repo_root() or cwd`` and calls
     ``os.environ.update`` (which bypasses monkeypatch's tracking) to feed its
@@ -74,7 +74,7 @@ def _embed_env(monkeypatch: pytest.MonkeyPatch, base_url: str) -> None:
 def test_init_then_doctor_cycle(
     wizard_sandbox: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """`atlas init --yes` scaffolds a working setup; `atlas doctor` confirms it."""
+    """`eidetic init --yes` scaffolds a working setup; `eidetic doctor` confirms it."""
     vault = tmp_path / "vault"
 
     init = runner.invoke(app, ["init", "--yes", "--vault", str(vault)])
@@ -86,7 +86,7 @@ def test_init_then_doctor_cycle(
     assert f"VAULT_PATH={vault}" in env_path.read_text(encoding="utf-8")
 
     # Vault scaffolded: the standard directory tree plus the seeded wiki notes.
-    for sub in (".atlas", ".rag", "wiki"):
+    for sub in (".eidetic", ".rag", "wiki"):
         assert (vault / sub).is_dir(), f"missing {sub}/"
     assert (vault / "wiki" / "index.md").is_file()
     assert (vault / ".git").is_dir()  # init also git-inits the vault
@@ -117,8 +117,8 @@ def test_embed_pipeline_writes_vectors(
     llm_server: Callable[..., str],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """`atlas embed --full` embeds the sample vault into the SQLite vector store."""
-    from atlas_os import vectordb
+    """`eidetic embed --full` embeds the sample vault into the SQLite vector store."""
+    from eidetic_os import vectordb
 
     _embed_env(monkeypatch, llm_server())
 
@@ -149,8 +149,8 @@ def test_migrate_vectors_imports_legacy_json(
     sample_vault: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """`atlas migrate-vectors` converts a legacy vectors.json into vectors.db."""
-    from atlas_os import vectordb
+    """`eidetic migrate-vectors` converts a legacy vectors.json into vectors.db."""
+    from eidetic_os import vectordb
 
     rag = sample_vault / ".rag"
     legacy = rag / "vectors.json"
@@ -183,8 +183,8 @@ def test_embedding_cache_reused_on_reembed(
     llm_server: Callable[..., str],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A second `atlas embed --full` reuses cached embeddings (no re-embed)."""
-    from atlas_os import vectordb
+    """A second `eidetic embed --full` reuses cached embeddings (no re-embed)."""
+    from eidetic_os import vectordb
 
     _embed_env(monkeypatch, llm_server())
 
@@ -211,7 +211,7 @@ def test_search_command_runs_end_to_end(
     llm_server: Callable[..., str],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """`atlas search` embeds the query and returns JSON results over the store."""
+    """`eidetic search` embeds the query and returns JSON results over the store."""
     import os
     import subprocess
     import sys
@@ -219,7 +219,7 @@ def test_search_command_runs_end_to_end(
     _embed_env(monkeypatch, llm_server())
     assert runner.invoke(app, ["embed", "--full"]).exit_code == 0
 
-    # `atlas search` shells out (uncaptured by CliRunner), so drive the script
+    # `eidetic search` shells out (uncaptured by CliRunner), so drive the script
     # directly to assert on its JSON output. monkeypatch.setenv already mutated
     # os.environ, so the child inherits VAULT_PATH / RAG_DIR / EMBED_*.
     script = Path(__file__).resolve().parent.parent / "scripts" / "rag_search.py"
@@ -233,7 +233,7 @@ def test_search_command_runs_end_to_end(
     for entry in payload:
         assert {"file", "score"} <= set(entry)
 
-    # The CLI wiring (`atlas search`) at least runs cleanly against the store.
+    # The CLI wiring (`eidetic search`) at least runs cleanly against the store.
     assert runner.invoke(app, ["search", "kelly", "--mode", "keyword"]).exit_code == 0
 
 
@@ -241,7 +241,7 @@ def test_search_command_runs_end_to_end(
 # 3. Commit cycle
 # ──────────────────────────────────────────────────────────────────────────────
 def test_commit_cycle_creates_commit(git_vault: Path) -> None:
-    """`atlas commit` stages new files and writes a categorised commit."""
+    """`eidetic commit` stages new files and writes a categorised commit."""
     import subprocess
 
     # Add a fresh note so there is something to commit.
@@ -267,7 +267,7 @@ def test_commit_cycle_creates_commit(git_vault: Path) -> None:
 
     # The note we added is now tracked — it no longer shows in the porcelain
     # status. (The only thing left untracked is the audit log the commit command
-    # itself writes to .atlas/ *after* committing, which is expected.)
+    # itself writes to .eidetic/ *after* committing, which is expected.)
     status = subprocess.run(
         ["git", "status", "--porcelain"],
         cwd=git_vault,
@@ -291,7 +291,7 @@ def test_commit_cycle_creates_commit(git_vault: Path) -> None:
 # 4. Changelog generation
 # ──────────────────────────────────────────────────────────────────────────────
 def test_changelog_generates_markdown(git_vault: Path) -> None:
-    """`atlas changelog --markdown` summarises recent commits as markdown."""
+    """`eidetic changelog --markdown` summarises recent commits as markdown."""
     import subprocess
 
     # Create a second commit so the changelog window has content to report.
@@ -316,14 +316,14 @@ def test_changelog_generates_markdown(git_vault: Path) -> None:
 def test_skills_list_then_install(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """`atlas skills list` loads skills; `atlas skills install` copies + fills one."""
+    """`eidetic skills list` loads skills; `eidetic skills install` copies + fills one."""
     listing = runner.invoke(app, ["skills", "list"])
     assert listing.exit_code == 0, listing.output
     assert "vault-lint-report" in listing.output
     assert "atlas-daily-report-email" in listing.output
 
     install_dir = tmp_path / "installed-skills"
-    monkeypatch.setenv("ATLAS_SKILLS_DIR", str(install_dir))
+    monkeypatch.setenv("EIDETIC_SKILLS_DIR", str(install_dir))
     monkeypatch.setenv("USER_EMAIL", "paul@example.com")
 
     install = runner.invoke(app, ["skills", "install", "atlas-daily-report-email"])
@@ -342,8 +342,8 @@ def test_skills_list_then_install(
 # 6. Audit trail round-trip
 # ──────────────────────────────────────────────────────────────────────────────
 def test_audit_round_trip(git_vault: Path) -> None:
-    """An audited command appears in `atlas audit tail` and on disk with detail."""
-    # `atlas changelog` is an audited pipeline command and succeeds on a git vault.
+    """An audited command appears in `eidetic audit tail` and on disk with detail."""
+    # `eidetic changelog` is an audited pipeline command and succeeds on a git vault.
     changelog = runner.invoke(app, ["changelog", "--since", "1 day ago"])
     assert changelog.exit_code == 0, changelog.output
 
@@ -359,14 +359,14 @@ def test_audit_round_trip(git_vault: Path) -> None:
     entry = changelog_entries[-1]
     assert entry["trigger"] == "cli"
     assert entry["status"] == "success"
-    assert entry["context"].startswith("atlas changelog")
+    assert entry["context"].startswith("eidetic changelog")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 7. Health check (JSON output)
 # ──────────────────────────────────────────────────────────────────────────────
 def test_health_json_structure(git_vault: Path) -> None:
-    """`atlas health --json` emits a parseable report of per-subsystem results."""
+    """`eidetic health --json` emits a parseable report of per-subsystem results."""
     result = runner.invoke(app, ["health", "--json"])
     # Subsystems like the dashboard aren't running, so the overall exit code may
     # be non-zero; the JSON report is still printed and must be well-formed.
@@ -392,13 +392,13 @@ def test_health_json_structure(git_vault: Path) -> None:
 def test_backends_detect_multiple_endpoints(
     llm_server: Callable[..., str], monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """`atlas backends` probes and reports every configured, reachable backend."""
+    """`eidetic backends` probes and reports every configured, reachable backend."""
     lmstudio_url = llm_server(models=("local-chat-model",))
     ollama_url = llm_server(models=("llama3", "nomic-embed-text"))
     monkeypatch.setenv("LM_STUDIO_URL", lmstudio_url)
     monkeypatch.setenv("OLLAMA_URL", ollama_url)
     # Don't let a stray force-env short-circuit the probe.
-    monkeypatch.delenv("ATLAS_LLM_BACKEND", raising=False)
+    monkeypatch.delenv("EIDETIC_LLM_BACKEND", raising=False)
 
     result = runner.invoke(app, ["backends"])
     assert result.exit_code == 0, result.output
@@ -417,7 +417,7 @@ def test_backends_detect_multiple_endpoints(
 # 9. Email — graceful failure paths
 # ──────────────────────────────────────────────────────────────────────────────
 def test_email_requires_smtp_config(monkeypatch: pytest.MonkeyPatch) -> None:
-    """`atlas email` refuses to run (exit 2) when SMTP isn't configured."""
+    """`eidetic email` refuses to run (exit 2) when SMTP isn't configured."""
     monkeypatch.delenv("SENDER_EMAIL", raising=False)
     monkeypatch.delenv("SMTP_APP_PASSWORD", raising=False)
 
@@ -468,9 +468,9 @@ def test_full_lifecycle(
     # audit log, and git identity.
     monkeypatch.setenv("VAULT_PATH", str(vault))
     monkeypatch.setenv("RAG_DIR", str(vault / ".rag"))
-    monkeypatch.setenv("ATLAS_AUDIT_PATH", str(vault / ".atlas" / "audit.jsonl"))
+    monkeypatch.setenv("EIDETIC_AUDIT_PATH", str(vault / ".eidetic" / "audit.jsonl"))
     for var in ("GIT_AUTHOR_NAME", "GIT_COMMITTER_NAME"):
-        monkeypatch.setenv(var, "Atlas Test")
+        monkeypatch.setenv(var, "Eidetic Test")
     for var in ("GIT_AUTHOR_EMAIL", "GIT_COMMITTER_EMAIL"):
         monkeypatch.setenv(var, "atlas-test@example.com")
     _embed_env(monkeypatch, llm_server())

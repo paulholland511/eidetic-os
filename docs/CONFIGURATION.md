@@ -1,6 +1,6 @@
 # Configuration Reference
 
-Every Atlas OS component is configured **entirely through environment
+Every Eidetic OS component is configured **entirely through environment
 variables** — there are no hardcoded paths, hosts, emails, or secrets anywhere
 in the codebase. This page is the authoritative reference for all of them: what
 each variable does, its default, whether it's required, and exactly which
@@ -25,7 +25,7 @@ set -a; source .env; set +a
 | `VAULT_PATH` | **Yes** (almost everything) | `.` (cwd) | all scripts |
 | `RAG_DIR` | No | `$VAULT_PATH/.rag` | embed, graph, health |
 | `SCHEDULED_DIR` | No | `~/Documents/Claude/Scheduled` | health |
-| `ATLAS_SKILLS_DIR` | No | `$VAULT_PATH/.claude/skills` | `atlas skills install` |
+| `EIDETIC_SKILLS_DIR` | No | `$VAULT_PATH/.claude/skills` | `eidetic skills install` |
 | `EMBED_HOST` | No | `localhost` | embed, health |
 | `EMBED_PORT` | No | `5555` | embed, health |
 | `EMBED_MODEL` | No | `text-embedding-nomic-embed-text-v1.5` | embed |
@@ -39,7 +39,7 @@ set -a; source .env; set +a
 | `TTS_HOST` | No | `localhost` | health |
 | `TTS_PORT` | No | `8800` | health |
 | `SENDER_EMAIL` | **Yes** (to send email) | `""` | send_email |
-| `SENDER_NAME` | No | `Atlas` | send_email |
+| `SENDER_NAME` | No | `Eidetic` | send_email |
 | `SMTP_SERVER` | No | `smtp.gmail.com` | send_email |
 | `SMTP_PORT` | No | `587` | send_email |
 | `SMTP_APP_PASSWORD` | **Yes** (to send email) | `""` | send_email, health |
@@ -83,8 +83,8 @@ Directory holding your installed Claude scheduled-task `SKILL.md` folders.
 Default: `~/Documents/Claude/Scheduled`. Only `health_check.py` reads it (to
 confirm tasks are installed).
 
-### `ATLAS_SKILLS_DIR`
-Where `atlas skills install <name>` writes a skill's `SKILL.md` (under a
+### `EIDETIC_SKILLS_DIR`
+Where `eidetic skills install <name>` writes a skill's `SKILL.md` (under a
 `<name>/` subfolder). Default: `$VAULT_PATH/.claude/skills`. Set this to point
 installs at your real Claude scheduled-tasks directory instead.
 
@@ -130,7 +130,7 @@ Verify reachability: `curl http://$EMBED_HOST:$EMBED_PORT/v1/models`.
 
 ## Text-to-speech (optional)
 
-A local TTS service. Only `health_check.py` probes it — Atlas OS ships no TTS
+A local TTS service. Only `health_check.py` probes it — Eidetic OS ships no TTS
 server itself.
 
 - **`TTS_HOST`** — default `localhost`.
@@ -144,7 +144,7 @@ Read by `send_email.py`; `SMTP_APP_PASSWORD` is also checked by
 `health_check.py` to report email readiness.
 
 - **`SENDER_EMAIL`** — the "from" address. **Required to send.**
-- **`SENDER_NAME`** — display name (default `Atlas`).
+- **`SENDER_NAME`** — display name (default `Eidetic`).
 - **`SMTP_SERVER`** — SMTP host (default `smtp.gmail.com`).
 - **`SMTP_PORT`** — SMTP port (default `587`, STARTTLS).
 - **`SMTP_APP_PASSWORD`** — the app password / SMTP password. **Required to

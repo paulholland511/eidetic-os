@@ -6,23 +6,23 @@ project root) and fill in the bracketed placeholders.
 
 ## Environment Overview
 
-This is `[YOUR NAME]`'s working environment built on **Atlas OS** — a personal
+This is `[YOUR NAME]`'s working environment built on **Eidetic OS** — a personal
 AI operating system for Claude Cowork. It contains a markdown knowledge vault, a
 local RAG search index, scheduled automations, and an optional dashboard.
 
-**User:** `[YOUR NAME]` | **Timezone:** `[Europe/London]` | **Git identity:** `[Atlas]`
+**User:** `[YOUR NAME]` | **Timezone:** `[Europe/London]` | **Git identity:** `[Eidetic]`
 
 ## Key Directories
 
 - `[~/Documents/Obsidian/MyVault]` — the knowledge vault (notes, wiki, memory)
-- `[~/code/atlas-os]` — the Atlas OS repo (scripts, skills, schemas, docs)
+- `[~/code/atlas-os]` — the Eidetic OS repo (scripts, skills, schemas, docs)
 - `[~/Documents/Claude/Scheduled]` — scheduled-task skills (one folder per task)
 - `[~/.local/bin]` — small wrapper scripts (search, reindex, TTS, etc.)
 
 ## Configuration
 
 All paths, hosts, and credentials come from environment variables. See
-`atlas-os/.env.example` and copy it to `.env`. Never hardcode secrets or
+`eidetic-os/.env.example` and copy it to `.env`. Never hardcode secrets or
 personal paths in scripts or notes that get committed.
 
 Key variables: `VAULT_PATH`, `EMBED_HOST`/`EMBED_PORT`, `USER_EMAIL`,
@@ -45,7 +45,7 @@ The vault is searchable via local semantic RAG. Search before answering
 questions about past decisions, projects, or documented context.
 
 ```bash
-VAULT_PATH=$VAULT_PATH python3 atlas-os/scripts/embed_vault.py --incremental   # update index
+VAULT_PATH=$VAULT_PATH python3 eidetic-os/scripts/embed_vault.py --incremental   # update index
 # (wrap search in your own helper, or use the search() function in embed_vault.py)
 ```
 

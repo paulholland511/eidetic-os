@@ -2,9 +2,9 @@
 
 **Source:** [`schemas/enforce_schemas.py`](../../schemas/enforce_schemas.py),
 [`templates/vault-skeleton/`](../../templates/vault-skeleton) ·
-**CLI:** `atlas schemas`, `atlas init`
+**CLI:** `eidetic schemas`, `eidetic init`
 
-The vault is the heart of Atlas OS: a plain folder of markdown notes that is the
+The vault is the heart of Eidetic OS: a plain folder of markdown notes that is the
 **single source of truth**. Everything else — the RAG index, the graph, the git
 history — is derived from it and reproducible. It works with any editor;
 Obsidian is optional but the conventions match it.
@@ -14,7 +14,7 @@ Obsidian is optional but the conventions match it.
 ## Structure
 
 Top-level folders carry meaning and drive both the RAG `doc_type` and the
-frontmatter schema. `atlas init` lays down a skeleton:
+frontmatter schema. `eidetic init` lays down a skeleton:
 
 ```
 your-vault/
@@ -27,7 +27,7 @@ your-vault/
     └── log.md              # running activity log
 ```
 
-Common folders Atlas OS understands: `research`, `projects`, `decisions`,
+Common folders Eidetic OS understands: `research`, `projects`, `decisions`,
 `guides`, `wiki`, `daily`, `memory`, `learning`, `code-solutions`, `inbox`,
 `archive`. You can add your own — see *Customising* below.
 
@@ -36,7 +36,7 @@ Common folders Atlas OS understands: `research`, `projects`, `decisions`,
 ## Frontmatter schemas
 
 To keep notes consistent enough for reliable RAG indexing and dashboard
-rendering, `atlas schemas` enforces a small **YAML frontmatter schema per
+rendering, `eidetic schemas` enforces a small **YAML frontmatter schema per
 top-level folder**.
 
 ### How it works
@@ -70,10 +70,10 @@ The full folder→schema table (required fields and defaults for `research`,
 ### Usage
 
 ```bash
-atlas schemas --dry-run            # preview changes, write nothing
-atlas schemas                      # apply
-atlas schemas --folder projects    # one folder only
-atlas schemas --verbose            # list every file examined
+eidetic schemas --dry-run            # preview changes, write nothing
+eidetic schemas                      # apply
+eidetic schemas --folder projects    # one folder only
+eidetic schemas --verbose            # list every file examined
 ```
 
 ---

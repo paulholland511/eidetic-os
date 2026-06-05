@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% import "_icons.html" as icons %}
+{% block title %}Audit trail{% endblock %}
+{% block heading %}Audit trail{% endblock %}
+{% block subhead %}
+  <p class="lede">Every autonomous action Eidetic has run — newest first.</p>
+{% endblock %}
+{% block head_aside %}
+  <span class="head-stamp">{{ icons.icon("activity", 14) }} {{ page.total }} entr{{ 'y' if page.total == 1 else 'ies' }} match</span>
+{% endblock %}
+
+{% set action_icons = {
+  'embed': 'database', 'commit': 'git', 'health': 'activity', 'session': 'terminal',
+  'email': 'mail', 'trading': 'dollar', 'search': 'search', 'install': 'download',
+  'report': 'file', 'index': 'layers'
+} %}
+
+{% block content %}
+  <form class="filters" method="get" action="{{ url_for('audit') }}">
+    <label>
+      <span class="filter-cap">{{ icons.icon("filter", 12) }} Action</span>
+      <select name="action">
+        <option value="">All actions</option>
+        {% for a in page.actions %}
+          <option value="{{ a }}" {{ 'selected' if a == action else '' }}>{{ a }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      <span class="filter-cap">{{ icons.icon("clock", 12) }} Since</span>
+      <input type="text" name="since" value="{{ since }}" placeholder="24h · 7d · 2026-06-01">
+    </label>
+    <button type="submit">{{ icons.icon("filter", 15) }} Apply</button>
+    {% if action or since %}
+      <a class="btn-link" href="{{ url_for('audit') }}">{{ icons.icon("refresh", 14) }} Clear</a>
+    {% endif %}
+  </form>
+
+  <div class="chips">
+    <a class="chip {{ 'chip-active' if not action else '' }}" href="{{ url_for('audit', since=since) }}">All</a>
+    {% for a in page.actions %}
+      <a class="chip {{ 'chip-active' if a == action else '' }}" href="{{ url_for('audit', action=a, since=since) }}">
+        {{ icons.icon(action_icons.get(a, 'circle'), 13) }} {{ a }}
+      </a>
+    {% endfor %}
+  </div>
+
+  {% if page.entries %}
+    <ol class="timeline">
+      {% for e in page.entries %}
+        {% set status = e.get('status', '') %}
+        {% set state = {'success': 'ok', 'error': 'fail', 'skipped': 'warn'}.get(status, 'warn') %}
+        {% set act = e.get('action', '?') %}
+        {% set ts = (e.get('timestamp') or '')[:19] | replace('T', ' ') %}
+        <li class="tl-item tl-{{ state }}">
+          <span class="tl-node tl-node-{{ state }}">{{ icons.icon(action_icons.get(act, 'circle'), 15) }}</span>
+          <details class="tl-card">
+            <summary class="tl-summary">
+              <div class="tl-main">
+                <span class="tl-action mono">{{ act }}</span>
+                <span class="badge badge-{{ state }}">{{ icons.status_icon(state, 12) }} {{ status or '?' }}</span>
+                <span class="tl-trigger">{{ icons.icon("zap", 12) }} {{ e.get('trigger', '?') }}</span>
+                {% set d = e.get('duration_seconds') %}
+                {% if d is not none %}<span class="tl-dur mono">{{ '%.2fs' % d }}</span>{% endif %}
+              </div>
+              <div class="tl-meta">
+                <span class="tl-time mono">{{ icons.icon("clock", 12) }} {{ ts }} UTC</span>
+                {% set changes = e.get('changes') or [] %}
+                {% if changes %}<span class="tl-changes">{{ changes | join(', ') }}</span>{% endif %}
+                <span class="tl-caret">{{ icons.icon("chevron-down", 15) }}</span>
+              </div>
+              {% if status == 'error' and e.get('error') %}
+                <div class="err-detail">{{ icons.icon("x-circle", 13) }} {{ (e.get('error') or '').splitlines()[0] }}</div>
+              {% endif %}
+            </summary>
+            <pre class="tl-json">{{ e | tojson(indent=2) }}</pre>
+          </details>
+        </li>
+      {% endfor %}
+    </ol>
+
+    {% if page.pages > 1 %}
+      <nav class="pager">
+        {% if page.page > 1 %}
+          <a href="{{ url_for('audit', page=page.page - 1, action=action, since=since) }}">{{ icons.icon("arrow-left", 14) }} Newer</a>
+        {% else %}<span class="dim">{{ icons.icon("arrow-left", 14) }} Newer</span>{% endif %}
+        <span class="dim">Page {{ page.page }} of {{ page.pages }}</span>
+        {% if page.page < page.pages %}
+          <a href="{{ url_for('audit', page=page.page + 1, action=action, since=since) }}">Older {{ icons.icon("arrow-right", 14) }}</a>
+        {% else %}<span class="dim">Older {{ icons.icon("arrow-right", 14) }}</span>{% endif %}
+      </nav>
+    {% endif %}
+  {% else %}
+    <div class="empty">
+      {{ icons.icon("audit", 32) }}
+      <p>No audit entries match these filters.</p>
+    </div>
+  {% endif %}
+{% endblock %}

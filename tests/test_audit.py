@@ -1,6 +1,6 @@
-"""Tests for the append-only audit trail (``atlas_os.audit``) and `atlas audit`.
+"""Tests for the append-only audit trail (``eidetic_os.audit``) and `eidetic audit`.
 
-These are fully hermetic: every test points ``ATLAS_AUDIT_PATH`` at a temp file
+These are fully hermetic: every test points ``EIDETIC_AUDIT_PATH`` at a temp file
 via the ``audit_path`` fixture, so nothing touches the real vault.
 """
 
@@ -13,8 +13,8 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from atlas_os import audit
-from atlas_os.cli import app
+from eidetic_os import audit
+from eidetic_os.cli import app
 
 runner = CliRunner()
 
@@ -22,14 +22,14 @@ runner = CliRunner()
 @pytest.fixture()
 def audit_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Redirect the audit log to a temp file for the duration of a test."""
-    path = tmp_path / ".atlas" / "audit.jsonl"
-    monkeypatch.setenv("ATLAS_AUDIT_PATH", str(path))
+    path = tmp_path / ".eidetic" / "audit.jsonl"
+    monkeypatch.setenv("EIDETIC_AUDIT_PATH", str(path))
     return path
 
 
 # ── Core logger ───────────────────────────────────────────────────────────────
 def test_log_action_creates_file_and_appends(audit_file: Path) -> None:
-    audit.log_action("embed", "cli", "success", changes=["3 new"], context="atlas embed")
+    audit.log_action("embed", "cli", "success", changes=["3 new"], context="eidetic embed")
     assert audit_file.exists()
 
     entries = [json.loads(line) for line in audit_file.read_text().splitlines()]
@@ -39,7 +39,7 @@ def test_log_action_creates_file_and_appends(audit_file: Path) -> None:
     assert entry["trigger"] == "cli"
     assert entry["status"] == "success"
     assert entry["changes"] == ["3 new"]
-    assert entry["context"] == "atlas embed"
+    assert entry["context"] == "eidetic embed"
     assert entry["error"] is None
     # Timestamp is ISO 8601 and parseable.
     assert datetime.fromisoformat(entry["timestamp"]).tzinfo is not None
@@ -152,9 +152,9 @@ def test_rotation_shifts_existing_backups(audit_file: Path, monkeypatch: pytest.
 
 # ── CLI: audit show / tail / export ───────────────────────────────────────────
 def _seed(n: int = 3) -> None:
-    audit.log_action("embed", "cli", "success", changes=["2 new"], context="atlas embed")
+    audit.log_action("embed", "cli", "success", changes=["2 new"], context="eidetic embed")
     audit.log_action("commit", "scheduled", "success", changes=["commit abc123"])
-    audit.log_action("email", "manual", "error", error="smtp refused", context="atlas email")
+    audit.log_action("email", "manual", "error", error="smtp refused", context="eidetic email")
 
 
 def test_cli_audit_show(audit_file: Path) -> None:

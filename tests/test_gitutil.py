@@ -1,4 +1,4 @@
-"""Tests for atlas_os.gitutil — repo detection, lock cleanup, command running."""
+"""Tests for eidetic_os.gitutil — repo detection, lock cleanup, command running."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from atlas_os import gitutil
+from eidetic_os import gitutil
 
 
 @pytest.fixture()

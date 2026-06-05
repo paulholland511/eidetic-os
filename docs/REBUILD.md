@@ -8,7 +8,7 @@ backed-up) vault.
 ## 0. What you need
 
 - This repo
-- Your **vault** (its own backup/repo — Atlas OS never stores it)
+- Your **vault** (its own backup/repo — Eidetic OS never stores it)
 - Your secrets (SMTP app password, any API keys) from your password manager
 - *(Optional)* your local LLM installed
 
@@ -27,11 +27,11 @@ git --version
 ## 2. Repo + environment
 
 ```bash
-# Install the package (gives you the `atlas` command):
-uv tool install "atlas-os[all] @ git+https://github.com/paulholland511/atlas-os"
+# Install the package (gives you the `eidetic` command):
+uv tool install "eidetic-os[all] @ git+https://github.com/paulholland511/atlas-os"
 #   or from a clone:  git clone … && cd atlas-os && pip install -e ".[all]"
 
-atlas init        # detect LLM, write .env, scaffold/refresh the vault skeleton
+eidetic init        # detect LLM, write .env, scaffold/refresh the vault skeleton
 ```
 
 ## 3. Restore the vault
@@ -52,9 +52,9 @@ Everything below is **regenerated** from the vault — none of it is backed up o
 committed, by design.
 
 ```bash
-atlas schemas             # frontmatter consistency
-atlas embed --full        # full RAG re-embed (needs the local LLM) — also rebuilds the graph
-atlas skills --sync       # regenerate the Skills Catalog note in the vault
+eidetic schemas             # frontmatter consistency
+eidetic embed --full        # full RAG re-embed (needs the local LLM) — also rebuilds the graph
+eidetic skills --sync       # regenerate the Skills Catalog note in the vault
 ```
 
 ## 5. Restore secrets & credentials
@@ -74,8 +74,8 @@ atlas skills --sync       # regenerate the Skills Catalog note in the vault
 ## 7. Verify
 
 ```bash
-atlas doctor      # setup validation
-atlas health      # full subsystem probe
+eidetic doctor      # setup validation
+eidetic health      # full subsystem probe
 ```
 
 Aim for every subsystem UP (or DEGRADED where a component is intentionally not

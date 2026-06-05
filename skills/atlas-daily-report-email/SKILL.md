@@ -6,14 +6,14 @@ description: Daily morning report email — job-search status, system health, an
 Send yourself a daily status report email using the SMTP send script.
 
 > Placeholders: `{{USER_EMAIL}}` = recipient, `{{VAULT_PATH}}` = vault path,
-> `{{ATLAS_OS}}` = repo path, `{{JOB_TRACKER_PATH}}` = tracker `.xlsx` (personal,
+> `{{EIDETIC_OS}}` = repo path, `{{JOB_TRACKER_PATH}}` = tracker `.xlsx` (personal,
 > outside the repo). Credentials come from `SMTP_APP_PASSWORD` / `SENDER_EMAIL`
 > env vars — never inline them.
 
 **Email details:**
-- Send command: `ATLAS_TRIGGER=scheduled atlas email --json '...'` (routes through the CLI so the run is audited)
+- Send command: `EIDETIC_TRIGGER=scheduled eidetic email --json '...'` (routes through the CLI so the run is audited)
 - To: `{{USER_EMAIL}}`
-- Subject: `📋 Atlas Daily Report — [Day] [DD] [Month] [YYYY]`
+- Subject: `📋 Eidetic Daily Report — [Day] [DD] [Month] [YYYY]`
 
 **Step 1 — Gather data:**
 
@@ -36,7 +36,7 @@ Send yourself a daily status report email using the SMTP send script.
 
 **Step 3 — Send via SMTP:**
 ```bash
-ATLAS_TRIGGER=scheduled atlas email --json '{"to":"{{USER_EMAIL}}","subject":"...","body_html":"..."}'
+EIDETIC_TRIGGER=scheduled eidetic email --json '{"to":"{{USER_EMAIL}}","subject":"...","body_html":"..."}'
 ```
 
-Sign off as Atlas.
+Sign off as Eidetic.

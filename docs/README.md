@@ -1,4 +1,4 @@
-# Atlas OS Documentation
+# Eidetic OS Documentation
 
 The full documentation set. Start with the README in the repo root for the
 overview, then dive in here.
@@ -27,7 +27,7 @@ the source — see [**features/**](features/README.md):
 
 ## Getting started
 
-- [**TUTORIAL.md**](TUTORIAL.md) — *your first 24 hours with Atlas OS*: the full
+- [**TUTORIAL.md**](TUTORIAL.md) — *your first 24 hours with Eidetic OS*: the full
   guided walkthrough from `pip install` to an autonomous, self-maintaining
   system. Start here if you want the why behind each step, not just the commands.
 - [**QUICKSTART.md**](QUICKSTART.md) — zero to working setup in 5 minutes.
@@ -40,7 +40,7 @@ the source — see [**features/**](features/README.md):
   v1.0**: a backward-compatible upgrade, what's new, and how to adopt it.
 - [**CONFIGURATION.md**](CONFIGURATION.md) — every environment variable: purpose,
   default, required/optional, and which scripts read it.
-- [**CLI-REFERENCE.md**](CLI-REFERENCE.md) — the complete `atlas` CLI reference
+- [**CLI-REFERENCE.md**](CLI-REFERENCE.md) — the complete `eidetic` CLI reference
   and **v1.0 stability contract**: every command, flag, environment variable, and
   exit code, plus what's guaranteed not to change without a major version bump.
 - [**SCRIPTS.md**](SCRIPTS.md) — complete reference for every underlying script and
@@ -53,7 +53,7 @@ the source — see [**features/**](features/README.md):
   cadences, the placeholder tokens, and the in-vault **skills catalog** agents
   use for discovery.
 - [**SKILLS-CATALOGUE.md**](SKILLS-CATALOGUE.md) — the full menu of **160+ skills**
-  (149 capability skills across 7 domains, plus the Atlas-native and scheduled
+  (149 capability skills across 7 domains, plus the Eidetic-native and scheduled
   automations) that agents can draw on.
 - [**SKILLS-FRAMEWORK.md**](SKILLS-FRAMEWORK.md) — what a skill is, the lifecycle
   (creation → installation → scheduling → execution → audit logging), how skills
@@ -90,7 +90,7 @@ the source — see [**features/**](features/README.md):
 
 ### Reading order for a first-time setup
 
-1. Root [`README.md`](../README.md) — what Atlas OS is.
+1. Root [`README.md`](../README.md) — what Eidetic OS is.
 2. [`TUTORIAL.md`](TUTORIAL.md) — the guided first-24-hours walkthrough.
 3. [`SETUP.md`](SETUP.md) — install it.
 4. [`CONFIGURATION.md`](CONFIGURATION.md) — set your env vars.

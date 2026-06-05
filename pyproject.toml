@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "atlas-os"
+name = "eidetic-os"
 dynamic = ["version"]
-description = "Atlas OS — A personal AI operating system built on Claude Cowork. Job search automation, trading intelligence, RAG knowledge management, and 17+ automated pipelines."
+description = "Eidetic OS — a local-first personal AI operating system that gives Claude perfect, photographic memory: an Obsidian knowledge vault, hybrid RAG search, MCP-native skills, and 17+ autonomous pipelines."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
@@ -35,9 +35,9 @@ dependencies = [
 [project.optional-dependencies]
 pdf = ["pdfplumber>=0.10"]
 # ── Extension extras ───────────────────────────────────────────────────────
-# Domain-specific extensions (atlas_os/extensions/) ship with the package and are
+# Domain-specific extensions (eidetic_os/extensions/) ship with the package and are
 # discovered via the [project.entry-points] below, but their heavier third-party
-# dependencies are opt-in. Install one with e.g. `pip install 'atlas-os[trading]'`.
+# dependencies are opt-in. Install one with e.g. `pip install 'eidetic-os[trading]'`.
 trading = ["yfinance>=0.2"]
 # voice (TTS) and jobs (tracker) are currently dependency-free stubs; the extras
 # exist so users can opt in now and pick up real deps as the modules are built.
@@ -51,12 +51,12 @@ vector = ["sqlite-vec>=0.1.6", "numpy>=1.24"]
 # ── Pluggable vector backends (VECTOR_BACKEND) ──────────────────────────────
 # The default SQLite backend needs nothing extra. These opt-in extras swap in an
 # alternative engine for larger or more demanding indexes — pick one with e.g.
-# `pip install 'atlas-os[lancedb]'`, then set VECTOR_BACKEND in your .env.
+# `pip install 'eidetic-os[lancedb]'`, then set VECTOR_BACKEND in your .env.
 # LanceDB: columnar, on-disk, zero-copy scans + rich metadata filtering.
 lancedb = ["lancedb>=0.5"]
 # ChromaDB: a popular embedding database with a persistent local client.
 chroma = ["chromadb>=0.5"]
-# The local web dashboard (`atlas dashboard`). Flask + Jinja2 only — no JS build
+# The local web dashboard (`eidetic dashboard`). Flask + Jinja2 only — no JS build
 # step, no client-side framework. Kept optional so the core install stays slim.
 dashboard = ["flask>=3.0"]
 all = [
@@ -64,6 +64,10 @@ all = [
   "flask>=3.0", "lancedb>=0.5", "chromadb>=0.5",
 ]
 
+# NOTE: the project was renamed Atlas OS → Eidetic OS in the v4.0 cycle. The
+# GitHub repository slug is still `paulholland511/atlas-os` (the repo is renamed
+# separately), so these URLs intentionally keep the old path for now. Update them
+# to `eidetic-os` once the repository itself is renamed.
 [project.urls]
 Homepage = "https://github.com/paulholland511/atlas-os"
 Documentation = "https://github.com/paulholland511/atlas-os/tree/main/docs"
@@ -71,26 +75,26 @@ Repository = "https://github.com/paulholland511/atlas-os"
 Changelog = "https://github.com/paulholland511/atlas-os/blob/main/CHANGELOG.md"
 
 [project.scripts]
-atlas = "atlas_os.cli:app"
+eidetic = "eidetic_os.cli:app"
 
 # Extension discovery. The CLI scans this entry-point group at startup and loads
-# every registered AtlasExtension subclass onto the `atlas` app, so the core
+# every registered EideticExtension subclass onto the `eidetic` app, so the core
 # never imports a domain module directly. Third-party packages add their own
 # extensions by registering under the same group. These bundled three are also
-# listed in atlas_os/extensions/__init__.py (BUILTIN_EXTENSIONS) so a source
+# listed in eidetic_os/extensions/__init__.py (BUILTIN_EXTENSIONS) so a source
 # checkout discovers them without installed entry-point metadata.
-[project.entry-points."atlas_os.extensions"]
-trading = "atlas_os.extensions.trading:TradingExtension"
-voice = "atlas_os.extensions.voice:VoiceExtension"
-jobs = "atlas_os.extensions.jobs:JobsExtension"
+[project.entry-points."eidetic_os.extensions"]
+trading = "eidetic_os.extensions.trading:TradingExtension"
+voice = "eidetic_os.extensions.voice:VoiceExtension"
+jobs = "eidetic_os.extensions.jobs:JobsExtension"
 
-# Single-source the version from atlas_os/__init__.py (__version__). Bump it
+# Single-source the version from eidetic_os/__init__.py (__version__). Bump it
 # there and both the package and the package metadata stay in lockstep.
 [tool.hatch.version]
-path = "atlas_os/__init__.py"
+path = "eidetic_os/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["atlas_os"]
+packages = ["eidetic_os"]
 
 # The sdist ships the full source tree so a downstream build can reproduce the
 # wheel (which force-includes scripts/, schemas/, templates/, skills/). hatchling
@@ -99,7 +103,7 @@ packages = ["atlas_os"]
 # MANIFEST.in — that's a setuptools concept; this block is its equivalent.)
 [tool.hatch.build.targets.sdist]
 include = [
-  "atlas_os",
+  "eidetic_os",
   "scripts",
   "schemas",
   "templates",
@@ -113,15 +117,15 @@ include = [
 ]
 
 # Bundle the scripts, schemas, and templates into the wheel so an installed
-# `atlas` command works without the source checkout. These go into a top-level
-# `atlas_os_data/` dir (NOT the `atlas_os` package) so they can never shadow the
+# `eidetic` command works without the source checkout. These go into a top-level
+# `eidetic_os_data/` dir (NOT the `eidetic_os` package) so they can never shadow the
 # importable package in an editable install. In a source checkout the CLI uses
-# the live repo files instead (see atlas_os/_paths.py).
+# the live repo files instead (see eidetic_os/_paths.py).
 [tool.hatch.build.targets.wheel.force-include]
-"scripts" = "atlas_os_data/scripts"
-"schemas" = "atlas_os_data/schemas"
-"templates" = "atlas_os_data/templates"
-"skills" = "atlas_os_data/skills"
+"scripts" = "eidetic_os_data/scripts"
+"schemas" = "eidetic_os_data/schemas"
+"templates" = "eidetic_os_data/templates"
+"skills" = "eidetic_os_data/skills"
 
 [tool.ruff]
 line-length = 100

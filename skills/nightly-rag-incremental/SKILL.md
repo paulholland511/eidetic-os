@@ -5,7 +5,7 @@ description: Incremental RAG embed of new/changed vault notes using a local embe
 
 Run an incremental RAG embed of the vault to keep the vector store up to date.
 
-> Placeholders: `{{VAULT_PATH}}` = your vault path, `{{ATLAS_OS}}` = the Atlas OS
+> Placeholders: `{{VAULT_PATH}}` = your vault path, `{{EIDETIC_OS}}` = the Eidetic OS
 > repo path, `{{EMBED_HOST}}:{{EMBED_PORT}}` = your local embeddings endpoint.
 
 **Objective:** Embed any new or modified notes since the last embed run.
@@ -15,8 +15,8 @@ Run an incremental RAG embed of the vault to keep the vector store up to date.
 1. Request access to `{{VAULT_PATH}}`
 2. Run the incremental embed script:
    ```bash
-   ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} EMBED_HOST={{EMBED_HOST}} EMBED_PORT={{EMBED_PORT}} \
-     atlas embed --incremental
+   EIDETIC_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} EMBED_HOST={{EMBED_HOST}} EMBED_PORT={{EMBED_PORT}} \
+     eidetic embed --incremental
    ```
 3. The script will:
    - Check `last_embed.txt` for the timestamp of the last run

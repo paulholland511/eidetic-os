@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Render an animated terminal demo GIF for the Atlas OS README.
+"""Render an animated terminal demo GIF for the Eidetic OS README.
 
 Simulates a macOS-terminal session walking through four headline commands —
-`atlas init`, `atlas doctor`, `atlas search`, and `atlas skills list` — with a
+`eidetic init`, `eidetic doctor`, `eidetic search`, and `eidetic skills list` — with a
 typewriter prompt effect, line-by-line output, and brief read-pauses between
 scenes. Pure synthetic output (no personal data) generated with Pillow only.
 
@@ -102,14 +102,14 @@ def hdr(text: str) -> Line:
 
 
 SCENE_INIT = [
-    prompt("atlas init"),
+    prompt("eidetic init"),
     L(),
-    L(S("  ▲  Atlas OS — setup wizard", CYAN, bold=True)),
+    L(S("  ▲  Eidetic OS — setup wizard", CYAN, bold=True)),
     L(),
     L(S("  This wizard will:", FG)),
     L(S("    • find your vault and any local LLM", DIM)),
     L(S("    • write a .env you can tweak later", DIM)),
-    L(S("    • scaffold the vault (.atlas/, .rag/, wiki/)", DIM)),
+    L(S("    • scaffold the vault (.eidetic/, .rag/, wiki/)", DIM)),
     L(),
     L(S("  Vault path [~/vault]: ", FG), S("~/vault", BLUE)),
     L(),
@@ -131,9 +131,9 @@ def chk(name: str, detail: str) -> Line:
 
 
 SCENE_DOCTOR = [
-    prompt("atlas doctor"),
+    prompt("eidetic doctor"),
     L(),
-    hdr("Atlas OS — doctor"),
+    hdr("Eidetic OS — doctor"),
     L(),
     hdr("Config"),
     chk("VAULT_PATH", "~/vault"),
@@ -171,7 +171,7 @@ def result(rank: int, score: str, path: str, heading: str, snippet: str) -> list
 
 
 SCENE_SEARCH = [
-    prompt('atlas search "meeting notes from last week"'),
+    prompt('eidetic search "meeting notes from last week"'),
     L(),
     L(S('Top 4 result(s) for "meeting notes from last week":', FG)),
     L(),
@@ -202,7 +202,7 @@ def skill(slug: str, cadence: str, desc: str) -> list[Line]:
 
 
 SCENE_SKILLS = [
-    prompt("atlas skills list"),
+    prompt("eidetic skills list"),
     L(),
     L(S("Agent skills (160 skill(s)):", BOLD_W, bold=True)),
     L(),
@@ -212,7 +212,7 @@ SCENE_SKILLS = [
     *skill("vault-commit", "hourly", "Auto-commit the vault with a categorised message."),
     *skill("inbox-triage", "daily", "Sort, label, and draft replies for new mail."),
     L(),
-    L(S("Run `atlas skills install <name>` to install one.", DIM)),
+    L(S("Run `eidetic skills install <name>` to install one.", DIM)),
 ]
 
 SCENES = [SCENE_INIT, SCENE_DOCTOR, SCENE_SEARCH, SCENE_SKILLS]
@@ -226,7 +226,7 @@ def _draw_titlebar(d: ImageDraw.ImageDraw) -> None:
         cx = (18 + i * 20) * SCALE
         r = 6 * SCALE
         d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=col)
-    title = "atlas — ~/atlas-os — zsh"
+    title = "eidetic — ~/atlas-os — zsh"
     tw = d.textlength(title, font=TITLE_FONT)
     d.text(
         ((WIDTH * SCALE - tw) / 2, (TITLEBAR_H * SCALE - TITLE_FONT.size) / 2 - SCALE),

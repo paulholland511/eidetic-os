@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "name": "Atlas OS Built-in Skills",
-  "description": "The skills that ship with Atlas OS \u2014 vault management, session capture, email reports, trading research, and job-search automation.",
+  "name": "Eidetic OS Built-in Skills",
+  "description": "The skills that ship with Eidetic OS \u2014 vault management, session capture, email reports, trading research, and job-search automation.",
   "skills": [
     {
       "name": "afternoon-job-tracker-update",
       "version": "1.0.0",
       "description": "Afternoon email scan for job-application updates \u2014 catches later emails and updates the tracker spreadsheet.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "job-search",
         "email",
@@ -21,7 +21,7 @@
       "name": "afternoon-session-capture",
       "version": "1.0.0",
       "description": "Afternoon capture of the day's Cowork chat transcripts into the vault as session-log notes.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "session-capture",
         "vault",
@@ -34,7 +34,7 @@
       "name": "atlas-daily-report-email",
       "version": "1.0.0",
       "description": "Daily morning report email \u2014 job-search status, system health, and action items.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "email",
         "report",
@@ -48,7 +48,7 @@
       "name": "daily-job-tracker-update",
       "version": "1.0.0",
       "description": "Morning email scan for job-application updates \u2014 new applications, rejections, interviews, shortlists \u2014 and update a tracker spreadsheet.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "job-search",
         "email",
@@ -62,7 +62,7 @@
       "name": "daily-session-capture",
       "version": "1.0.0",
       "description": "Nightly capture of the day's Cowork chat transcripts into the vault as session-log notes.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "session-capture",
         "vault",
@@ -75,7 +75,7 @@
       "name": "daily-trading-report",
       "version": "1.0.0",
       "description": "Daily multi-agent market research \u2014 runs analyst agents on a watchlist via a local LLM, emails a research report.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "trading",
         "research",
@@ -89,7 +89,7 @@
       "name": "friday-it-newsletter",
       "version": "1.0.0",
       "description": "Weekly IT news newsletter \u2014 AI, cloud, M365, cybersecurity, enterprise tech \u2014 emailed each Friday morning.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "newsletter",
         "email",
@@ -103,7 +103,7 @@
       "name": "generate-vault-report-doc",
       "version": "1.0.0",
       "description": "Document creation \u2014 compile a set of vault notes on a topic into a polished, formatted Word (.docx) or PDF report.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "report",
         "document",
@@ -118,7 +118,7 @@
       "name": "inbox-triage-digest",
       "version": "1.0.0",
       "description": "Inbox triage digest \u2014 scan unread/important mail since the last run, summarise and categorise it, and email a concise digest.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "email",
         "triage",
@@ -132,7 +132,7 @@
       "name": "morning-session-capture",
       "version": "1.0.0",
       "description": "Morning capture of overnight and early-morning Cowork chat transcripts into the vault as session-log notes.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "session-capture",
         "vault",
@@ -145,7 +145,7 @@
       "name": "nightly-obsidian-index",
       "version": "1.0.0",
       "description": "Nightly vault index + morning briefing of what changed in your markdown vault.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "vault",
         "index",
@@ -159,7 +159,7 @@
       "name": "nightly-rag-incremental",
       "version": "1.0.0",
       "description": "Incremental RAG embed of new/changed vault notes using a local embeddings endpoint.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "rag",
         "embeddings",
@@ -173,7 +173,7 @@
       "name": "spreadsheet-analysis",
       "version": "1.0.0",
       "description": "Open a spreadsheet, compute summary statistics and trends, flag anomalies, and write a short findings note.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "spreadsheet",
         "analysis",
@@ -187,7 +187,7 @@
       "name": "topic-research-brief",
       "version": "1.0.0",
       "description": "Multi-round web research on a topic, synthesised into a cited brief and saved as a structured vault note.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "research",
         "web",
@@ -201,7 +201,7 @@
       "name": "vault-lint-report",
       "version": "1.0.0",
       "description": "Vault health check \u2014 finds orphan notes, dead wikilinks, stale claims, and frontmatter gaps, then writes a lint report note.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "vault",
         "lint",
@@ -215,7 +215,7 @@
       "name": "weekly-digest-report",
       "version": "1.0.0",
       "description": "Weekly vault digest \u2014 new notes, decisions, and research from the past 7 days, compiled and emailed as an HTML report.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "digest",
         "email",
@@ -230,7 +230,7 @@
       "name": "weekly-rag-full-reembed",
       "version": "1.0.0",
       "description": "Weekly full re-embed of all vault notes into the RAG vector store.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": [
         "rag",
         "embeddings",
@@ -243,8 +243,8 @@
     {
       "name": "weekly-system-health-check",
       "version": "1.0.0",
-      "description": "Weekly full system health check \u2014 tests all Atlas OS subsystems and emails a report.",
-      "author": "Atlas OS",
+      "description": "Weekly full system health check \u2014 tests all Eidetic OS subsystems and emails a report.",
+      "author": "Eidetic OS",
       "tags": [
         "health",
         "monitoring",

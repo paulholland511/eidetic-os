@@ -2,9 +2,9 @@
 
 **Source:** [`scripts/vault_commit.py`](../../scripts/vault_commit.py),
 [`scripts/vault_changelog.py`](../../scripts/vault_changelog.py) ·
-**CLI:** `atlas commit`, `atlas changelog`
+**CLI:** `eidetic commit`, `eidetic changelog`
 
-Your vault is its own git repository. Atlas OS keeps a clean, traceable history
+Your vault is its own git repository. Eidetic OS keeps a clean, traceable history
 of it automatically: a nightly **categorised commit**, and a **changelog** that
 reports what changed over any window (the basis for a morning briefing).
 
@@ -13,7 +13,7 @@ Both require `VAULT_PATH` to point at a git repo and run all git commands with
 
 ---
 
-## `atlas commit` — categorised auto-commit
+## `eidetic commit` — categorised auto-commit
 
 ### How it works
 
@@ -85,7 +85,7 @@ unset or `git commit` failed.
 
 ---
 
-## `atlas changelog` — what changed over a window
+## `eidetic changelog` — what changed over a window
 
 ### How it works
 
@@ -110,9 +110,9 @@ modified. So the lists are the *net* set of files touched.
 `--since` accepts **any git date expression** and defaults to **`"24 hours ago"`**:
 
 ```bash
-atlas changelog                          # last 24h
-atlas changelog --since "7 days ago"
-atlas changelog --since 2026-06-01
+eidetic changelog                          # last 24h
+eidetic changelog --since "7 days ago"
+eidetic changelog --since 2026-06-01
 ```
 
 ### Output modes
@@ -142,16 +142,16 @@ dashboard (JSON wins if both are given).
 
 ## How they're used together
 
-The `nightly-obsidian-index` skill runs the index, then `atlas commit` to record
-the night's changes, and the morning report uses `atlas changelog --markdown` to
+The `nightly-obsidian-index` skill runs the index, then `eidetic commit` to record
+the night's changes, and the morning report uses `eidetic changelog --markdown` to
 tell you what changed overnight. See
 [skills-and-automation.md](skills-and-automation.md).
 
 ```bash
 # nightly, roughly:
-atlas embed --incremental
-atlas commit
-atlas changelog --since "24 hours ago" --markdown
+eidetic embed --incremental
+eidetic commit
+eidetic changelog --since "24 hours ago" --markdown
 ```
 
 ## Configuration
@@ -162,7 +162,7 @@ Only `VAULT_PATH` (a git repo). To start one:
 cd "$VAULT_PATH" && git init && git add -A && git commit -m "Initialise vault"
 ```
 
-> Keep the vault repo **private and separate** from the public Atlas OS repo, and
+> Keep the vault repo **private and separate** from the public Eidetic OS repo, and
 > give it its own `.gitignore` for anything sensitive.
 
 See also: [`docs/SCRIPTS.md`](../SCRIPTS.md#vault_commitpy) ·

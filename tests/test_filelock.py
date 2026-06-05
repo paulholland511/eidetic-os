@@ -1,4 +1,4 @@
-"""Tests for atlas_os.filelock — advisory locking with stale-lock recovery."""
+"""Tests for eidetic_os.filelock — advisory locking with stale-lock recovery."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from atlas_os import filelock
+from eidetic_os import filelock
 
 
 class TestAcquireRelease:

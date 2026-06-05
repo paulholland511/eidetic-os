@@ -1,5 +1,5 @@
 """
-Shared pytest fixtures and import-time setup for the Atlas OS test suite.
+Shared pytest fixtures and import-time setup for the Eidetic OS test suite.
 
 The scripts under ``scripts/`` are standalone modules (not an installed
 package), and a couple of them read configuration *and* create directories at
@@ -29,7 +29,7 @@ from pathlib import Path
 import pytest
 
 # ── 1. Hermetic vault/RAG locations (set BEFORE importing any script) ──────────
-_TMP = Path(tempfile.mkdtemp(prefix="atlas-os-tests-"))
+_TMP = Path(tempfile.mkdtemp(prefix="eidetic-os-tests-"))
 _VAULT = _TMP / "vault"
 _VAULT.mkdir(parents=True, exist_ok=True)
 
@@ -40,7 +40,7 @@ os.environ["RAG_DIR"] = str(_TMP / "rag")
 
 # Pin the LLM endpoint hosts so scripts resolve their URLs purely from the
 # environment at import time and never probe the network for a live backend
-# (the backend auto-detection in atlas_os.backends only runs when *no* endpoint
+# (the backend auto-detection in eidetic_os.backends only runs when *no* endpoint
 # is configured). These match the historic defaults, so behaviour is unchanged.
 os.environ.setdefault("EMBED_HOST", "localhost")
 os.environ.setdefault("LM_STUDIO_HOST", "localhost")
@@ -90,7 +90,7 @@ _install_tradingagents_stub()
 # Integration-test fixtures
 #
 # These power the end-to-end suite (``tests/test_integration.py``), which drives
-# the real ``atlas`` CLI through Typer's ``CliRunner``. Commands that wrap a
+# the real ``eidetic`` CLI through Typer's ``CliRunner``. Commands that wrap a
 # pipeline script genuinely shell out to a subprocess, so the only way to inject
 # test config is via the environment — every fixture below sets env vars (which
 # the child process inherits) rather than monkeypatching internals.
@@ -108,9 +108,9 @@ _SAMPLE_VAULT_FILES: dict[str, str] = {
     "wiki/index.md": (
         "---\ntags: [wiki]\n---\n# Wiki Index\n\nEntry point for the knowledge base.\n"
     ),
-    "projects/atlas-os.md": (
+    "projects/eidetic-os.md": (
         "---\ntags: [project]\n---\n"
-        "# Atlas OS\n\nA local-first personal AI operating system.\n"
+        "# Eidetic OS\n\nA local-first personal AI operating system.\n"
     ),
     "memory/decisions.md": (
         "---\ntags: [memory]\n---\n# Decisions\n\nUse uv for package management.\n"
@@ -125,7 +125,7 @@ SAMPLE_VAULT_MD_COUNT = len(_SAMPLE_VAULT_FILES)
 def sample_vault(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Create a temp vault of sample markdown files and point the env at it.
 
-    Sets ``VAULT_PATH``, ``RAG_DIR``, and ``ATLAS_AUDIT_PATH`` so every command
+    Sets ``VAULT_PATH``, ``RAG_DIR``, and ``EIDETIC_AUDIT_PATH`` so every command
     (and every subprocess it spawns) reads and writes inside the sandbox.
     Returns the vault root.
     """
@@ -135,11 +135,11 @@ def sample_vault(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding="utf-8")
     (vault / ".rag").mkdir(parents=True, exist_ok=True)
-    (vault / ".atlas").mkdir(parents=True, exist_ok=True)
+    (vault / ".eidetic").mkdir(parents=True, exist_ok=True)
 
     monkeypatch.setenv("VAULT_PATH", str(vault))
     monkeypatch.setenv("RAG_DIR", str(vault / ".rag"))
-    monkeypatch.setenv("ATLAS_AUDIT_PATH", str(vault / ".atlas" / "audit.jsonl"))
+    monkeypatch.setenv("EIDETIC_AUDIT_PATH", str(vault / ".eidetic" / "audit.jsonl"))
     return vault
 
 
@@ -151,7 +151,7 @@ def git_vault(sample_vault: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     succeed hermetically regardless of the machine's global git config.
     """
     for var in ("GIT_AUTHOR_NAME", "GIT_COMMITTER_NAME"):
-        monkeypatch.setenv(var, "Atlas Test")
+        monkeypatch.setenv(var, "Eidetic Test")
     for var in ("GIT_AUTHOR_EMAIL", "GIT_COMMITTER_EMAIL"):
         monkeypatch.setenv(var, "atlas-test@example.com")
 

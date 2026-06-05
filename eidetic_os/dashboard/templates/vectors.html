@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% import "_icons.html" as icons %}
+{% block title %}Vector store{% endblock %}
+{% block heading %}Vector store{% endblock %}
+{% block subhead %}
+  <p class="lede">The SQLite RAG index that powers <code>eidetic search</code>.</p>
+{% endblock %}
+{% block head_aside %}
+  {% if stats.available and stats.last_embed %}
+    <span class="head-stamp">{{ icons.icon("refresh", 14) }} Embedded {{ stats.last_embed.age }}</span>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if stats.available %}
+    <div class="stat-grid">
+      <div class="stat stat-accent">
+        <span class="stat-top"><span class="stat-ico">{{ icons.icon("hash", 16) }}</span><span class="stat-label">Chunks</span></span>
+        <span class="stat-value">{{ '{:,}'.format(stats.chunk_count) }}</span>
+        <span class="stat-foot">{{ '%.1f' % stats.avg_chunks }} avg per file</span>
+      </div>
+      <div class="stat">
+        <span class="stat-top"><span class="stat-ico">{{ icons.icon("file", 16) }}</span><span class="stat-label">Files indexed</span></span>
+        <span class="stat-value">{{ '{:,}'.format(stats.file_count) }}</span>
+        <span class="stat-foot">{{ stats.files | length }} shown below</span>
+      </div>
+      <div class="stat">
+        <span class="stat-top"><span class="stat-ico">{{ icons.icon("database", 16) }}</span><span class="stat-label">Database size</span></span>
+        <span class="stat-value">{{ stats.db_size }}</span>
+        <span class="stat-foot mono">vectors.db</span>
+      </div>
+      <div class="stat">
+        <span class="stat-top"><span class="stat-ico">{{ icons.icon("layers", 16) }}</span><span class="stat-label">Cached embeddings</span></span>
+        <span class="stat-value">{{ '{:,}'.format(stats.cache_size) }}</span>
+        <span class="stat-foot">
+          {% if stats.chunk_count %}
+            {{ ((stats.cache_size / stats.chunk_count * 100) | round | int) }}% cache coverage
+          {% else %}—{% endif %}
+        </span>
+      </div>
+    </div>
+
+    <div class="split-grid">
+      <section class="card">
+        <div class="check-card-head">
+          <span class="cat-icon cat-icon-accent">{{ icons.icon("server", 18) }}</span>
+          <div class="check-card-title">
+            <h2>Index details</h2>
+            <span class="check-card-sub">Backend & freshness</span>
+          </div>
+        </div>
+        <dl class="detail-list">
+          <dt>{{ icons.icon("zap", 14) }} Search backend</dt>
+          <dd><span class="badge badge-info">{{ stats.backend }}</span></dd>
+          <dt>{{ icons.icon("refresh", 14) }} Last embed</dt>
+          <dd>
+            {% if stats.last_embed %}
+              <span class="mono">{{ stats.last_embed.iso }}</span>
+              <span class="badge badge-{{ 'warn' if stats.last_embed.stale else 'ok' }}">
+                {{ icons.status_icon('warn' if stats.last_embed.stale else 'ok', 12) }}
+                {{ stats.last_embed.age }}{{ ' · stale' if stats.last_embed.stale else '' }}
+              </span>
+            {% else %}
+              <span class="dim">unknown</span>
+            {% endif %}
+          </dd>
+          <dt>{{ icons.icon("database", 14) }} Database path</dt>
+          <dd class="mono dim break">{{ stats.db_path }}</dd>
+        </dl>
+      </section>
+
+      <section class="card">
+        <div class="check-card-head">
+          <span class="cat-icon cat-icon-accent">{{ icons.icon("gauge", 18) }}</span>
+          <div class="check-card-title">
+            <h2>Storage usage</h2>
+            <span class="check-card-sub">{{ stats.db_size }} on disk</span>
+          </div>
+        </div>
+        <div class="usage-rows">
+          <div class="usage-row">
+            <div class="usage-label"><span>{{ icons.icon("hash", 13) }} Chunks</span><span class="mono">{{ '{:,}'.format(stats.chunk_count) }}</span></div>
+            <div class="usage-track"><span class="usage-fill usage-fill-accent" style="width: 100%"></span></div>
+          </div>
+          <div class="usage-row">
+            <div class="usage-label"><span>{{ icons.icon("layers", 13) }} Cached</span><span class="mono">{{ '{:,}'.format(stats.cache_size) }}</span></div>
+            <div class="usage-track">
+              <span class="usage-fill usage-fill-info"
+                    style="width: {{ ((stats.cache_size / stats.chunk_count * 100) | round) if stats.chunk_count else 0 }}%"></span>
+            </div>
+          </div>
+          <div class="usage-row">
+            <div class="usage-label"><span>{{ icons.icon("file", 13) }} Files</span><span class="mono">{{ '{:,}'.format(stats.file_count) }}</span></div>
+            <div class="usage-track"><span class="usage-fill usage-fill-warn" style="width: {{ [stats.file_count, 100] | min }}%"></span></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    {% if stats.files %}
+      <section class="card">
+        <div class="check-card-head">
+          <span class="cat-icon cat-icon-accent">{{ icons.icon("folder", 18) }}</span>
+          <div class="check-card-title">
+            <h2>Indexed files</h2>
+            <span class="check-card-sub">Top {{ stats.files | length }} by chunk count{{ ' · %d more not shown' % stats.files_truncated if stats.files_truncated else '' }}</span>
+          </div>
+        </div>
+        <ul class="file-list">
+          {% for f in stats.files %}
+            <li class="file-row">
+              <span class="file-ico">{{ icons.icon("file", 15) }}</span>
+              <span class="file-name mono" title="{{ f.file }}">{{ f.file }}</span>
+              <span class="file-bar"><span class="file-bar-fill" style="width: {{ f.bar | round(1) }}%"></span></span>
+              <span class="file-count mono">{{ f.chunks }}</span>
+              <span class="file-share mono dim">{{ '%.1f%%' % f.share }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+  {% else %}
+    <div class="empty">
+      {{ icons.icon("database", 32) }}
+      <p>{{ stats.reason }}</p>
+      {% if stats.rag_dir %}<p class="mono dim">{{ stats.rag_dir }}</p>{% endif %}
+    </div>
+  {% endif %}
+{% endblock %}

@@ -1,6 +1,6 @@
 # Frontmatter Schemas
 
-Atlas OS keeps the vault consistent enough for reliable RAG indexing and
+Eidetic OS keeps the vault consistent enough for reliable RAG indexing and
 dashboard rendering by enforcing a small YAML frontmatter schema **per
 top-level folder**. The enforcer (`enforce_schemas.py`) scans notes, validates
 their frontmatter against the schema for their folder, and fills in missing
@@ -25,7 +25,7 @@ existing values, and writes atomically.
 |---|---|---|
 | `research` | tags, type, date | type=note, status=draft |
 | `research-archive` | tags, type, date | status=archived |
-| `code-solutions` | title, date, type, tags, author, commit, complexity, files_changed, indexed | author=Atlas, indexed=true |
+| `code-solutions` | title, date, type, tags, author, commit, complexity, files_changed, indexed | author=Eidetic, indexed=true |
 | `memory` | tags, date | type=session-log |
 | `memory-archive` | tags, date | type=session-log |
 | `learning` | tags, date, type | type=concept-extraction |

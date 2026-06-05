@@ -1,10 +1,10 @@
 # Feature: Security hardening for community skills
 
-**Source:** [`atlas_os/security.py`](../../atlas_os/security.py),
-[`atlas_os/sandbox.py`](../../atlas_os/sandbox.py) ·
-**CLI:** `atlas security scan <path>`, `atlas security report`
+**Source:** [`eidetic_os/security.py`](../../eidetic_os/security.py),
+[`eidetic_os/sandbox.py`](../../eidetic_os/sandbox.py) ·
+**CLI:** `eidetic security scan <path>`, `eidetic security report`
 
-A skill you install from a registry is *someone else's code*. Atlas OS treats it
+A skill you install from a registry is *someone else's code*. Eidetic OS treats it
 that way. Two layers stand between an untrusted skill and your machine:
 
 1. **Static analysis** — before a skill is installed, every `.py` file it ships
@@ -51,8 +51,8 @@ must not be installed blind.
 ### Scan a skill by hand
 
 ```bash
-atlas security scan ./some-skill/          # scan a directory
-atlas security scan ./some-skill/code.py   # scan one file
+eidetic security scan ./some-skill/          # scan a directory
+eidetic security scan ./some-skill/code.py   # scan one file
 ```
 
 The command prints each finding grouped by severity and exits non-zero if any
@@ -62,7 +62,7 @@ BLOCK finding is present — handy in CI for a skill repo.
 
 ## The install gate
 
-`atlas skills install <name>` scans the skill's source before copying anything:
+`eidetic skills install <name>` scans the skill's source before copying anything:
 
 - **BLOCK findings → install refused.** The report is shown and nothing is
   written. `--force` does **not** override a BLOCK; code that executes arbitrary
@@ -84,7 +84,7 @@ installed and *what the scanner found*.
 process under a budget:
 
 ```python
-from atlas_os.sandbox import run_sandboxed
+from eidetic_os.sandbox import run_sandboxed
 
 result = run_sandboxed(
     "skill/code.py",
@@ -119,14 +119,14 @@ on macOS; treat it as defence in depth alongside the static scan.
 
 ---
 
-## `atlas security report`
+## `eidetic security report`
 
 Summarises the security-relevant audit history — how many installs were
 attempted, allowed, and blocked, plus the most recent attempts:
 
 ```bash
-atlas security report
-atlas security report --since 30d
+eidetic security report
+eidetic security report --since 30d
 ```
 
 ---

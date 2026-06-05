@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Atlas OS System Health Check
+Eidetic OS System Health Check
 ============================
 
-Probes every Atlas OS subsystem and prints a status report. Intended to be
+Probes every Eidetic OS subsystem and prints a status report. Intended to be
 invoked from the `weekly-system-health-check` scheduled task, or run manually.
 
 Uses *endpoint-aware* probes: each HTTP service has a known-good URL and an
@@ -44,10 +44,10 @@ from pathlib import Path
 from typing import Callable
 from urllib import request, error
 
-from _bootstrap import ensure_atlas_os
+from _bootstrap import ensure_eidetic_os
 
-ensure_atlas_os()
-from atlas_os import scriptkit  # noqa: E402
+ensure_eidetic_os()
+from eidetic_os import scriptkit  # noqa: E402
 
 VAULT = Path(os.path.expanduser(os.environ.get("VAULT_PATH", "."))).resolve()
 RAG_DIR = Path(os.path.expanduser(os.environ.get("RAG_DIR", str(VAULT / ".rag"))))
@@ -137,18 +137,18 @@ def check_vault() -> Result:
 
 
 def _try_import_backends():
-    """Import ``atlas_os.backends`` (adding the repo root to sys.path if needed)."""
+    """Import ``eidetic_os.backends`` (adding the repo root to sys.path if needed)."""
     try:
-        from atlas_os import backends
+        from eidetic_os import backends
         return backends
     except ImportError:
         pass
     for parent in Path(__file__).resolve().parents:
-        if (parent / "atlas_os" / "__init__.py").exists():
+        if (parent / "eidetic_os" / "__init__.py").exists():
             sys.path.insert(0, str(parent))
             break
     try:
-        from atlas_os import backends
+        from eidetic_os import backends
         return backends
     except ImportError:
         return None
@@ -318,7 +318,7 @@ def run_all() -> list[Result]:
 
 
 def format_human(results: list[Result]) -> str:
-    lines = ["Atlas OS Health Check — " + time.strftime("%Y-%m-%d %H:%M:%S")]
+    lines = ["Eidetic OS Health Check — " + time.strftime("%Y-%m-%d %H:%M:%S")]
     lines.append("=" * 60)
     for r in results:
         lines.append(f"{r.icon} {r.name:<32} {r.status.upper():<9} {r.detail}")

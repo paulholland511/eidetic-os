@@ -1,6 +1,6 @@
 # Data Classification
 
-Atlas OS is designed so that **your data stays on your machine**. This document
+Eidetic OS is designed so that **your data stays on your machine**. This document
 classifies the data the system touches and states, for each class, where it
 lives and whether it ever leaves the device. It underpins the ISO 27001
 alignment claims in [`../SECURITY.md`](../SECURITY.md).

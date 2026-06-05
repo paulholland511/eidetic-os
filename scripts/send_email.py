@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Atlas OS Email Sender — sends email via SMTP (e.g. Gmail) with optional
+Eidetic OS Email Sender — sends email via SMTP (e.g. Gmail) with optional
 attachments.
 
 This is a TEMPLATE. It contains NO credentials. The SMTP app password is read
@@ -16,7 +16,7 @@ https://myaccount.google.com/apppasswords (requires 2FA), then export it:
 Environment variables:
     SMTP_APP_PASSWORD   App password / SMTP password   (required)
     SENDER_EMAIL        From address                   (required)
-    SENDER_NAME         Display name                   (default: Atlas)
+    SENDER_NAME         Display name                   (default: Eidetic)
     SMTP_SERVER         SMTP host                      (default: smtp.gmail.com)
     SMTP_PORT           SMTP port                      (default: 587)
 
@@ -34,16 +34,16 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from _bootstrap import ensure_atlas_os
+from _bootstrap import ensure_eidetic_os
 
-ensure_atlas_os()
-from atlas_os import retry as retrylib  # noqa: E402
-from atlas_os import scriptkit  # noqa: E402
+ensure_eidetic_os()
+from eidetic_os import retry as retrylib  # noqa: E402
+from eidetic_os import scriptkit  # noqa: E402
 
 SMTP_SERVER = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "")
-SENDER_NAME = os.environ.get("SENDER_NAME", "Atlas")
+SENDER_NAME = os.environ.get("SENDER_NAME", "Eidetic")
 # Socket timeout (seconds) for every SMTP operation, so a wedged server can't
 # hang the send forever. Overridable via SMTP_TIMEOUT.
 SMTP_TIMEOUT = float(os.environ.get("SMTP_TIMEOUT", "30"))

@@ -1,11 +1,11 @@
-# Quick Start — Atlas OS in 5 minutes
+# Quick Start — Eidetic OS in 5 minutes
 
-The shortest path from zero to a working Atlas OS: a searchable markdown vault
+The shortest path from zero to a working Eidetic OS: a searchable markdown vault
 with git history and a scheduled task. This skips every optional feature — just
 the core. For the full walkthrough see [`SETUP.md`](SETUP.md).
 
 **What you get:** a local-first second brain that grows itself. Beyond the
-searchable vault and git history, Atlas OS can **automatically capture every
+searchable vault and git history, Eidetic OS can **automatically capture every
 Cowork conversation back into your vault** — research, code sessions, planning,
 and decisions, all preserved and RAG-indexed so nothing you discuss with Claude
 is ever lost (see [step 6](#6-capture-every-conversation-optional)).
@@ -19,7 +19,7 @@ You need three things installed:
 - **Python 3.11+** — check with `python3 --version`
 - **Git** — check with `git --version`
 - A **markdown vault** — any folder of `.md` files. [Obsidian](https://obsidian.md/)
-  is the natural home but isn't required; an empty folder works (Atlas OS will
+  is the natural home but isn't required; an empty folder works (Eidetic OS will
   scaffold it).
 
 A **Claude Cowork** subscription is what *runs* the scheduled tasks, but the
@@ -34,7 +34,7 @@ git clone https://github.com/paulholland511/atlas-os.git
 cd atlas-os
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt    # core deps, pinned
-pip install -e .                   # the `atlas` command
+pip install -e .                   # the `eidetic` command
 ```
 
 ---
@@ -44,7 +44,7 @@ pip install -e .                   # the `atlas` command
 One command does everything — no hand-editing `.env` required:
 
 ```bash
-atlas init
+eidetic init
 ```
 
 The interactive wizard walks you through the whole setup:
@@ -59,12 +59,12 @@ The interactive wizard walks you through the whole setup:
    and everything else still works.
 4. **Generates `.env`** from your answers (git-ignored — secrets never get
    committed).
-5. **Scaffolds the vault** — creates the directory tree (`.atlas/`, `.rag/`,
+5. **Scaffolds the vault** — creates the directory tree (`.eidetic/`, `.rag/`,
    `wiki/`), the index files (`.claude-index.md`, `wiki/index.md`, `wiki/hot.md`,
    `Operations Dashboard.md`), the skills catalog, and git-inits the vault.
-6. **Runs `atlas doctor`** automatically and prints a "you're ready" summary.
+6. **Runs `eidetic doctor`** automatically and prints a "you're ready" summary.
 
-Prefer to skip every prompt? `atlas init --yes` accepts all the smart defaults
+Prefer to skip every prompt? `eidetic init --yes` accepts all the smart defaults
 for a fully non-interactive run (handy for scripts and fresh containers). Add
 `--vault PATH` to set the vault explicitly, or `--force` to overwrite an existing
 `.env`.
@@ -81,22 +81,22 @@ The simplest useful automation is a **daily vault backup** — commit every chan
 to your vault's git history. Run it manually first to see it work:
 
 ```bash
-atlas commit          # commits your vault with an auto-categorised message
+eidetic commit          # commits your vault with an auto-categorised message
 ```
 
-To run it on a schedule, ask Claude Cowork to run `atlas commit` daily (e.g.
-"every day at 6pm, run `atlas commit` in my atlas-os folder"). Full details and a
+To run it on a schedule, ask Claude Cowork to run `eidetic commit` daily (e.g.
+"every day at 6pm, run `eidetic commit` in my eidetic-os folder"). Full details and a
 step-by-step version: [`EXAMPLES.md`](EXAMPLES.md#first-scheduled-task-daily-vault-backup).
 
 ---
 
 ## 5. Re-check anytime with the doctor (30 sec)
 
-The wizard already ran this for you at the end of `atlas init`, but you can
+The wizard already ran this for you at the end of `eidetic init`, but you can
 re-run it whenever you change your config:
 
 ```bash
-atlas doctor      # OK / WARN / FAIL per subsystem
+eidetic doctor      # OK / WARN / FAIL per subsystem
 ```
 
 You should see green checks for **Python**, **Vault path**, and **Vault git**.
@@ -104,12 +104,12 @@ WARNs for the RAG index, embeddings, and email are expected — those are option
 features you haven't set up yet. As long as nothing says **FAIL**, you're done.
 
 ```
-Atlas OS — doctor
+Eidetic OS — doctor
 
   ✓ Python         3.13 (need ≥ 3.11)
   ✓ Vault path     /Users/you/Documents/Obsidian/MyVault
   ✓ Vault git      tracked
-  ! RAG index      no vectors yet — run `atlas embed --full`
+  ! RAG index      no vectors yet — run `eidetic embed --full`
   ! Embeddings     unreachable (RAG disabled until it's up)
   ! Email (SMTP)   not configured (reports won't send)
 
@@ -120,12 +120,12 @@ Atlas OS — doctor
 
 ## 6. Capture every conversation (optional)
 
-Atlas OS can fold your Cowork chats back into the vault so they're searchable
+Eidetic OS can fold your Cowork chats back into the vault so they're searchable
 forever. Try it manually:
 
 ```bash
-atlas session list          # your recent Cowork sessions
-atlas session save --all    # write a searchable note for each one
+eidetic session list          # your recent Cowork sessions
+eidetic session save --all    # write a searchable note for each one
 ```
 
 Each session becomes `sessions/session-log-YYYY-MM-DD-<title>.md` — a summary,
@@ -134,8 +134,8 @@ To run it automatically, install the twice-daily capture skills (a morning and a
 afternoon pass):
 
 ```bash
-atlas skills install morning-session-capture
-atlas skills install afternoon-session-capture
+eidetic skills install morning-session-capture
+eidetic skills install afternoon-session-capture
 ```
 
 Once your notes are RAG-indexed (below), these session logs are searched right
@@ -146,7 +146,7 @@ get the real answer.
 
 ## What next?
 
-- **Search your notes** — point Atlas OS at a local LLM and run `atlas embed --full`.
+- **Search your notes** — point Eidetic OS at a local LLM and run `eidetic embed --full`.
   See [`EXAMPLES.md`](EXAMPLES.md#lm-studio-connection) and [`EXAMPLES.md`](EXAMPLES.md#first-rag-embed).
 - **Send email reports** — finish the [Gmail setup](EXAMPLES.md#smtp-setup-gmail-app-password).
 - **Automate more** — browse the [skills catalog](SCHEDULED-TASKS.md).

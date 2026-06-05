@@ -1,8 +1,8 @@
-"""Tests for atlas_os.vectordb — the SQLite vector store.
+"""Tests for eidetic_os.vectordb — the SQLite vector store.
 
 Each test runs against both backends where possible: the sqlite-vec KNN index
 (when the extension is installed) and the brute-force cosine fallback (forced via
-``ATLAS_VECTORDB_NO_VEC``). The two must return identical rankings and scores.
+``EIDETIC_VECTORDB_NO_VEC``). The two must return identical rankings and scores.
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from atlas_os import vectordb
+from eidetic_os import vectordb
 
 
 def _entries() -> list[dict]:
@@ -34,7 +34,7 @@ def store(request: pytest.FixtureRequest, tmp_path: Path,
           monkeypatch: pytest.MonkeyPatch) -> vectordb.VectorStore:
     """A populated store, once per backend (sqlite-vec if available, brute-force)."""
     if request.param == "no_vec":
-        monkeypatch.setenv("ATLAS_VECTORDB_NO_VEC", "1")
+        monkeypatch.setenv("EIDETIC_VECTORDB_NO_VEC", "1")
     s = vectordb.VectorStore(tmp_path / "vectors.db")
     s.add_vectors(_entries())
     yield s

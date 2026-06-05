@@ -84,7 +84,7 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     environment:
       name: testpypi
-      url: https://test.pypi.org/project/atlas-os/
+      url: https://test.pypi.org/project/eidetic-os/
     permissions:
       id-token: write
     steps:

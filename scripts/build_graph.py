@@ -21,10 +21,10 @@ import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from _bootstrap import ensure_atlas_os
+from _bootstrap import ensure_eidetic_os
 
-ensure_atlas_os()
-from atlas_os import fileio, scriptkit  # noqa: E402
+ensure_eidetic_os()
+from eidetic_os import fileio, scriptkit  # noqa: E402
 
 VAULT_DIR = Path(os.path.expanduser(os.environ.get("VAULT_PATH", "."))).resolve()
 RAG_DIR = Path(os.path.expanduser(os.environ.get("RAG_DIR", str(VAULT_DIR / ".rag"))))

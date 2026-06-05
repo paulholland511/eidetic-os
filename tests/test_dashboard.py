@@ -1,16 +1,16 @@
-"""Tests for the lightweight web dashboard (``atlas_os.dashboard``).
+"""Tests for the lightweight web dashboard (``eidetic_os.dashboard``).
 
 Two layers are covered:
 
-* The **data layer** (``atlas_os.dashboard.data``) — pure functions that read
-  live Atlas OS state and shape it for templates. These import without Flask and
+* The **data layer** (``eidetic_os.dashboard.data``) — pure functions that read
+  live Eidetic OS state and shape it for templates. These import without Flask and
   are tested directly against temp vaults / audit logs / vector stores.
-* The **Flask routes** (``atlas_os.dashboard.app``) — exercised through Flask's
+* The **Flask routes** (``eidetic_os.dashboard.app``) — exercised through Flask's
   test client. Skipped automatically if Flask isn't installed, so the suite
   still passes on a core install without the ``dashboard`` extra.
 
 Everything is hermetic: each test points ``VAULT_PATH`` / ``RAG_DIR`` /
-``ATLAS_AUDIT_PATH`` at temp paths, so nothing touches the real vault.
+``EIDETIC_AUDIT_PATH`` at temp paths, so nothing touches the real vault.
 """
 
 from __future__ import annotations
@@ -19,8 +19,8 @@ from pathlib import Path
 
 import pytest
 
-from atlas_os import audit, vectordb
-from atlas_os.dashboard import data
+from eidetic_os import audit, vectordb
+from eidetic_os.dashboard import data
 
 # The route tests need Flask (the optional `dashboard` extra). Skip them cleanly
 # when it isn't installed rather than erroring the whole module.
@@ -32,17 +32,17 @@ def dash_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Point the whole stack at a temp vault and return its root."""
     vault = tmp_path / "vault"
     (vault / ".rag").mkdir(parents=True, exist_ok=True)
-    (vault / ".atlas").mkdir(parents=True, exist_ok=True)
+    (vault / ".eidetic").mkdir(parents=True, exist_ok=True)
     monkeypatch.setenv("VAULT_PATH", str(vault))
     monkeypatch.setenv("RAG_DIR", str(vault / ".rag"))
-    monkeypatch.setenv("ATLAS_AUDIT_PATH", str(vault / ".atlas" / "audit.jsonl"))
+    monkeypatch.setenv("EIDETIC_AUDIT_PATH", str(vault / ".eidetic" / "audit.jsonl"))
     return vault
 
 
 @pytest.fixture()
 def client(dash_env: Path):  # noqa: ANN201 - Flask test client
     """A Flask test client wired to the temp-vault environment."""
-    from atlas_os.dashboard.app import create_app
+    from eidetic_os.dashboard.app import create_app
 
     app = create_app()
     app.config.update(TESTING=True)
@@ -190,7 +190,7 @@ def test_run_search_keyword_mode_offline(dash_env: Path) -> None:
 def test_routes_render(client, dash_env: Path, path: str) -> None:  # noqa: ANN001
     resp = client.get(path)
     assert resp.status_code == 200
-    assert b"Atlas OS" in resp.data
+    assert b"Eidetic OS" in resp.data
 
 
 def test_index_redirects_to_health(client) -> None:  # noqa: ANN001
@@ -220,10 +220,10 @@ def test_unknown_skill_404(client, dash_env: Path) -> None:  # noqa: ANN001
 
 
 def test_install_pack_route_no_target(client, monkeypatch: pytest.MonkeyPatch) -> None:  # noqa: ANN001
-    # With no VAULT_PATH / ATLAS_SKILLS_DIR there's no install target; the route
+    # With no VAULT_PATH / EIDETIC_SKILLS_DIR there's no install target; the route
     # should flash an error and redirect, not crash.
     monkeypatch.delenv("VAULT_PATH", raising=False)
-    monkeypatch.delenv("ATLAS_SKILLS_DIR", raising=False)
+    monkeypatch.delenv("EIDETIC_SKILLS_DIR", raising=False)
     monkeypatch.delenv("RAG_DIR", raising=False)
     resp = client.post("/skills/install-pack/knowledge")
     assert resp.status_code == 302
@@ -238,7 +238,7 @@ def test_install_pack_unknown(client, dash_env: Path) -> None:  # noqa: ANN001
 
 def test_install_pack_succeeds(client, dash_env: Path, monkeypatch: pytest.MonkeyPatch) -> None:  # noqa: ANN001
     skills_dir = dash_env / ".claude" / "skills"
-    monkeypatch.setenv("ATLAS_SKILLS_DIR", str(skills_dir))
+    monkeypatch.setenv("EIDETIC_SKILLS_DIR", str(skills_dir))
     resp = client.post("/skills/install-pack/knowledge", follow_redirects=True)
     assert resp.status_code == 200
     assert b"installed" in resp.data

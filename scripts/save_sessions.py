@@ -14,7 +14,7 @@ Everything is derived **deterministically** from the local transcript — no LLM
 call, no network. The note lives in your own private vault; the script itself
 ships no session content.
 
-A watermark in ``$VAULT_PATH/.atlas/last_session_save.txt`` records the latest
+A watermark in ``$VAULT_PATH/.eidetic/last_session_save.txt`` records the latest
 activity timestamp captured so far, so a plain ``save`` run only processes
 sessions that are new or have changed since last time. Notes are keyed by
 session id and overwritten in place, so re-running is idempotent.
@@ -46,10 +46,10 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from _bootstrap import ensure_atlas_os
+from _bootstrap import ensure_eidetic_os
 
-ensure_atlas_os()
-from atlas_os import scriptkit  # noqa: E402
+ensure_eidetic_os()
+from eidetic_os import scriptkit  # noqa: E402
 
 # Default Cowork session store on macOS. Override with CLAUDE_SESSIONS_DIR.
 _DEFAULT_SESSIONS_DIR = (
@@ -84,8 +84,8 @@ def sessions_out_dir() -> Path:
 
 
 def watermark_path() -> Path:
-    """The ``.atlas/last_session_save.txt`` watermark file under the vault."""
-    return vault_path() / ".atlas" / "last_session_save.txt"
+    """The ``.eidetic/last_session_save.txt`` watermark file under the vault."""
+    return vault_path() / ".eidetic" / "last_session_save.txt"
 
 
 # ── Data model ──────────────────────────────────────────────────────────────────

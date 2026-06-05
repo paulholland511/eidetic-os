@@ -37,12 +37,12 @@ from pathlib import Path
 
 import requests
 
-from _bootstrap import ensure_atlas_os
+from _bootstrap import ensure_eidetic_os
 
-ensure_atlas_os()
-from atlas_os import netio, rag, vectordb  # noqa: E402
-from atlas_os import retry as retrylib  # noqa: E402
-from atlas_os import scriptkit  # noqa: E402
+ensure_eidetic_os()
+from eidetic_os import netio, rag, vectordb  # noqa: E402
+from eidetic_os import retry as retrylib  # noqa: E402
+from eidetic_os import scriptkit  # noqa: E402
 
 try:
     import pdfplumber  # type: ignore[import-untyped]
@@ -64,22 +64,22 @@ API_KEY = os.environ.get("EMBED_API_KEY", "")
 
 
 def _try_import_backends():
-    """Import ``atlas_os.backends``, adding the repo root to sys.path if needed.
+    """Import ``eidetic_os.backends``, adding the repo root to sys.path if needed.
 
     This script runs standalone (``python3 embed_vault.py``), so the package
     isn't necessarily importable. Returns the module, or ``None`` if unavailable.
     """
     try:
-        from atlas_os import backends
+        from eidetic_os import backends
         return backends
     except ImportError:
         pass
     for parent in Path(__file__).resolve().parents:
-        if (parent / "atlas_os" / "__init__.py").exists():
+        if (parent / "eidetic_os" / "__init__.py").exists():
             sys.path.insert(0, str(parent))
             break
     try:
-        from atlas_os import backends
+        from eidetic_os import backends
         return backends
     except ImportError:
         return None
@@ -90,7 +90,7 @@ def _resolve_embeddings() -> tuple[str, str]:
 
     Explicit ``EMBED_*`` env vars always win, so existing setups are unaffected.
     Only when no embeddings endpoint is configured do we ask
-    :mod:`atlas_os.backends` to auto-detect a running backend (LM Studio,
+    :mod:`eidetic_os.backends` to auto-detect a running backend (LM Studio,
     Ollama, llama.cpp, …) — that's the one path that touches the network.
     """
     url = os.environ.get("EMBED_URL")
@@ -198,7 +198,7 @@ def get_doc_type(folder: str) -> str:
 def chunk_text(text: str, filename: str) -> list[dict]:
     """Split text into semantic chunks, each carrying its nearest heading.
 
-    Delegates to :func:`atlas_os.rag.semantic_chunk`, which splits on heading and
+    Delegates to :func:`eidetic_os.rag.semantic_chunk`, which splits on heading and
     paragraph boundaries and packs whole paragraphs up to the token budget
     instead of cutting at a fixed character offset. ``file`` is made relative to
     the vault root.
@@ -254,8 +254,8 @@ def _should_retry_embed(exc: BaseException) -> bool:
 def embed(texts: list[str]) -> list[list[float]]:
     """Call the embeddings endpoint with timeouts + retries. Returns vectors.
 
-    Raises :class:`atlas_os.netio.EndpointUnreachable` (connection failed) or
-    :class:`atlas_os.netio.HTTPStatusError` (persistent bad status) with a clear,
+    Raises :class:`eidetic_os.netio.EndpointUnreachable` (connection failed) or
+    :class:`eidetic_os.netio.HTTPStatusError` (persistent bad status) with a clear,
     host-aware message instead of bubbling a raw ``requests`` traceback.
     """
     headers = {"Content-Type": "application/json"}
@@ -302,7 +302,7 @@ def embed(texts: list[str]) -> list[list[float]]:
 
 # ── Vector store ──────────────────────────────────────────────────────────────
 #
-# Vectors live in a SQLite database (``vectors.db``) via :mod:`atlas_os.vectordb`,
+# Vectors live in a SQLite database (``vectors.db``) via :mod:`eidetic_os.vectordb`,
 # which scales past the old single-file ``vectors.json`` and supports incremental
 # insert/delete. An existing ``vectors.json`` is auto-migrated the first time the
 # DB is opened, so upgrades are transparent. The helpers below keep their old
@@ -557,10 +557,10 @@ def advanced_search(
     """Search with rich metadata pre-filtering, then hybrid retrieval + rerank.
 
     Unlike :func:`search`, this loads the candidate set and narrows it with
-    :func:`atlas_os.rag.filter_chunks` (folder / doc_type / tag / file extension /
+    :func:`eidetic_os.rag.filter_chunks` (folder / doc_type / tag / file extension /
     modified-time window) *before* ranking — filters the vector index can't
     express. Ranking is the same hybrid pipeline: vector + BM25 fused by RRF, then
-    an optional TF-IDF rerank. This backs the ``atlas search`` utility.
+    an optional TF-IDF rerank. This backs the ``eidetic search`` utility.
     """
     store = open_store()
     try:

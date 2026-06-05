@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% import "_icons.html" as icons %}
+{% block title %}Scheduled tasks{% endblock %}
+{% block heading %}Scheduled tasks{% endblock %}
+{% block subhead %}
+  <p class="lede">Schedulable automations and their last recorded run (matched from the audit trail).</p>
+{% endblock %}
+{% block head_aside %}
+  {% set installed = tasks | selectattr('installed') | list | length %}
+  <div class="head-counts">
+    <span class="count-pill">{{ icons.icon("scheduled", 14) }} {{ tasks | length }} tasks</span>
+    <span class="count-pill count-pill-ok">{{ icons.icon("check-circle", 14) }} {{ installed }} installed</span>
+  </div>
+{% endblock %}
+
+{% block content %}
+  {% if tasks %}
+    <ul class="task-list">
+      {% for t in tasks %}
+        <li class="task-row">
+          <span class="task-ico">{{ icons.icon("scheduled", 18) }}</span>
+          <div class="task-main">
+            <a class="task-name" href="{{ url_for('skill_detail', slug=t.slug) }}">{{ t.name }}</a>
+            <span class="task-slug mono dim">{{ t.slug }}</span>
+          </div>
+          <span class="task-cadence"><span class="tag-chip">{{ icons.icon("clock", 11) }} {{ t.cadence }}</span></span>
+          <span class="task-install">
+            {% if t.installed %}
+              <span class="badge badge-ok">{{ icons.icon("check", 12) }} installed</span>
+            {% else %}
+              <span class="badge badge-muted">not installed</span>
+            {% endif %}
+          </span>
+          <span class="task-last">
+            {% if t.last_run %}
+              <span class="badge badge-{{ t.last_run.state }}">{{ icons.status_icon(t.last_run.state, 12) }} {{ t.last_run.status }}</span>
+              <span class="mono dim">{{ t.last_run.timestamp }}</span>
+            {% else %}
+              <span class="dim">no recorded run</span>
+            {% endif %}
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+    <p class="note">
+      {{ icons.icon("info", 13) }} Install a task with <code>eidetic skills install &lt;slug&gt;</code>, then register it on
+      its cadence — see <code>docs/SCHEDULED-TASKS.md</code>.
+    </p>
+  {% else %}
+    <div class="empty">
+      {{ icons.icon("scheduled", 32) }}
+      <p>No schedulable skills found in this install.</p>
+    </div>
+  {% endif %}
+{% endblock %}

@@ -1,10 +1,10 @@
-"""Tests for atlas_os.rag — semantic chunking, BM25, fusion, rerank, filtering."""
+"""Tests for eidetic_os.rag — semantic chunking, BM25, fusion, rerank, filtering."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from atlas_os import rag
+from eidetic_os import rag
 
 
 class TestSemanticChunk:

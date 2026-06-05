@@ -1,4 +1,4 @@
-"""Tests for atlas_os.fileio — atomic writes and graceful reads."""
+"""Tests for eidetic_os.fileio — atomic writes and graceful reads."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from atlas_os import fileio
+from eidetic_os import fileio
 
 
 class TestAtomicWrites:

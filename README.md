@@ -1,23 +1,29 @@
 ```
-       _   _   _              ___  ____
-      / \ | |_| | __ _ ___   / _ \/ ___|
-     / _ \| __| |/ _` / __| | | | \___ \
-    / ___ \ |_| | (_| \__ \ | |_| |___) |
-   /_/   \_\__|_|\__,_|___/  \___/|____/
+    _____ _     _      _   _         ___  ____
+   | ____(_) __| | ___| |_(_) ___   / _ \/ ___|
+   |  _| | |/ _` |/ _ \ __| |/ __| | | | \___ \
+   | |___| | (_| |  __/ |_| | (__  | |_| |___) |
+   |_____|_|\__,_|\___|\__|_|\___|  \___/|____/
 
    Turn your Obsidian vault into a searchable AI knowledge base.
    Local LLMs · hybrid RAG search · web dashboard · 160+ skills.
    A personal AI operating system that remembers everything · works while you sleep.
 ```
 
-# Atlas OS
+# Eidetic OS
 
 > **Turn your Obsidian vault into a searchable AI knowledge base** — with local
-> LLMs, hybrid RAG search, a web dashboard, and 160+ skills. Atlas OS is a
+> LLMs, hybrid RAG search, a web dashboard, and 160+ skills. Eidetic OS is a
 > personal AI operating system that remembers everything and works while you
 > sleep.
 
+*<a href="https://www.merriam-webster.com/dictionary/eidetic">**Eidetic**</a>
+(adj.) — relating to **total, photographic recall**. The name is the promise:
+your AI never forgets. (Formerly **Atlas OS** — [why we
+renamed](#why-the-name-atlas-os--eidetic-os).)*
+
 [![CI](https://img.shields.io/github/actions/workflow/status/paulholland511/atlas-os/ci.yml?branch=main&label=CI)](https://github.com/paulholland511/atlas-os/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/eidetic-os?label=PyPI&color=blue)](https://pypi.org/project/eidetic-os/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![GitHub stars](https://img.shields.io/github/stars/paulholland511/atlas-os?style=flat)](https://github.com/paulholland511/atlas-os/stargazers)
@@ -26,34 +32,34 @@
 [![No telemetry](https://img.shields.io/badge/telemetry-none-brightgreen.svg)](SECURITY.md)
 [![Docs](https://img.shields.io/badge/docs-complete-informational.svg)](docs/README.md)
 
-![Atlas OS demo](demo.gif)
+![Eidetic OS demo](demo.gif)
 
 ### ✅ Already built and shipping
 
 Everything below is **in the box today** — not roadmap, not "coming soon":
 
 - 🔍 **Hybrid RAG search** — BM25 keyword + vector semantic search over your whole vault, fused into one ranked result set
-- 📓 **Obsidian vault integration** — point Atlas at your markdown vault and it becomes a searchable, AI-aware second brain
+- 📓 **Obsidian vault integration** — point Eidetic at your markdown vault and it becomes a searchable, AI-aware second brain
 - 💾 **Session capture** — every Cowork conversation saved to your vault twice daily
 - 🔌 **Local LLM backends** — auto-detects Ollama, LM Studio, llama.cpp, or any OpenAI-compatible endpoint; nothing leaves your machine
-- 📊 **Web dashboard** (`atlas dashboard`) — seven live panels: health, audit, tasks, skills, knowledge graph, vectors, RAG search
-- 🕸️ **Visual knowledge graph** — interactive D3 view of how your notes connect (`atlas graph --open`)
-- 🧙 **Interactive setup wizard** (`atlas init`) — zero to running in 5 minutes
+- 📊 **Web dashboard** (`eidetic dashboard`) — seven live panels: health, audit, tasks, skills, knowledge graph, vectors, RAG search
+- 🕸️ **Visual knowledge graph** — interactive D3 view of how your notes connect (`eidetic graph --open`)
+- 🧙 **Interactive setup wizard** (`eidetic init`) — zero to running in 5 minutes
 - 📋 **Audit trail** — append-only JSONL logging every autonomous action (ISO 27001 aligned)
 - 🐳 **Docker support** — `Dockerfile` + `docker-compose.yml` included
-- 🩺 **Smart diagnostics** — `atlas doctor --fix` detects and repairs issues automatically
+- 🩺 **Smart diagnostics** — `eidetic doctor --fix` detects and repairs issues automatically
 - ✅ **640+ automated tests** with CI/CD on every push
-- 📚 **160+ skills catalogue** with one-command `atlas skills install-pack`
-- 🛒 **Skills marketplace** — search, publish, and install community skills (`atlas skills search` / `publish` / `registry`)
-- 🧩 **Extension architecture** — a lean core plus opt-in domain extensions (`pip install 'atlas-os[trading]'`), discovered via setuptools entry points
-- 🔗 **MCP-native skills** — every skill is a Model Context Protocol server, usable from Claude Code, Cowork, and any MCP host (`atlas mcp serve`)
-- 🛡️ **Skill security gate** — AST scan (BLOCK / WARN / INFO) plus a sandboxed runtime before community skills run (`atlas security scan`)
-- 🔒 **Hardened git sync** — favour-local merges that never clobber your edits, frontmatter validation, and file locking (`atlas sync`, `atlas validate`)
-- 🗄️ **Pluggable vector storage** — `sqlite-vec` by default, swap in LanceDB or ChromaDB via `VECTOR_BACKEND` (`atlas migrate-vectors --to`)
+- 📚 **160+ skills catalogue** with one-command `eidetic skills install-pack`
+- 🛒 **Skills marketplace** — search, publish, and install community skills (`eidetic skills search` / `publish` / `registry`)
+- 🧩 **Extension architecture** — a lean core plus opt-in domain extensions (`pip install 'eidetic-os[trading]'`), discovered via setuptools entry points
+- 🔗 **MCP-native skills** — every skill is a Model Context Protocol server, usable from Claude Code, Cowork, and any MCP host (`eidetic mcp serve`)
+- 🛡️ **Skill security gate** — AST scan (BLOCK / WARN / INFO) plus a sandboxed runtime before community skills run (`eidetic security scan`)
+- 🔒 **Hardened git sync** — favour-local merges that never clobber your edits, frontmatter validation, and file locking (`eidetic sync`, `eidetic validate`)
+- 🗄️ **Pluggable vector storage** — `sqlite-vec` by default, swap in LanceDB or ChromaDB via `VECTOR_BACKEND` (`eidetic migrate-vectors --to`)
 
 ---
 
-**Atlas OS** turns [Claude Cowork](https://claude.ai/) into a personal,
+**Eidetic OS** turns [Claude Cowork](https://claude.ai/) into a personal,
 local-first operating system over a markdown knowledge vault. It gives you a
 searchable second brain, scheduled autonomous agents, automatic git history, and
 a set of report/research workflows — all configured through environment
@@ -79,13 +85,15 @@ account.
 
 - [Quick start](#quick-start)
 - [Tutorial](#tutorial)
-- [Why Atlas OS](#why-atlas-os)
+- [Why Eidetic OS](#why-eidetic-os)
+- [Why the name? (Atlas OS → Eidetic OS)](#why-the-name-atlas-os--eidetic-os)
+- [How Eidetic OS compares](#how-eidetic-os-compares)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Dependencies](#dependencies)
 - [First run (walkthrough)](#first-run-walkthrough)
-- [The `atlas` CLI](#the-atlas-cli)
+- [The `eidetic` CLI](#the-eidetic-cli)
 - [Configuration](#configuration)
 - [Architecture](#architecture)
 - [The knowledge vault](#the-knowledge-vault)
@@ -115,9 +123,9 @@ scaffold a vault, and run your first task:
 
 👉 **[docs/QUICKSTART.md](docs/QUICKSTART.md)**
 
-**Install** — clone, create a venv, install the `atlas` CLI:
+**Install** — clone, create a venv, install the `eidetic` CLI:
 
-![Installing Atlas OS](install.gif)
+![Installing Eidetic OS](install.gif)
 
 ```bash
 git clone https://github.com/paulholland511/atlas-os.git && cd atlas-os
@@ -127,12 +135,12 @@ pip install -r requirements.txt && pip install -e .
 
 **Set up** — configure and scaffold your vault with the interactive wizard:
 
-![Setting up Atlas OS](setup.gif)
+![Setting up Eidetic OS](setup.gif)
 
 ```bash
 cp .env.example .env          # set VAULT_PATH, USER_EMAIL, SMTP_APP_PASSWORD
-atlas init --yes              # scaffold + git-init your vault
-atlas doctor                  # verify
+eidetic init --yes              # scaffold + git-init your vault
+eidetic doctor                  # verify
 ```
 
 For step-by-step integration walkthroughs (Gmail SMTP, LM Studio, first
@@ -143,8 +151,8 @@ scheduled task, first RAG embed) see **[docs/EXAMPLES.md](docs/EXAMPLES.md)**.
 ## Tutorial
 
 Want the full guided walkthrough instead of the 5-minute sprint? **[Your first 24
-hours with Atlas OS](docs/TUTORIAL.md)** takes a brand-new user from
-`pip install atlas-os` to an autonomous system — install & init, your first
+hours with Eidetic OS](docs/TUTORIAL.md)** takes a brand-new user from
+`pip install eidetic-os` to an autonomous system — install & init, your first
 vault and commit, building the RAG vector store and knowledge graph, scheduling
 your first nightly task, wiring up email reports, and reading the audit trail the
 next morning. No prior knowledge of Obsidian, RAG, or embeddings assumed.
@@ -153,25 +161,25 @@ next morning. No prior knowledge of Obsidian, RAG, or embeddings assumed.
 
 ---
 
-## Why Atlas OS
+## Why Eidetic OS
 
 Out of the box, Claude is a brilliant but **stateless** assistant: it forgets
 everything between sessions, can't act while you're away, and knows nothing about
-the work you did last week. Atlas OS is the configuration layer that fixes that —
+the work you did last week. Eidetic OS is the configuration layer that fixes that —
 it turns Claude Cowork into a **persistent, autonomous, knowledge-aware operating
 system** that runs on your own machine.
 
 You don't get another chatbot. You get an assistant that *remembers, retrieves,
 and acts on its own*.
 
-### Stock Claude forgets. Atlas OS remembers everything.
+### Stock Claude forgets. Eidetic OS remembers everything.
 
-The single biggest difference Atlas OS makes is **knowledge persistence**:
+The single biggest difference Eidetic OS makes is **knowledge persistence**:
 
 - **Stock Claude forgets everything between sessions.** Close the tab and the
   context is gone — last week's research, yesterday's planning discussion, the
   reasoning behind a decision.
-- **Atlas OS captures every conversation automatically.** Twice a day (by
+- **Eidetic OS captures every conversation automatically.** Twice a day (by
   default), every Cowork session is folded back into your vault as a searchable
   note — the summary, the key actions taken, and the files touched.
 - **Your vault becomes a searchable, RAG-indexed knowledge base of everything
@@ -189,9 +197,9 @@ The single biggest difference Atlas OS makes is **knowledge persistence**:
 The result: nothing you do with Claude is ever lost. Your vault is the
 institutional memory of your AI-assisted work.
 
-### What Atlas OS actually sets up
+### What Eidetic OS actually sets up
 
-A single `atlas init` wires Claude into a coherent system:
+A single `eidetic init` wires Claude into a coherent system:
 
 - **Automatic session capture** — every conversation you have in Cowork is
   saved back into your vault as a searchable note (twice daily by default), so
@@ -213,7 +221,7 @@ A single `atlas init` wires Claude into a coherent system:
   dependency-light multi-agent research framework, so agents can discover and
   invoke every automation you've configured. A
   [**catalogue of 160+ skills**](docs/SKILLS-CATALOGUE.md) (149 capability skills
-  across 7 domains, plus the Atlas-native and scheduled automations) documents
+  across 7 domains, plus the Eidetic-native and scheduled automations) documents
   the full menu, and the [**skills framework**](docs/SKILLS-FRAMEWORK.md) shows
   how to author your own.
 - **Local LLM integration** — embeddings and inference run against your own
@@ -243,12 +251,65 @@ A single `atlas init` wires Claude into a coherent system:
   a set of small inspectable Python scripts, and history is plain git. Everything
   is diffable, portable, auditable, and yours.
 - **A full audit trail of what Claude did** — every autonomous action appends to
-  an append-only log (`atlas audit show`), so you can answer "what ran overnight,
+  an append-only log (`eidetic audit show`), so you can answer "what ran overnight,
   why, and what did it change?" and export the record for compliance.
 
 The unit of work is a *skill* — a Claude Cowork prompt that runs on a schedule
 and orchestrates the Python tooling below. That's the difference between *chatting
 with your notes* and *running an operating system over them*.
+
+---
+
+## Why the name? (Atlas OS → Eidetic OS)
+
+This project shipped its first three major versions as **Atlas OS**. As of
+**v4.0** it is **Eidetic OS**. Two reasons drove the change:
+
+1. **Namespace collisions.** "Atlas OS" was already heavily overloaded — most
+   visibly by [AtlasOS](https://atlasos.net/), the Windows debloater (**20.8K+
+   GitHub stars**), and by Fluidstack's bare-metal "Atlas OS". Sharing a name
+   with a Windows tweaking tool buried us in search results and created constant
+   confusion about what this project actually is.
+2. **The name should say what it does.** *Eidetic* means **perfect, photographic
+   memory recall** — which is the entire point. Stock Claude forgets between
+   sessions; Eidetic OS captures every conversation, embeds it, and makes it
+   retrievable forever. The name now *is* the value proposition: **your AI never
+   forgets.**
+
+Nothing about the architecture changed in the rename — only the brand. The Python
+package is now `eidetic-os`, the CLI command is `eidetic`, and imports are
+`eidetic_os.*`. (The GitHub repository URL stays `paulholland511/atlas-os` until
+the repo is renamed separately.) Upgrading from a 3.x checkout? See
+[`docs/MIGRATION.md`](docs/MIGRATION.md).
+
+---
+
+## How Eidetic OS compares
+
+Eidetic OS sits at the intersection of a **memory layer** (Letta, Mem0) and a
+**personal-knowledge AI** (Khoj) — but it is the only one whose source of truth
+is a **plain, git-versioned Obsidian vault you fully own**, and the only one that
+runs **autonomous scheduled agents** over that vault out of the box.
+
+| | **Eidetic OS** | **Letta** (MemGPT) | **Mem0** | **Khoj** | **gAIOS** |
+|---|:---:|:---:|:---:|:---:|:---:|
+| **Primary focus** | Personal AI **OS** over your notes | Stateful **agent** framework | **Memory layer** for apps | AI **second brain** / search | General AI assistant OS |
+| **Source of truth** | **Markdown vault (yours)** | Server DB | Vector + graph DB | Index over docs | App DB |
+| **Runs fully local** | ✅ default | ✅ self-host | ⚠️ cloud-first | ✅ self-host | ⚠️ varies |
+| **Obsidian / markdown native** | ✅ first-class | ❌ | ❌ | ✅ (plugin) | ❌ |
+| **Hybrid RAG** (BM25 + vector + rerank) | ✅ | ⚠️ vector | ✅ | ✅ vector | ⚠️ |
+| **`[[wikilink]]` knowledge graph** | ✅ + D3 viewer | ❌ | ✅ graph memory | ❌ | ❌ |
+| **Autonomous scheduled agents** | ✅ 17+ pipelines | ❌ (you build) | ❌ | ⚠️ automations | ⚠️ |
+| **MCP-native skills** | ✅ every skill is an MCP server | ⚠️ tools | ⚠️ | ⚠️ | ❌ |
+| **Git-versioned & portable** | ✅ plain files + git | ❌ | ❌ | ❌ | ❌ |
+| **Append-only audit trail** | ✅ JSONL, exportable | ❌ | ❌ | ❌ | ❌ |
+| **Pluggable local LLM backends** | ✅ LM Studio / Ollama / llama.cpp | ✅ | ✅ | ✅ | ⚠️ |
+| **No telemetry** | ✅ never | ⚠️ | ⚠️ cloud | ✅ self-host | ⚠️ |
+| **License** | MIT | Apache-2.0 | Apache-2.0 | AGPL-3.0 | — |
+
+*Comparison reflects each project's typical/default posture as of mid-2026;
+all are excellent in their own lane. ✅ first-class · ⚠️ partial/conditional ·
+❌ not a focus. Corrections welcome via PR.*
 
 ---
 
@@ -267,15 +328,15 @@ Twelve composable systems, each usable on its own:
 3. **Local RAG search** — semantic-chunk + embed your notes via a local LLM into
    a SQLite vector store (`.rag/vectors.db`, `sqlite-vec`-accelerated with a
    pure-Python fallback). **Hybrid** retrieval fuses BM25 + vector ranking and
-   reranks the result; query it with `atlas search`. See
+   reranks the result; query it with `eidetic search`. See
    [RAG search](#rag-search--knowledge-graph).
 4. **Pluggable LLM backends** — bring whatever OpenAI-compatible server you run.
-   Atlas OS auto-detects LM Studio, Ollama, llama.cpp, or any custom endpoint
-   (probed in that order), with `ATLAS_LLM_BACKEND` to force one. Inspect with
-   `atlas backends` / `atlas backends test`.
+   Eidetic OS auto-detects LM Studio, Ollama, llama.cpp, or any custom endpoint
+   (probed in that order), with `EIDETIC_LLM_BACKEND` to force one. Inspect with
+   `eidetic backends` / `eidetic backends test`.
 5. **Knowledge graph** — a wikilink (`[[note]]`) graph with nodes, edges,
    adjacency, and backlinks for "related notes", plus an interactive **D3
-   force-directed viewer** (`atlas graph --open`, or the dashboard's `/graph`
+   force-directed viewer** (`eidetic graph --open`, or the dashboard's `/graph`
    page) — zoom, pan, search, filter by note type, and click through links and
    backlinks.
 6. **Git automation** — auto-commit the vault with messages categorised by which
@@ -283,7 +344,7 @@ Twelve composable systems, each usable on its own:
 7. **Scheduled tasks, skills catalog & marketplace** — nightly indexing, daily
    reports, weekly health checks and more, as Claude Cowork skills — plus a
    self-updating `Skills Catalog.md` in the vault so agents can discover every
-   automation they can invoke, and a **skills marketplace** (`atlas skills
+   automation they can invoke, and a **skills marketplace** (`eidetic skills
    search` / `publish` / `registry`) for sharing and installing community skills
    from JSON registries with dependency resolution.
 8. **Email reports** — a credential-free SMTP sender for status reports and
@@ -291,7 +352,7 @@ Twelve composable systems, each usable on its own:
 9. **Trading research SDK** *(optional)* — a dependency-light multi-agent
    market-research framework that writes briefings into your vault.
    *Not financial advice.*
-10. **Web dashboard** *(optional)* — a local-first Flask web UI (`atlas
+10. **Web dashboard** *(optional)* — a local-first Flask web UI (`eidetic
    dashboard`) with seven live panels (system health, audit trail, scheduled
    tasks, skills, knowledge graph, vector-store stats, RAG search), reading from
    the same modules the CLI uses. Plus a static, single-file ops dashboard for
@@ -300,7 +361,7 @@ Twelve composable systems, each usable on its own:
    service.
 12. **Audit trail / logging** — append-only JSONL logging of every autonomous
    action (what ran, how it was triggered, the outcome, duration, and what
-   changed), with `atlas audit show / tail / export` for inspection and CSV
+   changed), with `eidetic audit show / tail / export` for inspection and CSV
    compliance reports. ISO 27001 aligned (A.12.4).
 
 > **How does each one work?** Every feature has a deep-dive doc (internals, data
@@ -318,7 +379,7 @@ Twelve composable systems, each usable on its own:
 | **Python 3.11+** (3.13 recommended) | everything | the CLI and scripts |
 | **Git** | vault history, changelog | your vault becomes its own git repo |
 | A **markdown vault** | everything | any folder of `.md` files; Obsidian optional |
-| **[uv](https://docs.astral.sh/uv/)** or **[pipx](https://pipx.pypa.io/)** | easy install | recommended way to install the `atlas` command |
+| **[uv](https://docs.astral.sh/uv/)** or **[pipx](https://pipx.pypa.io/)** | easy install | recommended way to install the `eidetic` command |
 | **Claude Cowork** subscription | skills, scheduled tasks, memory | the Python tooling runs standalone without it |
 | A **local LLM** (OpenAI-compatible) | RAG search, trading module | [LM Studio](https://lmstudio.ai/), [Ollama](https://ollama.com/), llama.cpp, … |
 | **Node.js** | the *full* dashboard only | the bundled static dashboard needs nothing |
@@ -329,31 +390,31 @@ Twelve composable systems, each usable on its own:
 
 **Getting a local LLM (example, LM Studio):** install it, download an embeddings
 model (e.g. `nomic-embed-text`) and a chat model, then start its local server
-(default `http://localhost:1234`). `atlas init` auto-detects it. For Ollama:
+(default `http://localhost:1234`). `eidetic init` auto-detects it. For Ollama:
 `ollama serve` then `ollama pull nomic-embed-text`.
 
-Atlas OS works with **any** OpenAI-compatible server. It auto-detects LM Studio,
+Eidetic OS works with **any** OpenAI-compatible server. It auto-detects LM Studio,
 Ollama, llama.cpp, or a custom endpoint (probed in that order) — run
-`atlas backends` to see what's reachable and `atlas backends test` to confirm
-inference. Force a specific one with `ATLAS_LLM_BACKEND=ollama`.
+`eidetic backends` to see what's reachable and `eidetic backends test` to confirm
+inference. Force a specific one with `EIDETIC_LLM_BACKEND=ollama`.
 
 ---
 
 ## Installation
 
-### Recommended — install the `atlas` command
+### Recommended — install the `eidetic` command
 
-[Atlas OS is on PyPI](https://pypi.org/project/atlas-os/) — install it directly:
+[Eidetic OS is on PyPI](https://pypi.org/project/eidetic-os/) — install it directly:
 
 ```bash
 # uv (fast, isolated):
-uv tool install atlas-os
+uv tool install eidetic-os
 
 # …or pipx:
-pipx install atlas-os
+pipx install eidetic-os
 
 # …or pip:
-pip install atlas-os
+pip install eidetic-os
 ```
 
 > **Automated releases.** Each `v*` tag builds, tests, and publishes to PyPI via
@@ -366,7 +427,7 @@ pip install atlas-os
 `pdfplumber`, the web dashboard needs `flask`):
 
 ```bash
-uv tool install "atlas-os[dashboard,trading,pdf]"
+uv tool install "eidetic-os[dashboard,trading,pdf]"
 # extras: [dashboard]  [trading]  [pdf]  [vector]  [all]
 ```
 
@@ -376,12 +437,12 @@ uv tool install "atlas-os[dashboard,trading,pdf]"
 git clone https://github.com/paulholland511/atlas-os.git ~/code/atlas-os
 cd ~/code/atlas-os
 python3 -m venv .venv && source .venv/bin/activate
-pip install -e .                 # installs the `atlas` CLI + core deps
+pip install -e .                 # installs the `eidetic` CLI + core deps
 pip install -e ".[trading,pdf]"  # optional extras
 ```
 
-> On Python 3.14 the editable console script can be flaky; if `atlas` doesn't
-> resolve, use `python -m atlas_os <command>`, which always works from a
+> On Python 3.14 the editable console script can be flaky; if `eidetic` doesn't
+> resolve, use `python -m eidetic_os <command>`, which always works from a
 > checkout. (On macOS this happens when the checkout lives in an iCloud-synced
 > folder: iCloud sets the `hidden` flag on the editable `.pth`, and Python 3.13+
 > skips hidden `.pth` files. Fix it with
@@ -403,8 +464,8 @@ python3 scripts/health_check.py
 ### Or run in Docker (no host Python)
 
 ```bash
-docker build -t atlas-os .      # add --build-arg EXTRAS=".[all]" for trading/pdf
-VAULT_PATH=~/Documents/Obsidian/MyVault docker compose run --rm atlas doctor
+docker build -t eidetic-os .      # add --build-arg EXTRAS=".[all]" for trading/pdf
+VAULT_PATH=~/Documents/Obsidian/MyVault docker compose run --rm eidetic doctor
 ```
 
 Full details in the [Docker section](#docker-optional) below.
@@ -412,15 +473,15 @@ Full details in the [Docker section](#docker-optional) below.
 ### Updating / uninstalling
 
 ```bash
-uv tool upgrade atlas-os        # or: pipx upgrade atlas-os
-uv tool uninstall atlas-os      # or: pipx uninstall atlas-os
+uv tool upgrade eidetic-os        # or: pipx upgrade eidetic-os
+uv tool uninstall eidetic-os      # or: pipx uninstall eidetic-os
 ```
 
 ---
 
 ## Dependencies
 
-Atlas OS is deliberately dependency-light. The full, pinned list lives in
+Eidetic OS is deliberately dependency-light. The full, pinned list lives in
 [`requirements.txt`](requirements.txt):
 
 ```bash
@@ -433,27 +494,27 @@ pip install ".[trading,pdf]"
 |---|---|---|
 | `requests` | `2.34.2` | HTTP — embeddings, chat, SMTP probes, trading APIs (**core**) |
 | `pyyaml` | `6.0.3` | frontmatter parsing / schema enforcement (**core**) |
-| `typer` | `0.26.6` | the `atlas` CLI (**core**) |
+| `typer` | `0.26.6` | the `eidetic` CLI (**core**) |
 | `python-dotenv` | `1.2.2` | auto-loading `.env` (**core**) |
 | `yfinance` | `1.4.1` | market data — trading SDK *(optional `[trading]`)* |
 | `pdfplumber` | `0.11.9` | PDF text extraction for RAG *(optional `[pdf]`)* |
 | `anthropic` | `0.105.2` | the opt-in cloud trading step only *(optional)* |
 
 Everything else (numpy, pandas, certifi, …) is a transitive dependency resolved
-automatically — Atlas OS imports none of it directly.
+automatically — Eidetic OS imports none of it directly.
 
 ---
 
 ## First run (walkthrough)
 
 ```bash
-atlas init       # guided onboarding (interactive)
-atlas doctor     # validate the setup
-atlas embed --full   # build the RAG index (needs a local LLM)
-atlas health     # full subsystem report
+eidetic init       # guided onboarding (interactive)
+eidetic doctor     # validate the setup
+eidetic embed --full   # build the RAG index (needs a local LLM)
+eidetic health     # full subsystem report
 ```
 
-**`atlas init`** will:
+**`eidetic init`** will:
 
 1. ask for your **vault path** (default `~/Documents/Obsidian/MyVault`);
 2. **probe for a local LLM** on the common ports (LM Studio `1234`, generic
@@ -471,19 +532,19 @@ atlas health     # full subsystem report
 Flags: `--vault PATH` (skip the prompt), `--yes` (non-interactive, accept
 defaults), `--force` (overwrite an existing `.env`).
 
-**`atlas doctor`** reports OK / WARN / FAIL for Python, the vault (exists + git),
+**`eidetic doctor`** reports OK / WARN / FAIL for Python, the vault (exists + git),
 the RAG index, the embeddings endpoint, and SMTP — and exits non-zero if
-anything is FAIL. Run **`atlas doctor --fix`** and it repairs what it safely can
+anything is FAIL. Run **`eidetic doctor --fix`** and it repairs what it safely can
 (clearing stale locks, initialising the vault's git repo, re-running the setup
 wizard for missing config) instead of just reporting. Example:
 
 ```
-Atlas OS — doctor
+Eidetic OS — doctor
 
   ✓ Python         3.13 (need ≥ 3.11)
   ✓ Vault path     /Users/you/Documents/Obsidian/MyVault
   ✓ Vault git      tracked
-  ! RAG index      no vectors yet — run `atlas embed --full`
+  ! RAG index      no vectors yet — run `eidetic embed --full`
   ! Embeddings     unreachable at http://localhost:5555/v1/models (RAG disabled until it's up)
   ! Email (SMTP)   not configured (reports won't send)
 
@@ -494,7 +555,7 @@ Full walkthrough: [`docs/SETUP.md`](docs/SETUP.md).
 
 ---
 
-## The `atlas` CLI
+## The `eidetic` CLI
 
 One command wraps the whole system. Configuration is read from the environment;
 a `.env` in the current directory or repo root is **auto-loaded** — no manual
@@ -503,51 +564,51 @@ underlying script.
 
 | Command | What it does | Key flags |
 |---|---|---|
-| `atlas init` | Interactive setup wizard — detect LLM, write `.env`, scaffold vault, generate the skills catalog | `--vault`, `--yes`, `--force` |
-| `atlas doctor` | Smart diagnostics — validate the setup (OK / WARN / FAIL per subsystem) and optionally repair issues | `--fix` |
-| `atlas skills` | List the agent skills catalog | `--sync`, `--output` |
-| `atlas skills list` | List every available skill (slug + cadence) | — |
-| `atlas skills show` | Print a skill's `SKILL.md` | — |
-| `atlas skills install` | Install a skill into the scheduled-tasks dir, filling placeholders | `--force` |
-| `atlas embed` | Build/refresh the RAG index | `--full`, `--incremental`, `--test N`, `--folder NAME`, `--pdfs-only`, `--checkpoint-interval N`, `--batch-size N` |
-| `atlas graph` | Rebuild the wikilink knowledge graph, or `--open` the interactive D3 viewer | `--open`, `--host`, `--port`, `--no-build`, `--json` |
-| `atlas commit` | Auto-commit the vault with a categorised message | `--dry-run`, `--json` |
-| `atlas changelog` | Summarise vault changes over a window | `--since`, `--markdown`, `--json` |
-| `atlas health` | Full subsystem health probe | `--json`, `--quiet` |
-| `atlas trading` | Generate a trading research briefing *(optional)* | `--ticker`, `--date`, `--dry-run` |
-| `atlas email` | Send an email via SMTP | `--to`, `--subject`, `--body`, `--text`, `--attach`, `--json` |
-| `atlas schemas` | Enforce per-folder frontmatter schemas | `--dry-run`, `--folder`, `--verbose` |
-| `atlas session save` | Save Cowork chat transcripts to the vault as session logs | `--since`, `--all`, `--sessions-dir`, `--json` |
-| `atlas session list` | List recent Cowork sessions with dates and titles | `--limit`, `--sessions-dir`, `--json` |
-| `atlas audit show` | Show recent audit-trail entries | `--limit`, `--action`, `--since` |
-| `atlas audit tail` | Last 5 audit entries, compact | — |
-| `atlas audit export` | Export the audit log for compliance | `--format csv\|json`, `--output`, `--action`, `--since` |
+| `eidetic init` | Interactive setup wizard — detect LLM, write `.env`, scaffold vault, generate the skills catalog | `--vault`, `--yes`, `--force` |
+| `eidetic doctor` | Smart diagnostics — validate the setup (OK / WARN / FAIL per subsystem) and optionally repair issues | `--fix` |
+| `eidetic skills` | List the agent skills catalog | `--sync`, `--output` |
+| `eidetic skills list` | List every available skill (slug + cadence) | — |
+| `eidetic skills show` | Print a skill's `SKILL.md` | — |
+| `eidetic skills install` | Install a skill into the scheduled-tasks dir, filling placeholders | `--force` |
+| `eidetic embed` | Build/refresh the RAG index | `--full`, `--incremental`, `--test N`, `--folder NAME`, `--pdfs-only`, `--checkpoint-interval N`, `--batch-size N` |
+| `eidetic graph` | Rebuild the wikilink knowledge graph, or `--open` the interactive D3 viewer | `--open`, `--host`, `--port`, `--no-build`, `--json` |
+| `eidetic commit` | Auto-commit the vault with a categorised message | `--dry-run`, `--json` |
+| `eidetic changelog` | Summarise vault changes over a window | `--since`, `--markdown`, `--json` |
+| `eidetic health` | Full subsystem health probe | `--json`, `--quiet` |
+| `eidetic trading` | Generate a trading research briefing *(optional)* | `--ticker`, `--date`, `--dry-run` |
+| `eidetic email` | Send an email via SMTP | `--to`, `--subject`, `--body`, `--text`, `--attach`, `--json` |
+| `eidetic schemas` | Enforce per-folder frontmatter schemas | `--dry-run`, `--folder`, `--verbose` |
+| `eidetic session save` | Save Cowork chat transcripts to the vault as session logs | `--since`, `--all`, `--sessions-dir`, `--json` |
+| `eidetic session list` | List recent Cowork sessions with dates and titles | `--limit`, `--sessions-dir`, `--json` |
+| `eidetic audit show` | Show recent audit-trail entries | `--limit`, `--action`, `--since` |
+| `eidetic audit tail` | Last 5 audit entries, compact | — |
+| `eidetic audit export` | Export the audit log for compliance | `--format csv\|json`, `--output`, `--action`, `--since` |
 
 ```bash
 # examples
-atlas embed --incremental                 # embed only changed notes
-atlas embed --test 5                       # smoke-test the endpoint on 5 files
-atlas changelog --since "7 days ago" --markdown
-atlas commit --dry-run
-atlas skills list                          # every installable skill
-atlas skills install atlas-daily-report-email   # deploy one, filling placeholders
-atlas skills --sync                        # regenerate Skills Catalog.md
-atlas email -s "Hi" -b "<p>Hello</p>" --to me@example.com
-atlas email --json '{"to":"me@example.com","subject":"Hi","body_html":"<p>Hi</p>"}'
-atlas audit show --action commit --since 7d
-atlas audit export --format csv -o audit-report.csv
+eidetic embed --incremental                 # embed only changed notes
+eidetic embed --test 5                       # smoke-test the endpoint on 5 files
+eidetic changelog --since "7 days ago" --markdown
+eidetic commit --dry-run
+eidetic skills list                          # every installable skill
+eidetic skills install atlas-daily-report-email   # deploy one, filling placeholders
+eidetic skills --sync                        # regenerate Skills Catalog.md
+eidetic email -s "Hi" -b "<p>Hello</p>" --to me@example.com
+eidetic email --json '{"to":"me@example.com","subject":"Hi","body_html":"<p>Hi</p>"}'
+eidetic audit show --action commit --since 7d
+eidetic audit export --format csv -o audit-report.csv
 ```
 
 Every command auto-loads `.env` and **validates its required env vars up front**,
 exiting with a clear message (and a non-zero code) if something is missing — so a
 half-configured optional feature fails fast instead of part-way through.
 
-Run `atlas --help` or `atlas <command> --help` for details. Complete per-command
+Run `eidetic --help` or `eidetic <command> --help` for details. Complete per-command
 reference — flags, env vars consumed, exit codes, and the v1.0 stability
 contract: [`docs/CLI-REFERENCE.md`](docs/CLI-REFERENCE.md). The underlying scripts
 are documented in [`docs/SCRIPTS.md`](docs/SCRIPTS.md).
 
-> `atlas init`, `atlas doctor`, `atlas skills`, and `atlas audit` are CLI-only.
+> `eidetic init`, `eidetic doctor`, `eidetic skills`, and `eidetic audit` are CLI-only.
 > The rest map 1:1 to scripts in `scripts/` (and `schemas/`), so you can also run
 > them directly, e.g. `python3 scripts/embed_vault.py --full`. Every script
 > command also appends an entry to the [audit trail](#audit-trail).
@@ -558,7 +619,7 @@ are documented in [`docs/SCRIPTS.md`](docs/SCRIPTS.md).
 
 All configuration is via **environment variables** — there are no hardcoded
 paths, hosts, emails, or secrets anywhere in the repo. Copy
-[`.env.example`](.env.example) to `.env` (or let `atlas init` write it). The CLI
+[`.env.example`](.env.example) to `.env` (or let `eidetic init` write it). The CLI
 auto-loads `.env`; if you run scripts directly, `set -a; source .env; set +a`.
 
 | Variable | Required? | Default | Used by |
@@ -566,7 +627,7 @@ auto-loads `.env`; if you run scripts directly, `set -a; source .env; set +a`.
 | `VAULT_PATH` | **Yes** | `.` | all scripts |
 | `RAG_DIR` | No | `$VAULT_PATH/.rag` | embed, graph, health |
 | `SCHEDULED_DIR` | No | `~/Documents/Claude/Scheduled` | health |
-| `ATLAS_SKILLS_DIR` | No | `$VAULT_PATH/.claude/skills` | `atlas skills install` |
+| `EIDETIC_SKILLS_DIR` | No | `$VAULT_PATH/.claude/skills` | `eidetic skills install` |
 | `EMBED_HOST` / `EMBED_PORT` | No | `localhost` / `5555` | embed, health |
 | `EMBED_MODEL` | No | `text-embedding-nomic-embed-text-v1.5` | embed |
 | `EMBED_URL` | No | `http://$EMBED_HOST:$EMBED_PORT/v1/embeddings` | embed |
@@ -577,7 +638,7 @@ auto-loads `.env`; if you run scripts directly, `set -a; source .env; set +a`.
 | `LM_STUDIO_ENDPOINT` | No | `…:$PORT` | `trading/config.py` (no `/v1`) |
 | `TTS_HOST` / `TTS_PORT` | No | `localhost` / `8800` | health |
 | `SENDER_EMAIL` | **Yes** (email) | `""` | email |
-| `SENDER_NAME` | No | `Atlas` | email |
+| `SENDER_NAME` | No | `Eidetic` | email |
 | `SMTP_SERVER` / `SMTP_PORT` | No | `smtp.gmail.com` / `587` | email |
 | `SMTP_APP_PASSWORD` | **Yes** (email) | `""` | email, health |
 | `USER_EMAIL` | No | — | scheduled tasks |
@@ -604,7 +665,7 @@ Full reference (per-variable detail, secret handling, the `LM_STUDIO_URL` vs
         ┌───────────────────────────────┼───────────────────────────────┐
         ▼                               ▼                               ▼
  ┌──────────────┐            ┌────────────────────┐           ┌──────────────────┐
- │  atlas CLI / │            │   Markdown vault    │           │   Local LLM       │
+ │  eidetic CLI / │            │   Markdown vault    │           │   Local LLM       │
  │  scripts/    │◀── rw ────▶│  notes · wiki ·     │           │  embeddings +     │
  │  (Python)    │            │  memory · daily     │           │  chat (OpenAI-    │
  └──────┬───────┘            │  (git-tracked)      │           │  compatible)      │
@@ -632,7 +693,7 @@ clean-install runbook: [`docs/REBUILD.md`](docs/REBUILD.md).
 ## The knowledge vault
 
 A plain folder of markdown notes. Top-level folders carry meaning and drive the
-frontmatter schemas. The `atlas init` skeleton gives you:
+frontmatter schemas. The `eidetic init` skeleton gives you:
 
 ```
 your-vault/
@@ -645,7 +706,7 @@ your-vault/
     └── log.md              # running activity log
 ```
 
-**Frontmatter schemas.** `atlas schemas` validates each note's YAML frontmatter
+**Frontmatter schemas.** `eidetic schemas` validates each note's YAML frontmatter
 against a per-folder schema and fills in missing required fields
 (non-destructively — it only *adds*, inferring `date`/`title` from the
 filename). Schemas ship for `research`, `projects`, `decisions`, `guides`,
@@ -657,31 +718,31 @@ filename). Schemas ship for `research`, `projects`, `decisions`, `guides`,
 
 ## Session capture & knowledge persistence
 
-This is what turns Atlas OS from "Claude with a notes folder" into a system with
+This is what turns Eidetic OS from "Claude with a notes folder" into a system with
 a memory. **Every conversation you have in Cowork is folded back into your vault
 as a searchable note** — so the record of *what was done and why* lives in your
 knowledge base, not in chat transcripts that vanish when you close the tab.
 
 ```bash
-atlas session list          # see your recent Cowork sessions
-atlas session save --all    # write a session-log note for every session
-atlas session save --since 12h   # only what's new in the last 12 hours
+eidetic session list          # see your recent Cowork sessions
+eidetic session save --all    # write a session-log note for every session
+eidetic session save --since 12h   # only what's new in the last 12 hours
 ```
 
-For each session, `atlas session save` writes
+For each session, `eidetic session save` writes
 `$VAULT_PATH/sessions/session-log-YYYY-MM-DD-<title>.md` — frontmatter tagged
 `[session-log, cowork]`, a summary, the key actions taken, and the files
 modified. Everything is extracted **locally — no LLM call, nothing leaves your
-machine**. A watermark in `.atlas/last_session_save.txt` means a plain
-`atlas session save` only picks up what's new, so it's safe to run repeatedly.
+machine**. A watermark in `.eidetic/last_session_save.txt` means a plain
+`eidetic session save` only picks up what's new, so it's safe to run repeatedly.
 
 **Captured automatically, twice a day.** The recommended default is a morning and
 an afternoon capture, each covering a 12-hour window, so your work lands in the
 vault close to when it happened:
 
 ```bash
-atlas skills install morning-session-capture     # ~09:00, --since 12h
-atlas skills install afternoon-session-capture   # ~17:00, --since 12h
+eidetic skills install morning-session-capture     # ~09:00, --since 12h
+eidetic skills install afternoon-session-capture   # ~17:00, --since 12h
 ```
 
 Prefer a single nightly run? Install `daily-session-capture` (`--since 24h`)
@@ -698,7 +759,7 @@ as your conversations. Over time the vault accumulates the full context of your
 AI-assisted work, and every captured session makes the next retrieval sharper.
 
 The twice-daily pair is part of the [`knowledge` pack](docs/SCHEDULED-TASKS.md),
-so `atlas skills install-pack knowledge` sets both up alongside the nightly index
+so `eidetic skills install-pack knowledge` sets both up alongside the nightly index
 and RAG embed. Full walkthrough:
 [`docs/TUTORIAL.md`](docs/TUTORIAL.md#step-35--capture-your-cowork-sessions-to-the-vault).
 
@@ -706,17 +767,17 @@ and RAG embed. Full walkthrough:
 
 ## RAG search & knowledge graph
 
-**RAG (`atlas embed`).** Notes (and optionally PDFs) are chunked (~500 tokens,
+**RAG (`eidetic embed`).** Notes (and optionally PDFs) are chunked (~500 tokens,
 50 overlap), embedded via your local OpenAI-compatible endpoint, and stored in a
 **SQLite vector store** at `$RAG_DIR/vectors.db` (see
-[`atlas_os/vectordb.py`](atlas_os/vectordb.py)). Query time uses **hybrid**
+[`eidetic_os/vectordb.py`](eidetic_os/vectordb.py)). Query time uses **hybrid**
 retrieval (vector + keyword).
 
-- `atlas embed --full` — re-embed everything (also rebuilds the graph).
-- `atlas embed --incremental` — only files changed since the last run.
-- `atlas embed --test N` — embed the first N files (connectivity check).
+- `eidetic embed --full` — re-embed everything (also rebuilds the graph).
+- `eidetic embed --incremental` — only files changed since the last run.
+- `eidetic embed --test N` — embed the first N files (connectivity check).
 - `--folder NAME`, `--pdfs-only`, `--checkpoint-interval N`, `--batch-size N`.
-- `atlas migrate-vectors` — convert an existing `vectors.json` → `vectors.db`
+- `eidetic migrate-vectors` — convert an existing `vectors.json` → `vectors.db`
   (auto-runs on first embed, so this is only for migrating ahead of time).
 
 The store scales past the old single-file `vectors.json`: vector search uses the
@@ -727,7 +788,7 @@ file, per batch), so a full run **checkpoints** and an interrupted embed resumes
 rather than starting over — and never corrupts the index with a half-written
 rewrite.
 
-**Advanced retrieval ([`atlas_os/rag.py`](atlas_os/rag.py)).** The pipeline uses
+**Advanced retrieval ([`eidetic_os/rag.py`](eidetic_os/rag.py)).** The pipeline uses
 production-grade IR at every stage:
 
 - **Semantic chunking** splits on heading/paragraph boundaries (whole paragraphs
@@ -740,21 +801,21 @@ production-grade IR at every stage:
 - **Metadata filtering** by folder, doc_type, tag, file type, or date window
   *before* the vector search.
 
-**Search (`atlas search`).** Query the store from the CLI:
+**Search (`eidetic search`).** Query the store from the CLI:
 
 ![RAG search from the CLI](search.gif)
 
 ```bash
-atlas search "kelly criterion sizing"                 # hybrid + rerank, top 5
-atlas search "trading risk" --folder research --tag trading --top-k 10
-atlas search "embeddings" --mode vector --file-type md --since 30d
-atlas search "kelly" --mode keyword                   # BM25 only (no endpoint)
+eidetic search "kelly criterion sizing"                 # hybrid + rerank, top 5
+eidetic search "trading risk" --folder research --tag trading --top-k 10
+eidetic search "embeddings" --mode vector --file-type md --since 30d
+eidetic search "kelly" --mode keyword                   # BM25 only (no endpoint)
 ```
 
-**Knowledge graph (`atlas graph`).** Walks every note, resolves `[[wikilinks]]`,
+**Knowledge graph (`eidetic graph`).** Walks every note, resolves `[[wikilinks]]`,
 and writes `$RAG_DIR/graph.json` with nodes, edges, adjacency, and backlinks —
 the basis for "related notes" and the dashboard's graph view. It's rebuilt
-automatically after `atlas embed --full`. Run `atlas graph --open` to launch the
+automatically after `eidetic embed --full`. Run `eidetic graph --open` to launch the
 interactive **D3 graph viewer** in your browser (the dashboard's `/graph` page) —
 a force-directed map of your vault you can zoom, pan, search, filter by note
 type, and click through note-by-note.
@@ -766,8 +827,8 @@ Both `.rag/` artifacts are **git-ignored** and never leave your machine.
 ## Scheduled tasks & the skills catalog
 
 Automations are **Claude Cowork skills** — a `SKILL.md` prompt per task in
-`skills/<name>/`. Install one with `atlas skills install <name>` — it copies the
-`SKILL.md` into your scheduled-tasks directory (`$ATLAS_SKILLS_DIR`, default
+`skills/<name>/`. Install one with `eidetic skills install <name>` — it copies the
+`SKILL.md` into your scheduled-tasks directory (`$EIDETIC_SKILLS_DIR`, default
 `$VAULT_PATH/.claude/skills/`) and substitutes the `{{PLACEHOLDER}}` tokens from
 your `.env`. Then register it on the cadence below.
 
@@ -786,7 +847,7 @@ your `.env`. Then register it on the cadence below.
 | `weekly-system-health-check` | Weekly | Probe every subsystem; email a health report |
 | `weekly-rag-full-reembed` | Weekly (Sun early AM) | Re-embed the entire vault from scratch |
 
-**The skills catalog.** Atlas OS keeps a self-updating **`Skills Catalog.md`** in
+**The skills catalog.** Eidetic OS keeps a self-updating **`Skills Catalog.md`** in
 your vault — an always-current index of every skill (name, description, suggested
 cadence), built from each `SKILL.md`'s frontmatter so it never drifts. Because
 it carries `type: reference` frontmatter, the RAG indexer picks it up, and any
@@ -794,21 +855,21 @@ agent that reads or searches your vault can discover the full menu of automation
 it can invoke.
 
 ```bash
-atlas skills              # list the catalog in the terminal
-atlas skills show <name>  # print a skill's SKILL.md
-atlas skills install <name>   # deploy it, filling placeholders from .env
-atlas skills --sync       # (re)generate Skills Catalog.md in the vault
+eidetic skills              # list the catalog in the terminal
+eidetic skills show <name>  # print a skill's SKILL.md
+eidetic skills install <name>   # deploy it, filling placeholders from .env
+eidetic skills --sync       # (re)generate Skills Catalog.md in the vault
 ```
 
-`atlas init` generates it on first setup. Add your own skill by dropping a
+`eidetic init` generates it on first setup. Add your own skill by dropping a
 `skills/<slug>/SKILL.md` with `name` + `description` frontmatter, then
-`atlas skills --sync`. Cadences, placeholder tokens, and safety notes:
+`eidetic skills --sync`. Cadences, placeholder tokens, and safety notes:
 [`docs/SCHEDULED-TASKS.md`](docs/SCHEDULED-TASKS.md).
 
-**The full skills menu.** Beyond the scheduled tasks above, Atlas OS documents a
+**The full skills menu.** Beyond the scheduled tasks above, Eidetic OS documents a
 [**catalogue of 160+ skills**](docs/SKILLS-CATALOGUE.md) — 149 capability skills
 across Security, DevOps, Frontend, Backend, Quality, Data & AI, and Business, plus
-the four Atlas-native skills (`autoresearch`, `save-to-vault`, `wiki-search`,
+the four Eidetic-native skills (`autoresearch`, `save-to-vault`, `wiki-search`,
 `send-email`) and the nine scheduled automations. The
 [**skills framework**](docs/SKILLS-FRAMEWORK.md) explains what a skill is, the
 lifecycle (creation → installation → scheduling → execution → audit logging), and
@@ -837,24 +898,24 @@ step synthesises them into a final recommendation.
                                                   Freqtrade strategy (optional)
 ```
 
-`atlas`/`scripts/trading_briefing.py` runs the analysis for your `TRADING_TICKERS`
+`eidetic`/`scripts/trading_briefing.py` runs the analysis for your `TRADING_TICKERS`
 and writes a markdown briefing into the vault (so RAG indexes it). The cloud
 Portfolio Manager is **off by default** and, when enabled, sends only anonymous
 analyst votes — never your notes or positions. Install extras with
-`atlas-os[trading]`.
+`eidetic-os[trading]`.
 
 ---
 
 ## Email reports
 
-`atlas email` / `scripts/send_email.py` is a credential-free SMTP sender: the
+`eidetic email` / `scripts/send_email.py` is a credential-free SMTP sender: the
 app password comes from `SMTP_APP_PASSWORD`, the sender from `SENDER_EMAIL`,
 nothing hardcoded. Use the simple flags for a quick message, or `--json` for a
 full payload (`to`, `subject`, `body_html`, `body_text`, `attachments`).
 
 ```bash
-atlas email -s "Report" -b "<p>…</p>" --to me@example.com
-atlas email --json '{"to":"me@example.com","subject":"Report","body_html":"<p>…</p>","attachments":["/path/report.pdf"]}'
+eidetic email -s "Report" -b "<p>…</p>" --to me@example.com
+eidetic email --json '{"to":"me@example.com","subject":"Report","body_html":"<p>…</p>","attachments":["/path/report.pdf"]}'
 ```
 
 For Gmail, generate an [app password](https://myaccount.google.com/apppasswords)
@@ -868,18 +929,18 @@ this for you.
 A lightweight, local-first **web dashboard** ships in the box. Install the extra
 and launch it:
 
-![Atlas OS web dashboard](dashboard.gif)
+![Eidetic OS web dashboard](dashboard.gif)
 
 ```bash
-pip install 'atlas-os[dashboard]'
-atlas dashboard                 # serves http://127.0.0.1:8501
+pip install 'eidetic-os[dashboard]'
+eidetic dashboard                 # serves http://127.0.0.1:8501
 ```
 
 Seven panels, read live from the same modules the CLI uses (no second source of
-truth): **system health** (`atlas doctor` with green/amber/red indicators), a
+truth): **system health** (`eidetic doctor` with green/amber/red indicators), a
 paginated **audit trail** browser, **scheduled tasks** with last-run status, a
 **skills** manager with one-click pack installs, an interactive **knowledge
-graph** (a D3 force-directed view at `/graph`, also reachable via `atlas graph
+graph** (a D3 force-directed view at `/graph`, also reachable via `eidetic graph
 --open`), **vector-store stats** (chunks, files, DB size, last embed), and **RAG
 search**. Flask + Jinja2 only — the one client-side dependency is D3, loaded by
 the graph page from a CDN. Details:
@@ -892,8 +953,8 @@ optional local JSON endpoints you can back with a ~30-line shim:
 
 | Endpoint | Produced by |
 |---|---|
-| `GET /api/health` | `atlas health --json` |
-| `GET /api/changelog` | `atlas changelog --json` |
+| `GET /api/health` | `eidetic health --json` |
+| `GET /api/changelog` | `eidetic changelog --json` |
 
 For a richer multi-panel app, build it as a **separate repo** pointed at the same
 local endpoints — keep its dependencies and any cached data out of this public
@@ -903,18 +964,18 @@ repo. Details: [`dashboard/README.md`](dashboard/README.md).
 
 ## Docker (optional)
 
-Prefer not to install Python tooling on the host? Run the `atlas` CLI in a
+Prefer not to install Python tooling on the host? Run the `eidetic` CLI in a
 container. The image (Python 3.11-slim + git) packages the command and the
 pipeline scripts; your vault is bind-mounted and secrets load from `.env`.
 
 ```bash
 cp .env.example .env && $EDITOR .env      # for a host LLM: EMBED_HOST=host.docker.internal
-docker build -t atlas-os .                # add --build-arg EXTRAS=".[all]" for trading/pdf
+docker build -t eidetic-os .                # add --build-arg EXTRAS=".[all]" for trading/pdf
 
 # run any subcommand against your mounted vault:
-VAULT_PATH=~/Documents/Obsidian/MyVault docker compose run --rm atlas doctor
-VAULT_PATH=~/Documents/Obsidian/MyVault docker compose run --rm atlas embed --full
-VAULT_PATH=~/Documents/Obsidian/MyVault docker compose run --rm atlas commit --dry-run
+VAULT_PATH=~/Documents/Obsidian/MyVault docker compose run --rm eidetic doctor
+VAULT_PATH=~/Documents/Obsidian/MyVault docker compose run --rm eidetic embed --full
+VAULT_PATH=~/Documents/Obsidian/MyVault docker compose run --rm eidetic commit --dry-run
 ```
 
 A local LLM (LM Studio / Ollama) on the host is reachable from inside the
@@ -930,7 +991,7 @@ this is a CLI, so use `docker compose run` per command. See the root
 
 ## Audit trail
 
-Atlas runs work on your behalf — overnight indexing, auto-commits, scheduled
+Eidetic runs work on your behalf — overnight indexing, auto-commits, scheduled
 briefings, emails. The audit trail gives you a single, queryable record of every
 one of those actions, so "what did Claude do last night, and why?" has a precise
 answer.
@@ -940,24 +1001,24 @@ Every script-wrapping command (`embed`, `commit`, `graph`, `changelog`, `session
 when it finishes:
 
 ```jsonl
-{"timestamp":"2026-06-03T02:00:11.482+00:00","action":"commit","trigger":"scheduled","status":"success","duration_seconds":1.84,"changes":["3 new","1 modified","commit a1b9f2c"],"context":"atlas commit --json","error":null}
+{"timestamp":"2026-06-03T02:00:11.482+00:00","action":"commit","trigger":"scheduled","status":"success","duration_seconds":1.84,"changes":["3 new","1 modified","commit a1b9f2c"],"context":"eidetic commit --json","error":null}
 ```
 
 Each entry records **what** ran (`action`), **how** it was triggered (`trigger`
 — `scheduled` / `manual` / `cli`), the **outcome** (`status`), how long it took,
 **what changed**, **why** it ran (`context`), and any **error**. The log is
-appended under an OS-level file lock (safe across concurrent `atlas` processes)
+appended under an OS-level file lock (safe across concurrent `eidetic` processes)
 and auto-rotates at 10 MB to `audit.jsonl.1`, `.2`, ….
 
 ```bash
-atlas audit show                       # recent entries (default last 20)
-atlas audit show --action commit --since 7d
-atlas audit tail                       # last 5, compact
-atlas audit export --format csv -o audit-report.csv   # for compliance
+eidetic audit show                       # recent entries (default last 20)
+eidetic audit show --action commit --since 7d
+eidetic audit tail                       # last 5, compact
+eidetic audit export --format csv -o audit-report.csv   # for compliance
 ```
 
-- **Location:** `$ATLAS_AUDIT_PATH` if set, otherwise `$VAULT_PATH/.atlas/audit.jsonl`.
-- **Trigger tagging:** scheduled tasks set `ATLAS_TRIGGER=scheduled`; interactive
+- **Location:** `$EIDETIC_AUDIT_PATH` if set, otherwise `$VAULT_PATH/.eidetic/audit.jsonl`.
+- **Trigger tagging:** scheduled tasks set `EIDETIC_TRIGGER=scheduled`; interactive
   runs default to `cli`.
 
 This logging directly supports ISO 27001 control **A.12.4 (Logging &
@@ -967,7 +1028,7 @@ monitoring)** — see [SECURITY.md](SECURITY.md).
 
 ## Security & privacy
 
-Atlas OS distinguishes four data classes and keeps each in its place:
+Eidetic OS distinguishes four data classes and keeps each in its place:
 
 | Class | Examples | Storage | Leaves device? |
 |---|---|---|---|
@@ -993,8 +1054,8 @@ Policy, credential management, and responsible disclosure:
 ## Repository layout
 
 ```
-atlas-os/
-├── atlas_os/        the `atlas` CLI package (init, doctor, skills, wrappers)
+eidetic-os/
+├── eidetic_os/        the `eidetic` CLI package (init, doctor, skills, wrappers)
 ├── pyproject.toml   packaging — `uv tool install` / `pipx` / `pip install -e .`
 ├── scripts/         embed · graph · commit · changelog · email · health · trade
 ├── tests/           pytest suite (scripts + CLI; hermetic, no network)
@@ -1048,9 +1109,9 @@ Full docs live in [`docs/`](docs/README.md):
 
 | Symptom | Fix |
 |---|---|
-| `VAULT_PATH … not set` | Run `atlas init`, or `set -a; source .env; set +a` before running scripts. |
+| `VAULT_PATH … not set` | Run `eidetic init`, or `set -a; source .env; set +a` before running scripts. |
 | Embeddings unreachable | Confirm your LLM is running: `curl http://$EMBED_HOST:$EMBED_PORT/v1/models`. Set `EMBED_URL` for non-standard paths. |
-| `atlas` command not found (editable install, Py 3.14) | Use `python -m atlas_os <command>`. |
+| `eidetic` command not found (editable install, Py 3.14) | Use `python -m eidetic_os <command>`. |
 | Gmail rejects the password | Use an app password (2FA required), not your account password. |
 | `vault_commit` errors about git | Your vault must be its own git repo: `cd "$VAULT_PATH" && git init`. |
 | A subsystem shows DEGRADED | Expected for components you haven't installed (TTS, dashboard). |
@@ -1064,27 +1125,27 @@ More: [`docs/FAQ.md`](docs/FAQ.md). For a clean rebuild:
 
 - **Does it support Ollama?** Yes. The [pluggable LLM backends](#features)
   auto-detect Ollama (alongside LM Studio, llama.cpp, and any OpenAI-compatible
-  endpoint). Run `atlas backends` to see what's reachable, or force it with
-  `ATLAS_LLM_BACKEND=ollama`.
-- **Is there a setup wizard?** Yes — `atlas init` is an interactive wizard that
+  endpoint). Run `eidetic backends` to see what's reachable, or force it with
+  `EIDETIC_LLM_BACKEND=ollama`.
+- **Is there a setup wizard?** Yes — `eidetic init` is an interactive wizard that
   detects your LLM, writes `.env`, scaffolds the vault, and makes the first
   commit. Zero to running in about 5 minutes. See
   [First run](#first-run-walkthrough).
 - **Does it have logging?** Yes — an append-only JSONL [audit trail](#audit-trail)
   records every autonomous action (what ran, how, the outcome, duration, and what
-  changed). Inspect it with `atlas audit show` / `tail` / `export` (CSV for
+  changed). Inspect it with `eidetic audit show` / `tail` / `export` (CSV for
   compliance).
 - **Can I run it in Docker?** Yes — a `Dockerfile` and `docker-compose.yml` ship
   in the repo root. Bind-mount your vault and run any subcommand in a container.
   See [Docker](#docker-optional).
 - **Is there a config file?** Yes — everything is configured through a `.env`
-  file (no hardcoded paths, hosts, emails, or secrets). `atlas init` generates a
+  file (no hardcoded paths, hosts, emails, or secrets). `eidetic init` generates a
   commented one for you; [`.env.example`](.env.example) documents every variable.
   See [Configuration](#configuration).
 - **Is there a dashboard?** Yes — a self-contained, single-file ops
   [dashboard](#dashboard-optional) (`templates/ops-dashboard.html`) backed by
-  `atlas health --json` and `atlas changelog --json`.
-- **How do I fix a broken setup?** Run `atlas doctor --fix` — it diagnoses each
+  `eidetic health --json` and `eidetic changelog --json`.
+- **How do I fix a broken setup?** Run `eidetic doctor --fix` — it diagnoses each
   subsystem and repairs what it safely can.
 
 ---
@@ -1100,18 +1161,18 @@ for what's next):
   insert/delete, and a graceful brute-force fallback. *Shipped.*
 - ✅ **Advanced RAG pipeline** ([#11](https://github.com/paulholland511/atlas-os/issues/11)) —
   semantic chunking, hybrid BM25 + vector search, TF-IDF reranking, embedding
-  cache, metadata filtering, and the `atlas search` command. *Shipped.*
+  cache, metadata filtering, and the `eidetic search` command. *Shipped.*
 - ✅ **Open-source lightweight dashboard** ([#12](https://github.com/paulholland511/atlas-os/issues/12)) —
   a local-first Flask web UI: system health, audit trail, scheduled-task status,
   skill management, vector-store stats, and RAG search. Launch with
-  `atlas dashboard` (`pip install 'atlas-os[dashboard]'`). *Shipped.*
+  `eidetic dashboard` (`pip install 'eidetic-os[dashboard]'`). *Shipped.*
 - ✅ **Skills marketplace / registry** ([#13](https://github.com/paulholland511/atlas-os/issues/13)) —
-  share, discover, and install community skills: a JSON registry, `atlas skills
-  search`, schema-validated `atlas skills publish` packaging, custom registries,
+  share, discover, and install community skills: a JSON registry, `eidetic skills
+  search`, schema-validated `eidetic skills publish` packaging, custom registries,
   and manifest dependency resolution. *Shipped.*
 - ✅ **Visual knowledge graph viewer** ([#14](https://github.com/paulholland511/atlas-os/issues/14)) —
   a D3.js force-directed view of how your notes connect, in the dashboard at
-  `/graph` (or `atlas graph --open`): nodes coloured by type, zoom/pan, search,
+  `/graph` (or `eidetic graph --open`): nodes coloured by type, zoom/pan, search,
   per-type filters, and a click-through panel of each note's links and backlinks.
   *Shipped.*
 
@@ -1124,7 +1185,7 @@ code, bullet-proof git sync, and a scalable, pluggable vector store all shipped:
 - ✅ **Extension architecture** ([#15](https://github.com/paulholland511/atlas-os/issues/15)) —
   decoupled the lean core (vault, git sync, RAG, CLI, dashboard, audit trail)
   from the domain verticals. Trading/voice/jobs move to `extensions/`, installed
-  via extras (`pip install 'atlas-os[trading]'`) and discovered through
+  via extras (`pip install 'eidetic-os[trading]'`) and discovered through
   setuptools entry points with a clean `register_commands()` /
   `register_skills()` / `register_schedules()` API. *Shipped.*
 - ✅ **MCP skills** ([#16](https://github.com/paulholland511/atlas-os/issues/16)) —
@@ -1133,39 +1194,70 @@ code, bullet-proof git sync, and a scalable, pluggable vector store all shipped:
   existing `SKILL.md` skills auto-wrapped in a shim, and skills usable from
   Claude Code, Cowork, and any MCP host. *Shipped.*
 - ✅ **Security hardening** ([#17](https://github.com/paulholland511/atlas-os/issues/17)) —
-  AST static analysis at `atlas skills install` (BLOCK / WARN / INFO), a
+  AST static analysis at `eidetic skills install` (BLOCK / WARN / INFO), a
   restricted runtime sandbox (timeout, memory limit, no network by default),
-  and full audit-trail logging for community skills via `atlas security report`.
+  and full audit-trail logging for community skills via `eidetic security report`.
   *Shipped.*
 - ✅ **Git sync hardening** ([#18](https://github.com/paulholland511/atlas-os/issues/18)) —
   favour-local merges that abort true conflicts untouched, frontmatter
   validation before every automated commit, advisory file locking, and stale
   `.git/*.lock` cleanup, so automated git never corrupts your vault. Surfaced via
-  `atlas sync`, `atlas validate`, and `atlas doctor`. *Shipped.*
+  `eidetic sync`, `eidetic validate`, and `eidetic doctor`. *Shipped.*
 - ✅ **Scalable vector storage** ([#19](https://github.com/paulholland511/atlas-os/issues/19)) —
   a pluggable `VectorBackend` interface with `sqlite-vec` as the zero-config
   default plus **LanceDB** (zero-copy disk queries, metadata filtering) and
   ChromaDB options, selectable via `VECTOR_BACKEND`, with an
-  `atlas migrate-vectors` tool. *Shipped.*
+  `eidetic migrate-vectors` tool. *Shipped.*
+
+### 🚧 v4.0 — Eidetic OS (the memory release)
+
+The **[v4.0.0 milestone](https://github.com/paulholland511/atlas-os/milestone/4)**
+is the rebrand-and-remember release: the new **Eidetic** identity plus a leap from
+"store everything" to **understand and consolidate everything**. The headline
+work — making memory *active* rather than a passive log:
+
+- 🧠 **Mem0-style fact extraction** ([#22](https://github.com/paulholland511/atlas-os/issues/22)) —
+  distil discrete, atomic facts from raw session transcripts and **deduplicate
+  them against existing memory** (add / update / no-op) instead of appending
+  whole conversations, so the vault stores knowledge, not noise.
+- 😴 **Sleeptime consolidation daemon** ([#23](https://github.com/paulholland511/atlas-os/issues/23)) —
+  a background process that compresses and **synthesises dialogue logs offline**
+  (during idle/"sleep" time), merging related notes and summarising stale
+  threads the way human memory consolidates overnight.
+- 🧩 **Native Obsidian plugin** ([#24](https://github.com/paulholland511/atlas-os/issues/24)) —
+  search, manage, and **visualise the memory index from inside Obsidian** itself:
+  hybrid RAG search, the knowledge graph, and memory blocks as a first-class
+  panel, no terminal required.
+- 🧙 **Interactive setup wizard 2.0** ([#25](https://github.com/paulholland511/atlas-os/issues/25)) —
+  a guided CLI interview that **auto-detects your models**, maps endpoints, and
+  **profiles your writing style**, taking `eidetic init` from "fill in the .env"
+  to a genuinely conversational onboarding.
+- 💬 **Channel adapters** ([#26](https://github.com/paulholland511/atlas-os/issues/26)) —
+  headless messaging over **Slack and Telegram** using a Letta-style channel
+  schema, so you can talk to Eidetic (and receive its briefings) from your phone.
+- ⏳ **Memory decay & relevance scoring** ([#27](https://github.com/paulholland511/atlas-os/issues/27)) —
+  a **time-weighted relevance model** for memory blocks, so recent and
+  frequently-retrieved knowledge ranks above stale notes — recall that fades and
+  sharpens like the real thing.
 
 Further out:
 
-- ✅ **PyPI release** — [Atlas OS is on PyPI](https://pypi.org/project/atlas-os/):
-  `pipx install atlas-os` (or `uv tool install atlas-os` / `pip install atlas-os`),
+- ✅ **PyPI release** — [Eidetic OS is on PyPI](https://pypi.org/project/eidetic-os/):
+  `pipx install eidetic-os` (or `uv tool install eidetic-os` / `pip install eidetic-os`),
   published automatically on every `v*` tag via Trusted Publishing
   ([`docs/PUBLISHING.md`](docs/PUBLISHING.md)). *Shipped.*
 - **Nix flake** — `nix run github:paulholland511/atlas-os` for a hermetic install.
 
 Recently shipped: the SQLite vector store and the advanced RAG pipeline (above),
-the `atlas dashboard` web UI, the skills marketplace (`atlas skills search` /
-`publish` / `registry`), an append-only audit trail, and `atlas skills install`
+the `eidetic dashboard` web UI, the skills marketplace (`eidetic skills search` /
+`publish` / `registry`), an append-only audit trail, and `eidetic skills install`
 for one-command skill deployment with placeholder substitution.
 
 ---
 
 ## Development & testing
 
-Atlas OS ships with a `pytest` suite covering the core scripts (text helpers,
+Eidetic OS ships with a `pytest` suite covering the core scripts (text helpers,
 graph building, git-status parsing, scoring, SMTP flow, and the trading
 briefing) — all hermetic: no network, no env vars, no real vault required.
 
@@ -1207,6 +1299,6 @@ type hints, env-var config, `ruff`, minimal dependencies.
 
 [MIT](LICENSE).
 
-Atlas OS is a template project released as-is. The trading module is **not
+Eidetic OS is a template project released as-is. The trading module is **not
 financial advice**. You operate your own controls, secrets, and data — review
 each automation before enabling it.

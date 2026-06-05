@@ -7,27 +7,27 @@ setup and the command reference, see [`docs/SETUP.md`](../SETUP.md) and
 
 | Feature | Doc | Source | CLI |
 |---|---|---|---|
-| Knowledge vault & frontmatter schemas | [knowledge-vault.md](knowledge-vault.md) | `schemas/`, `templates/` | `atlas schemas`, `atlas init` |
-| Session capture | [session-capture.md](session-capture.md) | `scripts/save_sessions.py` | `atlas session` |
-| Local RAG search | [rag-search.md](rag-search.md) | `scripts/embed_vault.py` | `atlas embed` |
-| Pluggable vector backends | [vector-backends.md](vector-backends.md) | `atlas_os/vector_backend.py`, `atlas_os/vector_backends/` | `atlas migrate-vectors --to` |
-| Knowledge graph | [knowledge-graph.md](knowledge-graph.md) | `scripts/build_graph.py` | `atlas graph` |
-| Git automation | [git-automation.md](git-automation.md) | `scripts/vault_commit.py`, `vault_changelog.py` | `atlas commit`, `atlas changelog` |
-| Git sync hardening (safe merge, validation, locking) | [git-hardening.md](git-hardening.md) | `atlas_os/git_sync.py`, `frontmatter.py`, `filelock.py` | `atlas sync`, `atlas validate` |
-| Scheduled tasks & skills catalog | [skills-and-automation.md](skills-and-automation.md) | `skills/`, `atlas_os/_skills.py` | `atlas skills` |
-| Skills marketplace / registry | [skills-marketplace.md](skills-marketplace.md) | `atlas_os/marketplace.py`, `skills/registry.json` | `atlas skills search`, `publish`, `registry` |
-| MCP skills (Model Context Protocol) | [mcp-skills.md](mcp-skills.md) | `atlas_os/mcp_server.py`, `mcp_client.py`, `mcp_skill.py` | `atlas mcp serve`, `atlas mcp list-tools`, `atlas skills run` |
-| Skill security (scan + sandbox) | [security.md](security.md) | `atlas_os/security.py`, `atlas_os/sandbox.py` | `atlas security scan`, `atlas security report` |
-| Email reports | [email-reports.md](email-reports.md) | `scripts/send_email.py` | `atlas email` |
-| Extension architecture | [extensions.md](extensions.md) | `atlas_os/extensions/` | `atlas extensions` |
-| Trading research SDK *(optional extension)* | [trading-sdk.md](trading-sdk.md) | `atlas_os/extensions/trading/`, `scripts/trading_briefing.py` | `atlas trading` |
-| Health check & dashboard | [health-and-dashboard.md](health-and-dashboard.md) | `scripts/health_check.py`, `templates/ops-dashboard.html` | `atlas health`, `atlas doctor` |
-| Web dashboard | [dashboard.md](dashboard.md) | `atlas_os/dashboard/` | `atlas dashboard` |
+| Knowledge vault & frontmatter schemas | [knowledge-vault.md](knowledge-vault.md) | `schemas/`, `templates/` | `eidetic schemas`, `eidetic init` |
+| Session capture | [session-capture.md](session-capture.md) | `scripts/save_sessions.py` | `eidetic session` |
+| Local RAG search | [rag-search.md](rag-search.md) | `scripts/embed_vault.py` | `eidetic embed` |
+| Pluggable vector backends | [vector-backends.md](vector-backends.md) | `eidetic_os/vector_backend.py`, `eidetic_os/vector_backends/` | `eidetic migrate-vectors --to` |
+| Knowledge graph | [knowledge-graph.md](knowledge-graph.md) | `scripts/build_graph.py` | `eidetic graph` |
+| Git automation | [git-automation.md](git-automation.md) | `scripts/vault_commit.py`, `vault_changelog.py` | `eidetic commit`, `eidetic changelog` |
+| Git sync hardening (safe merge, validation, locking) | [git-hardening.md](git-hardening.md) | `eidetic_os/git_sync.py`, `frontmatter.py`, `filelock.py` | `eidetic sync`, `eidetic validate` |
+| Scheduled tasks & skills catalog | [skills-and-automation.md](skills-and-automation.md) | `skills/`, `eidetic_os/_skills.py` | `eidetic skills` |
+| Skills marketplace / registry | [skills-marketplace.md](skills-marketplace.md) | `eidetic_os/marketplace.py`, `skills/registry.json` | `eidetic skills search`, `publish`, `registry` |
+| MCP skills (Model Context Protocol) | [mcp-skills.md](mcp-skills.md) | `eidetic_os/mcp_server.py`, `mcp_client.py`, `mcp_skill.py` | `eidetic mcp serve`, `eidetic mcp list-tools`, `eidetic skills run` |
+| Skill security (scan + sandbox) | [security.md](security.md) | `eidetic_os/security.py`, `eidetic_os/sandbox.py` | `eidetic security scan`, `eidetic security report` |
+| Email reports | [email-reports.md](email-reports.md) | `scripts/send_email.py` | `eidetic email` |
+| Extension architecture | [extensions.md](extensions.md) | `eidetic_os/extensions/` | `eidetic extensions` |
+| Trading research SDK *(optional extension)* | [trading-sdk.md](trading-sdk.md) | `eidetic_os/extensions/trading/`, `scripts/trading_briefing.py` | `eidetic trading` |
+| Health check & dashboard | [health-and-dashboard.md](health-and-dashboard.md) | `scripts/health_check.py`, `templates/ops-dashboard.html` | `eidetic health`, `eidetic doctor` |
+| Web dashboard | [dashboard.md](dashboard.md) | `eidetic_os/dashboard/` | `eidetic dashboard` |
 
 ## How the features fit together
 
 ```
-          Cowork conversations + research ──(atlas session save)──┐
+          Cowork conversations + research ──(eidetic session save)──┐
                                                                   ▼
               ┌──────────────── the vault (source of truth) ────────────────┐
               │  markdown notes · session logs · frontmatter · [[wikilinks]] │

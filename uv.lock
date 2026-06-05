@@ -185,7 +185,7 @@ wheels = [
 ]
 
 [[package]]
-name = "atlas-os"
+name = "eidetic-os"
 source = { editable = "." }
 dependencies = [
     { name = "python-dotenv" },

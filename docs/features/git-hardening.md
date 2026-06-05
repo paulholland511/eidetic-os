@@ -1,13 +1,13 @@
 # Git Sync Hardening
 
-**Source:** [`atlas_os/git_sync.py`](../../atlas_os/git_sync.py),
-[`atlas_os/frontmatter.py`](../../atlas_os/frontmatter.py),
-[`atlas_os/filelock.py`](../../atlas_os/filelock.py),
-[`atlas_os/gitutil.py`](../../atlas_os/gitutil.py),
-[`atlas_os/fileio.py`](../../atlas_os/fileio.py)
-**CLI:** `atlas sync`, `atlas validate`, `atlas doctor`
+**Source:** [`eidetic_os/git_sync.py`](../../eidetic_os/git_sync.py),
+[`eidetic_os/frontmatter.py`](../../eidetic_os/frontmatter.py),
+[`eidetic_os/filelock.py`](../../eidetic_os/filelock.py),
+[`eidetic_os/gitutil.py`](../../eidetic_os/gitutil.py),
+[`eidetic_os/fileio.py`](../../eidetic_os/fileio.py)
+**CLI:** `eidetic sync`, `eidetic validate`, `eidetic doctor`
 
-Atlas runs git against your vault unattended — the nightly auto-commit, session
+Eidetic runs git against your vault unattended — the nightly auto-commit, session
 capture, indexer touch-ups, and (when the vault has a remote) pulls from other
 devices. The whole point of this module set is one guarantee:
 
@@ -26,9 +26,9 @@ lock files — every way an unattended write can go wrong.
 strategy:
 
 ```bash
-atlas sync                 # pull origin/<current-branch>, favouring local
-atlas sync --remote origin --branch main
-atlas sync --json
+eidetic sync                 # pull origin/<current-branch>, favouring local
+eidetic sync --remote origin --branch main
+eidetic sync --json
 ```
 
 Under the hood it runs `git merge -X ours`: where a remote (or automated) change
@@ -68,10 +68,10 @@ and break RAG chunking, the dashboard, and Obsidian's property rendering, so thi
 is a **hard precondition** — no commit proceeds with frontmatter it broke.
 
 ```bash
-atlas validate                 # scan every note in the vault
-atlas validate --staged        # only git-staged files (use as a pre-commit hook)
-atlas validate --require id,title
-atlas validate --json
+eidetic validate                 # scan every note in the vault
+eidetic validate --staged        # only git-staged files (use as a pre-commit hook)
+eidetic validate --require id,title
+eidetic validate --json
 ```
 
 `frontmatter.validate_before_commit(vault_path)` checks each staged `.md` file for:
@@ -96,7 +96,7 @@ logged.
 capture) so they don't interleave writes to the same note:
 
 ```python
-from atlas_os.filelock import vault_lock
+from eidetic_os.filelock import vault_lock
 
 with vault_lock(note_path):
     note_path.write_text(new_body)
@@ -139,18 +139,18 @@ to be running"*. `gitutil.clean_stale_locks(repo)` removes only locks **older th
 so cleanup never yanks a lock out from under a running command.
 
 `safe_sync` calls it before touching the index, and it's wired into
-`atlas doctor --fix` (a *safe* fix, applied automatically):
+`eidetic doctor --fix` (a *safe* fix, applied automatically):
 
 ```bash
-atlas doctor          # reports stale locks under "Git"
-atlas doctor --fix    # clears them (plus other safe fixes)
+eidetic doctor          # reports stale locks under "Git"
+eidetic doctor --fix    # clears them (plus other safe fixes)
 ```
 
 ---
 
-## 6. Sync health in `atlas doctor`
+## 6. Sync health in `eidetic doctor`
 
-`atlas doctor` grows a **Sync** category:
+`eidetic doctor` grows a **Sync** category:
 
 - **Last sync** — the timestamp of the last successful `sync` action from the
   audit trail (WARN if none recorded yet).
@@ -162,11 +162,11 @@ atlas doctor --fix    # clears them (plus other safe fixes)
 ## Audit & observability
 
 Every aborted write, conflict, stale-lock removal, and sync outcome is appended to
-the JSONL **audit trail** (`atlas_os/audit.py`) with the file, reason, and outcome:
+the JSONL **audit trail** (`eidetic_os/audit.py`) with the file, reason, and outcome:
 
 ```bash
-atlas audit show --action sync
-atlas audit tail
+eidetic audit show --action sync
+eidetic audit tail
 ```
 
 ---

@@ -1,12 +1,12 @@
 # Feature: Knowledge Graph
 
 **Source:** [`scripts/build_graph.py`](../../scripts/build_graph.py) ·
-**CLI:** `atlas graph` · **Output:** `$RAG_DIR/graph.json`
+**CLI:** `eidetic graph` · **Output:** `$RAG_DIR/graph.json`
 
-Atlas OS derives a **wikilink graph** from your notes — who links to whom — so
+Eidetic OS derives a **wikilink graph** from your notes — who links to whom — so
 you (and the dashboard, and agents) can surface backlinks and "related notes".
-It is rebuilt automatically after every `atlas embed --full`/`--incremental`, or
-on demand with `atlas graph`.
+It is rebuilt automatically after every `eidetic embed --full`/`--incremental`, or
+on demand with `eidetic graph`.
 
 ---
 
@@ -79,7 +79,7 @@ Nodes are plain strings (not objects); edges carry no weight or type.
 - `avg_connections` — `edges / nodes`
 - `most_connected` — top 10 `(node, out_degree)` by **outbound** link count
 
-`atlas embed --full` prints e.g. `Graph: 412 nodes, 1,083 edges`.
+`eidetic embed --full` prints e.g. `Graph: 412 nodes, 1,083 edges`.
 
 ---
 
@@ -105,29 +105,29 @@ Nodes are plain strings (not objects); edges carry no weight or type.
 ## Usage
 
 ```bash
-atlas graph                       # rebuild just the graph (writes graph.json)
-atlas graph --open                # build, then open the interactive viewer in a browser
-atlas embed --full                # also rebuilds the graph at the end
+eidetic graph                       # rebuild just the graph (writes graph.json)
+eidetic graph --open                # build, then open the interactive viewer in a browser
+eidetic embed --full                # also rebuilds the graph at the end
 python3 scripts/build_graph.py    # direct invocation
 ```
 
 `--open` accepts `--host` / `--port` (where to serve, default `127.0.0.1:8501`)
 and `--no-build` (serve without rebuilding `graph.json` first). It needs the
-dashboard extra (`pip install 'atlas-os[dashboard]'`).
+dashboard extra (`pip install 'eidetic-os[dashboard]'`).
 
 ---
 
 ## Visual viewer
 
 The [dashboard](dashboard.md) ships an interactive **D3 force-directed viewer** at
-`/graph` (open it directly with `atlas graph --open`). It is served by two routes:
+`/graph` (open it directly with `eidetic graph --open`). It is served by two routes:
 
-- **`GET /graph`** — the page itself ([`templates/graph.html`](../../atlas_os/dashboard/templates/graph.html)),
+- **`GET /graph`** — the page itself ([`templates/graph.html`](../../eidetic_os/dashboard/templates/graph.html)),
   a self-contained template with inline CSS/JS; D3 is loaded from a CDN.
 - **`GET /api/graph`** — the graph as JSON, built by `data.graph_data()`. Rather
   than read `graph.json`, this **scans the vault live** (the same wikilink logic
   as `build_graph.py`) so the view is always current without a prior
-  `atlas graph` run. Each node carries a `type`, link `degree`, and in/out counts;
+  `eidetic graph` run. Each node carries a `type`, link `degree`, and in/out counts;
   edges are `{source, target}` id pairs; a `types` colour legend and summary
   `stats` ride along. Huge vaults are capped to the most-connected nodes.
 

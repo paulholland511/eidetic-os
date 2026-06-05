@@ -2,16 +2,16 @@
 
 Covers the four moving parts the issue asks for:
 
-* the server core (:mod:`atlas_os.mcp_server`) — handshake, tool discovery,
+* the server core (:mod:`eidetic_os.mcp_server`) — handshake, tool discovery,
   dispatch, argument validation, and tool-error reporting;
-* the client (:mod:`atlas_os.mcp_client`) — driven both in-process against a
+* the client (:mod:`eidetic_os.mcp_client`) — driven both in-process against a
   loopback transport and end-to-end against a real subprocess over stdio;
-* the skill wrapper (:mod:`atlas_os.mcp_skill`) — every existing skill exposed
+* the skill wrapper (:mod:`eidetic_os.mcp_skill`) — every existing skill exposed
   as an MCP tool, unmodified (the backwards-compatibility guarantee);
 * the marketplace's ``mcp_server`` manifest support.
 
 These are hermetic: the in-process tests never spawn anything, and the single
-stdio round-trip test launches ``python -m atlas_os skills run`` with the same
+stdio round-trip test launches ``python -m eidetic_os skills run`` with the same
 interpreter, reading/writing JSON-RPC lines — no network, no real vault writes.
 """
 
@@ -23,20 +23,20 @@ from typing import Any
 
 import pytest
 
-from atlas_os import mcp_client, mcp_server, mcp_skill
-from atlas_os.mcp_client import (
+from eidetic_os import mcp_client, mcp_server, mcp_skill
+from eidetic_os.mcp_client import (
     MCPClient,
     MCPClientError,
     StdioTransport,
     Transport,
     transport_from_manifest,
 )
-from atlas_os.mcp_server import (
+from eidetic_os.mcp_server import (
     INVALID_PARAMS,
     METHOD_NOT_FOUND,
     MCPServer,
     Tool,
-    build_atlas_server,
+    build_eidetic_server,
     validate_arguments,
 )
 
@@ -242,11 +242,11 @@ def test_client_reports_handler_error_as_tool_result() -> None:
 # ──────────────────────────────────────────────────────────────────────────────
 # Stdio round-trip — a real subprocess over the wire
 # ──────────────────────────────────────────────────────────────────────────────
-def test_stdio_round_trip_against_atlas_server() -> None:
-    transport = StdioTransport([sys.executable, "-m", "atlas_os", "mcp", "serve"])
+def test_stdio_round_trip_against_eidetic_server() -> None:
+    transport = StdioTransport([sys.executable, "-m", "eidetic_os", "mcp", "serve"])
     with MCPClient(transport) as client:
         client.initialize()
-        assert client.server_info["name"] == "atlas-os"
+        assert client.server_info["name"] == "eidetic-os"
         names = {t.name for t in client.list_tools()}
         assert {"search", "embed", "doctor", "skills_list", "audit_query"} <= names
         result = client.call_tool("skills_list", {})
@@ -258,7 +258,7 @@ def test_stdio_round_trip_serves_a_skill() -> None:
     skills = mcp_skill.load_skills()
     assert skills, "expected at least one bundled skill"
     slug = skills[0].slug
-    transport = StdioTransport([sys.executable, "-m", "atlas_os", "skills", "run", slug])
+    transport = StdioTransport([sys.executable, "-m", "eidetic_os", "skills", "run", slug])
     with MCPClient(transport) as client:
         client.initialize()
         tools = client.list_tools()
@@ -312,17 +312,17 @@ def test_build_skill_server_unknown_slug_raises() -> None:
 def test_single_skill_server_is_named_for_the_skill() -> None:
     slug = mcp_skill.load_skills()[0].slug
     server = mcp_skill.build_skill_server([slug])
-    assert server.name == f"atlas-skill-{slug}"
+    assert server.name == f"eidetic-skill-{slug}"
     assert len(server.tools) == 1
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Atlas server tools (in-process, no shelling out)
+# Eidetic server tools (in-process, no shelling out)
 # ──────────────────────────────────────────────────────────────────────────────
-def test_atlas_server_skills_list_tool() -> None:
+def test_eidetic_server_skills_list_tool() -> None:
     import json
 
-    server = build_atlas_server()
+    server = build_eidetic_server()
     resp = server.handle_message(
         {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "skills_list", "arguments": {}}}
     )
@@ -335,7 +335,7 @@ def test_atlas_server_skills_list_tool() -> None:
 # Marketplace mcp_server manifest support
 # ──────────────────────────────────────────────────────────────────────────────
 def test_manifest_parses_mcp_server_block() -> None:
-    from atlas_os.marketplace import manifest_from_frontmatter
+    from eidetic_os.marketplace import manifest_from_frontmatter
 
     meta = {
         "name": "remote-skill",
@@ -350,7 +350,7 @@ def test_manifest_parses_mcp_server_block() -> None:
 
 
 def test_plain_skill_manifest_has_no_mcp_server() -> None:
-    from atlas_os.marketplace import manifest_from_frontmatter
+    from eidetic_os.marketplace import manifest_from_frontmatter
 
     manifest = manifest_from_frontmatter({"name": "plain", "description": "A prompt skill."})
     assert manifest.is_mcp_server is False
@@ -358,15 +358,15 @@ def test_plain_skill_manifest_has_no_mcp_server() -> None:
 
 
 def test_mcp_server_validation_accepts_valid_blocks() -> None:
-    from atlas_os.marketplace import _mcp_server_problems
+    from eidetic_os.marketplace import _mcp_server_problems
 
     assert _mcp_server_problems(None) == []
-    assert _mcp_server_problems({"transport": "stdio", "command": ["atlas", "skills", "run", "x"]}) == []
+    assert _mcp_server_problems({"transport": "stdio", "command": ["eidetic", "skills", "run", "x"]}) == []
     assert _mcp_server_problems({"transport": "sse", "url": "https://team/mcp"}) == []
 
 
 def test_mcp_server_validation_rejects_bad_blocks() -> None:
-    from atlas_os.marketplace import _mcp_server_problems
+    from eidetic_os.marketplace import _mcp_server_problems
 
     assert _mcp_server_problems("nope")  # not an object
     assert _mcp_server_problems({"transport": "carrier-pigeon"})  # bad transport
@@ -375,7 +375,7 @@ def test_mcp_server_validation_rejects_bad_blocks() -> None:
 
 
 def test_validate_skill_rejects_malformed_mcp_server(tmp_path: Any) -> None:
-    from atlas_os.marketplace import SkillValidationError, validate_skill
+    from eidetic_os.marketplace import SkillValidationError, validate_skill
 
     skill_dir = tmp_path / "broken-mcp"
     skill_dir.mkdir()

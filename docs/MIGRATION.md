@@ -1,6 +1,6 @@
 # Migration Guide — v0.3.0 → v1.0
 
-This guide covers upgrading an existing Atlas OS install from **v0.3.0** to
+This guide covers upgrading an existing Eidetic OS install from **v0.3.0** to
 **v1.0**. The short version:
 
 > **v1.0 is fully backward compatible with v0.3.0.** There are **no breaking
@@ -9,9 +9,9 @@ This guide covers upgrading an existing Atlas OS install from **v0.3.0** to
 > commands:
 >
 > ```bash
-> pip install --upgrade atlas-os   # or: pipx upgrade atlas-os
-> atlas doctor --fix               # validate the setup, auto-fix safe issues
-> atlas embed --incremental        # refresh the RAG index
+> pip install --upgrade eidetic-os   # or: pipx upgrade eidetic-os
+> eidetic doctor --fix               # validate the setup, auto-fix safe issues
+> eidetic embed --incremental        # refresh the RAG index
 > ```
 
 If you only do the above, you're done. The rest of this document explains what's
@@ -24,21 +24,21 @@ new and why you might want to use it.
 1. **Upgrade the package.**
 
    ```bash
-   pip install --upgrade atlas-os
+   pip install --upgrade eidetic-os
    ```
 
-   If you installed with `pipx`, use `pipx upgrade atlas-os`. If you run from a
+   If you installed with `pipx`, use `pipx upgrade eidetic-os`. If you run from a
    source checkout, `git pull` then `pip install -e ".[all]"`. Verify:
 
    ```bash
-   atlas --version
+   eidetic --version
    ```
 
-2. **Run the doctor with auto-fix.** v1.0's `atlas doctor` diagnoses far more
+2. **Run the doctor with auto-fix.** v1.0's `eidetic doctor` diagnoses far more
    than v0.3.0 and can repair safe problems for you:
 
    ```bash
-   atlas doctor --fix
+   eidetic doctor --fix
    ```
 
    This clears stale git locks automatically and prompts before any unsafe
@@ -49,7 +49,7 @@ new and why you might want to use it.
    v0.3.0:
 
    ```bash
-   atlas embed --incremental
+   eidetic embed --incremental
    ```
 
 That's the whole upgrade. Nothing in your configuration needs to change.
@@ -79,48 +79,48 @@ v1.0 keeps every v0.3.0 contract:
 
 ### New features
 
-- **Interactive `atlas init` wizard.** First-run onboarding is now a guided
+- **Interactive `eidetic init` wizard.** First-run onboarding is now a guided
   wizard: it suggests a vault default, auto-detects your local LLM, optionally
   collects SMTP settings, generates `.env`, scaffolds the vault tree, and runs
-  `atlas doctor`. `--yes` accepts every default for a non-interactive run. You
-  don't need this to upgrade — it's for fresh setups — but `atlas doctor --fix`
+  `eidetic doctor`. `--yes` accepts every default for a non-interactive run. You
+  don't need this to upgrade — it's for fresh setups — but `eidetic doctor --fix`
   can offer to run it if your config is incomplete.
-- **`atlas doctor` — diagnose and fix.** The doctor now groups checks by category
+- **`eidetic doctor` — diagnose and fix.** The doctor now groups checks by category
   (Config / Git / LLM / RAG / SMTP), colour-codes each row, and prints an
   actionable next step for anything that isn't OK. New checks cover stale git
   locks, LLM backend reachability, RAG freshness, iCloud file offloading, and
   SMTP configuration. See the new flags below.
 - **Pre-built skill packs.** Install a complete workflow in one command instead
   of installing skills one at a time. Three packs ship — `knowledge`,
-  `communication`, and `trading`. List them with `atlas skills packs` and install
-  one with `atlas skills install-pack <name>`. See
+  `communication`, and `trading`. List them with `eidetic skills packs` and install
+  one with `eidetic skills install-pack <name>`. See
   [`SKILLS-FRAMEWORK.md`](SKILLS-FRAMEWORK.md#skill-packs).
 - **End-to-end integration test suite.** A full-pipeline test layer
   (`pytest -m integration`) exercises real command flows; unit and integration
-  tests can be run separately. Relevant if you develop against Atlas OS.
+  tests can be run separately. Relevant if you develop against Eidetic OS.
 - **Hardened pipeline scripts.** Every script under `scripts/` now degrades
   gracefully — network timeouts, retries with backoff, atomic file writes, and
   safe git operations — instead of dumping a traceback. This is transparent at
   runtime; no configuration needed.
-- **Pluggable LLM backends.** Atlas OS auto-detects any OpenAI-compatible server
+- **Pluggable LLM backends.** Eidetic OS auto-detects any OpenAI-compatible server
   (LM Studio → Ollama → llama.cpp → a custom URL) and uses the first that
   responds. Explicit endpoint settings still win, so existing setups are
-  unchanged. Inspect with `atlas backends` and `atlas backends test`.
+  unchanged. Inspect with `eidetic backends` and `eidetic backends test`.
 - **Audit trail.** Every autonomous action appends one JSON line to an
-  append-only, rotating audit log. Inspect it with `atlas audit show` / `tail` /
+  append-only, rotating audit log. Inspect it with `eidetic audit show` / `tail` /
   `export`.
 
 ### New CLI flags & subcommands
 
 | Command | New | What it does |
 |---|---|---|
-| `atlas doctor` | `--fix` | Auto-applies safe remediations (e.g. clearing stale git locks), prompts for unsafe ones. |
-| `atlas doctor` | `--json` | Emits the full report as `{checks, summary}` for programmatic use. |
-| `atlas skills` | `packs` | Lists the curated skill packs with their members and counts. |
-| `atlas skills` | `install-pack <name>` | Installs every skill in a pack at once (`--force` to overwrite existing). |
+| `eidetic doctor` | `--fix` | Auto-applies safe remediations (e.g. clearing stale git locks), prompts for unsafe ones. |
+| `eidetic doctor` | `--json` | Emits the full report as `{checks, summary}` for programmatic use. |
+| `eidetic skills` | `packs` | Lists the curated skill packs with their members and counts. |
+| `eidetic skills` | `install-pack <name>` | Installs every skill in a pack at once (`--force` to overwrite existing). |
 
-(For reference, `atlas skills install` / `list` / `show` and `atlas backends` /
-`atlas audit` arrived during the 0.x line and are also part of v1.0; see the full
+(For reference, `eidetic skills install` / `list` / `show` and `eidetic backends` /
+`eidetic audit` arrived during the 0.x line and are also part of v1.0; see the full
 [`CLI-REFERENCE.md`](CLI-REFERENCE.md).)
 
 ### New modules
@@ -130,12 +130,12 @@ why v1.0's scripts are more robust. Listed here for contributors:
 
 | Module | Purpose |
 |---|---|
-| [`atlas_os/retry.py`](../atlas_os/retry.py) | `RetryPolicy` + `retry` decorator / `retry_call` for exponential-backoff retries with an injectable `sleep`. |
-| [`atlas_os/netio.py`](../atlas_os/netio.py) | HTTP with explicit connect/read timeouts and retries on transient failures (`429`/`5xx`). |
-| [`atlas_os/fileio.py`](../atlas_os/fileio.py) | Atomic file writes (write-temp-then-rename) so an interrupted run can't corrupt state. |
-| [`atlas_os/gitutil.py`](../atlas_os/gitutil.py) | Safe git helpers, including stale-lock detection used by `atlas doctor`. |
-| [`atlas_os/scriptkit.py`](../atlas_os/scriptkit.py) | Shared script scaffolding for graceful degradation and consistent error handling. |
-| [`atlas_os/packs.py`](../atlas_os/packs.py) | The skill-pack registry and installer behind `atlas skills packs` / `install-pack`. |
+| [`eidetic_os/retry.py`](../eidetic_os/retry.py) | `RetryPolicy` + `retry` decorator / `retry_call` for exponential-backoff retries with an injectable `sleep`. |
+| [`eidetic_os/netio.py`](../eidetic_os/netio.py) | HTTP with explicit connect/read timeouts and retries on transient failures (`429`/`5xx`). |
+| [`eidetic_os/fileio.py`](../eidetic_os/fileio.py) | Atomic file writes (write-temp-then-rename) so an interrupted run can't corrupt state. |
+| [`eidetic_os/gitutil.py`](../eidetic_os/gitutil.py) | Safe git helpers, including stale-lock detection used by `eidetic doctor`. |
+| [`eidetic_os/scriptkit.py`](../eidetic_os/scriptkit.py) | Shared script scaffolding for graceful degradation and consistent error handling. |
+| [`eidetic_os/packs.py`](../eidetic_os/packs.py) | The skill-pack registry and installer behind `eidetic skills packs` / `install-pack`. |
 
 ### New environment variables
 
@@ -144,13 +144,13 @@ Your v0.3.0 `.env` needs no edits.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `ATLAS_LLM_BACKEND` | _auto-detect_ | Force a backend (`lmstudio` / `ollama` / `llamacpp` / `openai-compatible`), skipping detection. |
-| `ATLAS_LLM_MODEL` | backend default | Override the chat model name. |
-| `ATLAS_LLM_API_KEY` | _unset_ | API key for an OpenAI-compatible backend that requires one. |
+| `EIDETIC_LLM_BACKEND` | _auto-detect_ | Force a backend (`lmstudio` / `ollama` / `llamacpp` / `openai-compatible`), skipping detection. |
+| `EIDETIC_LLM_MODEL` | backend default | Override the chat model name. |
+| `EIDETIC_LLM_API_KEY` | _unset_ | API key for an OpenAI-compatible backend that requires one. |
 | `OPENAI_COMPATIBLE_URL` | _unset_ | Base URL for a custom OpenAI-compatible server (the last backend tried). |
-| `ATLAS_SKILLS_DIR` | `$VAULT_PATH/.claude/skills` | Where `atlas skills install` / `install-pack` write installed skills. |
-| `ATLAS_AUDIT_PATH` | `$VAULT_PATH/.atlas/audit.jsonl` | Location of the append-only audit log. |
-| `ATLAS_TRIGGER` | `cli` | Tags an action's trigger in the audit trail; scheduled tasks set `ATLAS_TRIGGER=scheduled`. |
+| `EIDETIC_SKILLS_DIR` | `$VAULT_PATH/.claude/skills` | Where `eidetic skills install` / `install-pack` write installed skills. |
+| `EIDETIC_AUDIT_PATH` | `$VAULT_PATH/.eidetic/audit.jsonl` | Location of the append-only audit log. |
+| `EIDETIC_TRIGGER` | `cli` | Tags an action's trigger in the audit trail; scheduled tasks set `EIDETIC_TRIGGER=scheduled`. |
 
 See [`CONFIGURATION.md`](CONFIGURATION.md) for the complete environment-variable
 reference.
@@ -162,7 +162,7 @@ reference.
 If you need to return to v0.3.0:
 
 ```bash
-pip install "atlas-os==0.3.0"
+pip install "eidetic-os==0.3.0"
 ```
 
 Because v1.0 writes nothing your v0.3.0 install can't read — the audit log and

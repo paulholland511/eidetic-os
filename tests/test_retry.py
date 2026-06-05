@@ -1,10 +1,10 @@
-"""Tests for atlas_os.retry — backoff policy, retry_call, and the decorator."""
+"""Tests for eidetic_os.retry — backoff policy, retry_call, and the decorator."""
 
 from __future__ import annotations
 
 import pytest
 
-from atlas_os import retry
+from eidetic_os import retry
 
 
 class TestRetryPolicy:

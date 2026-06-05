@@ -2,11 +2,11 @@
 """Query the RAG store from the command line — hybrid search with reranking.
 
 A thin CLI over the advanced retrieval pipeline in ``embed_vault.advanced_search``
-(itself built on :mod:`atlas_os.rag`): semantic-chunked content, BM25 + vector
+(itself built on :mod:`eidetic_os.rag`): semantic-chunked content, BM25 + vector
 hybrid fusion, TF-IDF reranking, and metadata pre-filtering by folder, doc_type,
 tag, file type, and modified-time window.
 
-Backs the ``atlas search`` command. Reads the same configuration as
+Backs the ``eidetic search`` command. Reads the same configuration as
 ``embed_vault.py`` (``VAULT_PATH``, ``RAG_DIR``, ``EMBED_*``); a query embedding
 needs the embeddings endpoint up (except in ``--mode keyword``, which is purely
 lexical and offline).
@@ -28,11 +28,11 @@ import os
 import time
 from datetime import datetime, timezone
 
-from _bootstrap import ensure_atlas_os
+from _bootstrap import ensure_eidetic_os
 
-ensure_atlas_os()
+ensure_eidetic_os()
 import embed_vault  # noqa: E402  (sibling script, on sys.path via conftest/_bootstrap)
-from atlas_os import scriptkit  # noqa: E402
+from eidetic_os import scriptkit  # noqa: E402
 
 _DURATION_UNITS = {"h": 3600, "d": 86400, "w": 604800}
 
@@ -58,7 +58,7 @@ def parse_since(value: str) -> float:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="rag_search.py",
-        description="Hybrid RAG search over the Atlas OS vault (BM25 + vector + rerank).",
+        description="Hybrid RAG search over the Eidetic OS vault (BM25 + vector + rerank).",
     )
     p.add_argument("query", help="The search query.")
     p.add_argument("--top-k", "-k", type=int, default=5, help="Results to return (default 5).")

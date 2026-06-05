@@ -13,8 +13,8 @@ from typing import Callable
 
 import pytest
 
-from atlas_os import vector_backend
-from atlas_os.vector_backend import VectorBackend
+from eidetic_os import vector_backend
+from eidetic_os.vector_backend import VectorBackend
 
 
 def _entries() -> list[dict]:
@@ -32,19 +32,19 @@ def _entries() -> list[dict]:
 
 
 def _make_sqlite(rag_dir: Path) -> VectorBackend:
-    from atlas_os.vector_backends.sqlite_backend import SQLiteBackend
+    from eidetic_os.vector_backends.sqlite_backend import SQLiteBackend
     return SQLiteBackend.open(rag_dir)
 
 
 def _make_lancedb(rag_dir: Path) -> VectorBackend:
     pytest.importorskip("lancedb")
-    from atlas_os.vector_backends.lancedb_backend import LanceDBBackend
+    from eidetic_os.vector_backends.lancedb_backend import LanceDBBackend
     return LanceDBBackend.open(rag_dir)
 
 
 def _make_chroma(rag_dir: Path) -> VectorBackend:
     pytest.importorskip("chromadb")
-    from atlas_os.vector_backends.chroma_backend import ChromaBackend
+    from eidetic_os.vector_backends.chroma_backend import ChromaBackend
     return ChromaBackend.open(rag_dir)
 
 

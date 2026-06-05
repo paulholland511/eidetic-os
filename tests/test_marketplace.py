@@ -1,7 +1,7 @@
 """Tests for the skills marketplace — registry, search, publish, dependencies.
 
 Hermetic: registry config is redirected to a temp directory via
-``ATLAS_REGISTRIES_PATH``; packaging writes to ``tmp_path``; the built-in
+``EIDETIC_REGISTRIES_PATH``; packaging writes to ``tmp_path``; the built-in
 registry is read from the live repo's ``skills/registry.json``. No network.
 """
 
@@ -14,8 +14,8 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from atlas_os import marketplace
-from atlas_os.cli import app
+from eidetic_os import marketplace
+from eidetic_os.cli import app
 
 runner = CliRunner()
 
@@ -147,13 +147,13 @@ def test_resolve_dependencies_detects_cycle() -> None:
 
 # ── registries config (add / list / load) ────────────────────────────────────
 def test_load_sources_defaults_to_builtin_only(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setenv("ATLAS_REGISTRIES_PATH", str(tmp_path / "regs.json"))
+    monkeypatch.setenv("EIDETIC_REGISTRIES_PATH", str(tmp_path / "regs.json"))
     assert marketplace.load_registry_sources() == [marketplace.DEFAULT_REGISTRY]
 
 
 def test_add_registry_persists_and_dedupes(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     cfg = tmp_path / "regs.json"
-    monkeypatch.setenv("ATLAS_REGISTRIES_PATH", str(cfg))
+    monkeypatch.setenv("EIDETIC_REGISTRIES_PATH", str(cfg))
     marketplace.add_registry("https://example.com/registry.json")
     again = marketplace.add_registry("https://example.com/registry.json")
     assert again == [marketplace.DEFAULT_REGISTRY, "https://example.com/registry.json"]
@@ -162,7 +162,7 @@ def test_add_registry_persists_and_dedupes(monkeypatch: pytest.MonkeyPatch, tmp_
 
 
 def test_add_registry_rejects_builtin_sentinel(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setenv("ATLAS_REGISTRIES_PATH", str(tmp_path / "regs.json"))
+    monkeypatch.setenv("EIDETIC_REGISTRIES_PATH", str(tmp_path / "regs.json"))
     with pytest.raises(marketplace.RegistryError):
         marketplace.add_registry(marketplace.DEFAULT_REGISTRY)
 
@@ -174,7 +174,7 @@ def test_resolve_registry_source_dispatch() -> None:
 
 
 def test_search_registries_includes_builtin(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setenv("ATLAS_REGISTRIES_PATH", str(tmp_path / "regs.json"))
+    monkeypatch.setenv("EIDETIC_REGISTRIES_PATH", str(tmp_path / "regs.json"))
     hits, loads = marketplace.search_registries("vault")
     assert all(load.error is None for load in loads)
     assert any(h.entry.name == "vault-lint-report" for h in hits)
@@ -183,7 +183,7 @@ def test_search_registries_includes_builtin(monkeypatch: pytest.MonkeyPatch, tmp
 def test_search_registries_records_bad_source(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     cfg = tmp_path / "regs.json"
     cfg.write_text(json.dumps({"registries": [str(tmp_path / "nope.json")]}), encoding="utf-8")
-    monkeypatch.setenv("ATLAS_REGISTRIES_PATH", str(cfg))
+    monkeypatch.setenv("EIDETIC_REGISTRIES_PATH", str(cfg))
     _, loads = marketplace.search_registries("anything")
     assert any(load.error is not None for load in loads)
 
@@ -297,19 +297,19 @@ def test_builtin_registry_is_well_formed() -> None:
         assert entry.name
         assert entry.description
         assert entry.version
-        assert entry.author == "Atlas OS"
+        assert entry.author == "Eidetic OS"
 
 
 # ── CLI ────────────────────────────────────────────────────────────────────--
 def test_cli_skills_search_builtin(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setenv("ATLAS_REGISTRIES_PATH", str(tmp_path / "regs.json"))
+    monkeypatch.setenv("EIDETIC_REGISTRIES_PATH", str(tmp_path / "regs.json"))
     result = runner.invoke(app, ["skills", "search", "trading"])
     assert result.exit_code == 0
     assert "daily-trading-report" in result.stdout
 
 
 def test_cli_skills_search_no_match(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setenv("ATLAS_REGISTRIES_PATH", str(tmp_path / "regs.json"))
+    monkeypatch.setenv("EIDETIC_REGISTRIES_PATH", str(tmp_path / "regs.json"))
     result = runner.invoke(app, ["skills", "search", "zzzznotaskill"])
     assert result.exit_code == 0
     assert "no skills match" in result.stdout
@@ -334,7 +334,7 @@ def test_cli_skills_publish_invalid(tmp_path: Path) -> None:
 
 
 def test_cli_registry_add_and_list(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setenv("ATLAS_REGISTRIES_PATH", str(tmp_path / "regs.json"))
+    monkeypatch.setenv("EIDETIC_REGISTRIES_PATH", str(tmp_path / "regs.json"))
     add = runner.invoke(app, ["skills", "registry", "add", "https://example.com/r.json"])
     assert add.exit_code == 0
     assert "added registry" in add.stdout
@@ -345,7 +345,7 @@ def test_cli_registry_add_and_list(monkeypatch: pytest.MonkeyPatch, tmp_path: Pa
 
 
 def test_cli_registry_list_builtin_only(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setenv("ATLAS_REGISTRIES_PATH", str(tmp_path / "regs.json"))
+    monkeypatch.setenv("EIDETIC_REGISTRIES_PATH", str(tmp_path / "regs.json"))
     result = runner.invoke(app, ["skills", "registry", "list"])
     assert result.exit_code == 0
-    assert "Atlas OS Built-in Skills" in result.stdout
+    assert "Eidetic OS Built-in Skills" in result.stdout

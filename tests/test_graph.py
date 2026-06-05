@@ -18,7 +18,7 @@ from pathlib import Path
 
 import pytest
 
-from atlas_os.dashboard import data
+from eidetic_os.dashboard import data
 
 
 @pytest.fixture()
@@ -165,7 +165,7 @@ flask = pytest.importorskip("flask", reason="dashboard extra (flask) not install
 
 @pytest.fixture()
 def client(graph_env: Path):  # noqa: ANN201 - Flask test client
-    from atlas_os.dashboard.app import create_app
+    from eidetic_os.dashboard.app import create_app
 
     app = create_app()
     app.config.update(TESTING=True)

@@ -2,14 +2,14 @@
 
 **Source:** [`scripts/health_check.py`](../../scripts/health_check.py),
 [`templates/ops-dashboard.html`](../../templates/ops-dashboard.html) ·
-**CLI:** `atlas health`, `atlas doctor`
+**CLI:** `eidetic health`, `eidetic doctor`
 
-Atlas OS can probe every subsystem and report its status — on the command line,
+Eidetic OS can probe every subsystem and report its status — on the command line,
 as JSON for a dashboard, or as part of the weekly health-check skill.
 
 ---
 
-## Health check (`atlas health`)
+## Health check (`eidetic health`)
 
 ### How it works
 
@@ -38,9 +38,9 @@ design isn't falsely marked down. It checks nine subsystems:
 ### Usage & output
 
 ```bash
-atlas health            # human-readable report
-atlas health --json     # machine-readable (powers the dashboard)
-atlas health --quiet    # no output; exit code only
+eidetic health            # human-readable report
+eidetic health --json     # machine-readable (powers the dashboard)
+eidetic health --quiet    # no output; exit code only
 ```
 
 `--json` emits a **top-level array**, one object per subsystem:
@@ -63,19 +63,19 @@ atlas health --quiet    # no output; exit code only
 **Exit code:** `0` if nothing is `down` (degraded still passes); `1` if any
 subsystem is `down`.
 
-### `atlas doctor` vs `atlas health`
+### `eidetic doctor` vs `eidetic health`
 
-- **`atlas doctor`** — a quick *setup* validation (Python version, vault exists +
+- **`eidetic doctor`** — a quick *setup* validation (Python version, vault exists +
   git, RAG index present, embeddings reachable, SMTP configured). Use it right
-  after `atlas init`.
-- **`atlas health`** — the full nine-subsystem probe above. Use it for ongoing
+  after `eidetic init`.
+- **`eidetic health`** — the full nine-subsystem probe above. Use it for ongoing
   monitoring and the dashboard.
 
 ---
 
 ## Dashboard
 
-Atlas OS ships a self-contained, single-file dashboard at
+Eidetic OS ships a self-contained, single-file dashboard at
 [`templates/ops-dashboard.html`](../../templates/ops-dashboard.html) — **no
 bundled data, no `node_modules`**. Open it in a browser as-is, or wire its
 `fetch()` calls to a tiny local backend.
@@ -84,15 +84,15 @@ It expects two optional JSON endpoints (a ~30-line Flask/Express shim is enough)
 
 | Endpoint | Produced by |
 |---|---|
-| `GET /api/health` | `atlas health --json` |
-| `GET /api/changelog` | `atlas changelog --json` |
+| `GET /api/health` | `eidetic health --json` |
+| `GET /api/changelog` | `eidetic changelog --json` |
 
-A richer graph view can also consume `atlas graph`'s `graph.json` as
+A richer graph view can also consume `eidetic graph`'s `graph.json` as
 `GET /api/graph`.
 
 **Want a full multi-panel app?** Build it as a **separate repository** pointed at
 the same local endpoints — keep its dependencies and any cached data out of the
-public Atlas OS repo, and have its backend shell out to the Atlas OS commands so
+public Eidetic OS repo, and have its backend shell out to the Eidetic OS commands so
 there's a single source of truth for paths/hosts. See
 [`dashboard/README.md`](../../dashboard/README.md).
 
@@ -113,5 +113,5 @@ never deploy it publicly with your vault data behind it.
 | `DASHBOARD_FRONTEND_PORT` / `DASHBOARD_BACKEND_PORT` | `3000` / `5001` | dashboard probe |
 | `SMTP_APP_PASSWORD` | — | email-readiness check |
 
-See also: [git-automation.md](git-automation.md) (`atlas changelog --json`) ·
+See also: [git-automation.md](git-automation.md) (`eidetic changelog --json`) ·
 [knowledge-graph.md](knowledge-graph.md) · [`docs/SCRIPTS.md`](../SCRIPTS.md#health_checkpy)

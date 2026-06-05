@@ -5,7 +5,7 @@ description: Open a spreadsheet, compute summary statistics and trends, flag ano
 
 Read a spreadsheet (`.xlsx` or `.csv`), compute summary statistics and trends, flag anomalies, and write a concise findings note back into the vault.
 
-> Placeholders: `{{ATLAS_OS}}` = the Atlas OS repo path, `{{DATA_FILE}}` = the spreadsheet to analyse (`.xlsx`/`.csv`), `{{VAULT_PATH}}` = your vault path. SMTP credentials come from `SMTP_APP_PASSWORD` / `SENDER_EMAIL` env vars — never inline them.
+> Placeholders: `{{EIDETIC_OS}}` = the Eidetic OS repo path, `{{DATA_FILE}}` = the spreadsheet to analyse (`.xlsx`/`.csv`), `{{VAULT_PATH}}` = your vault path. SMTP credentials come from `SMTP_APP_PASSWORD` / `SENDER_EMAIL` env vars — never inline them.
 
 **Objective:** Load the data, profile every column, surface the headline trends and any anomalies, then save a scannable findings note (and optionally email it).
 
@@ -38,11 +38,11 @@ Read a spreadsheet (`.xlsx` or `.csv`), compute summary statistics and trends, f
    - The plain-language findings, most important first
 2. Index the new note so it is searchable:
    ```bash
-   ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} atlas embed --incremental
+   EIDETIC_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} eidetic embed --incremental
    ```
 3. (Optional) If a recipient is configured, email the findings summary:
    ```bash
-   ATLAS_TRIGGER=scheduled atlas email --json '{"to":"$SENDER_EMAIL","subject":"📊 Spreadsheet Analysis — [date]","body_html":"..."}'
+   EIDETIC_TRIGGER=scheduled eidetic email --json '{"to":"$SENDER_EMAIL","subject":"📊 Spreadsheet Analysis — [date]","body_html":"..."}'
    ```
 
 **Constraints:**
@@ -50,4 +50,4 @@ Read a spreadsheet (`.xlsx` or `.csv`), compute summary statistics and trends, f
 - If the file is missing, unreadable, or empty, write a short note saying so and stop — do not fabricate statistics.
 - Keep the findings note scannable in under a minute.
 
-Sign off as Atlas.
+Sign off as Eidetic.

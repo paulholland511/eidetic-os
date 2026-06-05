@@ -31,7 +31,7 @@ Run:
     python freqtrade_bridge.py --provider local # force LM Studio for PM step
 
 Key lookup for Anthropic falls back through env → ~/.anthropic-api-key →
-.env files in TradingAgents / Atlas / trading-sdk → `claude` CLI.
+.env files in TradingAgents / Eidetic / trading-sdk → `claude` CLI.
 """
 
 from __future__ import annotations

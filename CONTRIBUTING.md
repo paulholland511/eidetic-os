@@ -1,11 +1,11 @@
-# Contributing to Atlas OS
+# Contributing to Eidetic OS
 
-Thanks for your interest! Atlas OS is a template project, so contributions that
+Thanks for your interest! Eidetic OS is a template project, so contributions that
 make it more useful, more portable, or safer are very welcome.
 
 ## The golden rule
 
-**Never commit personal data, credentials, or PII.** Atlas OS is public and is
+**Never commit personal data, credentials, or PII.** Eidetic OS is public and is
 built to be safe to publish. Before every commit, ensure you are not adding:
 
 - Real names, email addresses, phone numbers, or postal addresses
@@ -25,7 +25,7 @@ Replace any match with an environment variable or a placeholder.
 
 ## Development environment
 
-Atlas OS targets **Python 3.11+** (3.13 preferred). From a fresh checkout:
+Eidetic OS targets **Python 3.11+** (3.13 preferred). From a fresh checkout:
 
 ```bash
 git clone https://github.com/paulholland511/atlas-os.git
@@ -42,8 +42,8 @@ pip install -r requirements.txt  # test runner, linter, auditor
 You can now run the CLI:
 
 ```bash
-atlas --version
-atlas doctor       # validates Python, vault, git, RAG index, endpoints
+eidetic --version
+eidetic doctor       # validates Python, vault, git, RAG index, endpoints
 ```
 
 The tests are hermetic — they stub every external dependency and point
@@ -81,8 +81,8 @@ vault to a throwaway temp directory before any script is imported.
 ## Project structure
 
 ```
-atlas-os/
-├── atlas_os/        the `atlas` CLI package (init, doctor, skills, wrappers)
+eidetic-os/
+├── eidetic_os/        the `eidetic` CLI package (init, doctor, skills, wrappers)
 ├── scripts/         embed · graph · commit · changelog · email · health · trade
 ├── trading/         optional multi-agent research SDK
 ├── tests/           hermetic pytest suite (scripts + CLI; no network)

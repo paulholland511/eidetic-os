@@ -1,13 +1,13 @@
-# Atlas OS — Skills Catalogue
+# Eidetic OS — Skills Catalogue
 
-> A reference catalogue of the capability skills Atlas OS agents can draw on.
+> A reference catalogue of the capability skills Eidetic OS agents can draw on.
 > It shows **what the system can do** — the menu of expertise an agent can
 > apply when planning and executing work. This is a generic, shareable
 > reference: no personal configuration lives here. Anything machine- or
 > user-specific is expressed as a `{{PLACEHOLDER}}` token.
 
 This catalogue lists **149 capability skills** across **7 domains**,
-plus the **Atlas-native skills** and **scheduled automations** that ship with
+plus the **Eidetic-native skills** and **scheduled automations** that ship with
 the repo — **160+ skills** in total. For *how* skills work (anatomy, lifecycle,
 authoring your own), see [**SKILLS-FRAMEWORK.md**](SKILLS-FRAMEWORK.md). For the
 scheduled-task skills and their cadences, see
@@ -24,7 +24,7 @@ scheduled-task skills and their cadences, see
 - [✅ Quality](#quality) — 20 skills
 - [📊 Data & AI](#data--ai) — 21 skills
 - [📈 Business](#business) — 20 skills
-- [🤖 Atlas-native skills](#atlas-native-skills) — 4 skills
+- [🤖 Eidetic-native skills](#eidetic-native-skills) — 4 skills
 - [⏰ Scheduled automations](#scheduled-automations) — 9 tasks
 
 ---
@@ -965,9 +965,9 @@ Legal compliance, contracts.
 
 ---
 
-## Atlas-native skills
+## Eidetic-native skills
 
-*4 skills.* These are the first-class skills that ship installed with Atlas OS
+*4 skills.* These are the first-class skills that ship installed with Eidetic OS
 and integrate directly with the knowledge vault, RAG search, and email tooling.
 Unlike the capability skills above (which describe expertise an agent applies),
 these are concrete, runnable `SKILL.md` automations.
@@ -1032,7 +1032,7 @@ placeholder tokens, and safety notes are in
 
 These skills are a starting menu, not a fixed set. To add a capability or a new
 automation, drop a `skills/<slug>/SKILL.md` with `name` + `description`
-frontmatter and a numbered-step body, then run `atlas skills --sync` to
+frontmatter and a numbered-step body, then run `eidetic skills --sync` to
 regenerate the in-vault `Skills Catalog.md` so agents can discover it. See
 [**SKILLS-FRAMEWORK.md**](SKILLS-FRAMEWORK.md) for the anatomy, lifecycle, and a
 copy-paste template, and the

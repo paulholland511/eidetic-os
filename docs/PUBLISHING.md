@@ -1,12 +1,12 @@
 # Publishing to PyPI
 
-How to cut an Atlas OS release and publish it to [PyPI](https://pypi.org). This
-is a maintainer runbook — end users just `pip install atlas-os` (or, in future,
-`pipx install atlas-os`).
+How to cut an Eidetic OS release and publish it to [PyPI](https://pypi.org). This
+is a maintainer runbook — end users just `pip install eidetic-os` (or, in future,
+`pipx install eidetic-os`).
 
-Atlas OS builds with [hatchling](https://hatch.pypa.io/). The package metadata
+Eidetic OS builds with [hatchling](https://hatch.pypa.io/). The package metadata
 lives in [`pyproject.toml`](../pyproject.toml) and the version is single-sourced
-from `__version__` in [`atlas_os/__init__.py`](../atlas_os/__init__.py).
+from `__version__` in [`eidetic_os/__init__.py`](../eidetic_os/__init__.py).
 
 ## Prerequisites
 
@@ -16,19 +16,19 @@ pip install --upgrade build twine
 
 You'll also need a [PyPI account](https://pypi.org/account/register/) and an
 [API token](https://pypi.org/manage/account/token/) (scope it to the
-`atlas-os` project once it exists; use an account-wide token for the very first
+`eidetic-os` project once it exists; use an account-wide token for the very first
 upload). Tokens are used as the password with username `__token__`.
 
 ## 1. Bump the version
 
-Edit the single source of truth — `__version__` in `atlas_os/__init__.py`:
+Edit the single source of truth — `__version__` in `eidetic_os/__init__.py`:
 
 ```python
 __version__ = "0.4.0"   # was 0.3.0
 ```
 
 `pyproject.toml` reads this automatically (`[tool.hatch.version]`), so the
-package, the `atlas --version` output, and the published metadata all stay in
+package, the `eidetic --version` output, and the published metadata all stay in
 lockstep. Follow [SemVer](https://semver.org/): patch for fixes, minor for
 backwards-compatible features, major for breaking changes.
 
@@ -40,7 +40,7 @@ new `## [0.4.0] — YYYY-MM-DD` heading.
 Run the same gates CI does, so a release never ships broken:
 
 ```bash
-ruff check scripts tests atlas_os
+ruff check scripts tests eidetic_os
 pytest
 pip-audit -r requirements.txt
 ```
@@ -54,18 +54,18 @@ python -m build
 
 This produces two artefacts in `dist/`:
 
-- `atlas_os-<version>.tar.gz` — the source distribution (sdist)
-- `atlas_os-<version>-py3-none-any.whl` — the built wheel
+- `eidetic_os-<version>.tar.gz` — the source distribution (sdist)
+- `eidetic_os-<version>-py3-none-any.whl` — the built wheel
 
 The wheel force-includes the operational data dirs (`scripts/`, `schemas/`,
-`templates/`, `skills/`) into a top-level `atlas_os_data/` package so an
-installed `atlas` command works without the source checkout (see
-[`atlas_os/_paths.py`](../atlas_os/_paths.py)). Sanity-check that the skills made
+`templates/`, `skills/`) into a top-level `eidetic_os_data/` package so an
+installed `eidetic` command works without the source checkout (see
+[`eidetic_os/_paths.py`](../eidetic_os/_paths.py)). Sanity-check that the skills made
 it in:
 
 ```bash
-unzip -l dist/atlas_os-*.whl | grep 'atlas_os_data/skills'
-tar tzf dist/atlas_os-*.tar.gz | grep 'skills/.*SKILL.md'
+unzip -l dist/eidetic_os-*.whl | grep 'eidetic_os_data/skills'
+tar tzf dist/eidetic_os-*.tar.gz | grep 'skills/.*SKILL.md'
 ```
 
 ## 4. Validate the metadata
@@ -86,8 +86,8 @@ doesn't burn a real version number (PyPI never lets you re-upload a version):
 twine upload --repository testpypi dist/*
 # then, in a throwaway venv:
 pip install --index-url https://test.pypi.org/simple/ \
-            --extra-index-url https://pypi.org/simple/ atlas-os
-atlas --version
+            --extra-index-url https://pypi.org/simple/ eidetic-os
+eidetic --version
 ```
 
 ## 6. Upload to PyPI
@@ -109,7 +109,7 @@ twine upload dist/*
 ## 7. Tag the release
 
 ```bash
-git tag -a v0.4.0 -m "Atlas OS 0.4.0"
+git tag -a v0.4.0 -m "Eidetic OS 0.4.0"
 git push origin v0.4.0
 ```
 
@@ -119,9 +119,9 @@ section.
 ## Verify the published package
 
 ```bash
-pip install --upgrade atlas-os
-atlas --version          # should print the new version
-atlas skills list        # operational data dirs are bundled and discoverable
+pip install --upgrade eidetic-os
+eidetic --version          # should print the new version
+eidetic skills list        # operational data dirs are bundled and discoverable
 ```
 
 ---
@@ -159,9 +159,9 @@ yet*. The first time the workflow runs, PyPI creates the project and binds it.
 1. Sign in to <https://pypi.org> → your account → **Publishing** (or go directly
    to <https://pypi.org/manage/account/publishing/>).
 2. Under **Add a new pending publisher**, fill in:
-   - **PyPI Project Name:** `atlas-os`
+   - **PyPI Project Name:** `eidetic-os`
    - **Owner:** `paulholland511`
-   - **Repository name:** `atlas-os`
+   - **Repository name:** `eidetic-os`
    - **Workflow name:** `publish.yml`
    - **Environment name:** `pypi`
 3. Save. The first `v*` tag push will create and publish the project.
@@ -170,9 +170,9 @@ yet*. The first time the workflow runs, PyPI creates the project and binds it.
 If you'd rather claim the name immediately:
 
 1. Do one manual `twine upload dist/*` (steps 1–6 above) to create the
-   `atlas-os` project on PyPI.
+   `eidetic-os` project on PyPI.
 2. Then on the project: **Manage → Publishing → Add a new publisher**, with the
-   same values as Option A (Owner `paulholland511`, Repo `atlas-os`, Workflow
+   same values as Option A (Owner `paulholland511`, Repo `eidetic-os`, Workflow
    `publish.yml`, Environment `pypi`).
 3. From then on, tags publish automatically; you never need a token again.
 
@@ -190,15 +190,15 @@ name** to `testpypi`.
 
 ```bash
 # 1. Bump the single source of truth
-#    edit atlas_os/__init__.py:  __version__ = "0.4.0"
+#    edit eidetic_os/__init__.py:  __version__ = "0.4.0"
 
 # 2. Move CHANGELOG [Unreleased] under ## [0.4.0] — YYYY-MM-DD, then commit
-git add atlas_os/__init__.py CHANGELOG.md
+git add eidetic_os/__init__.py CHANGELOG.md
 git commit -m "Release 0.4.0"
 git push origin main
 
 # 3. Tag and push — this is what triggers the publish
-git tag -a v0.4.0 -m "Atlas OS 0.4.0"
+git tag -a v0.4.0 -m "Eidetic OS 0.4.0"
 git push origin v0.4.0
 ```
 
@@ -211,6 +211,6 @@ After it's green, create a GitHub Release from the tag and paste the CHANGELOG
 section, then verify:
 
 ```bash
-pip install --upgrade atlas-os
-atlas --version          # should print the new version
+pip install --upgrade eidetic-os
+eidetic --version          # should print the new version
 ```

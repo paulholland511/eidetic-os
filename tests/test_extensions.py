@@ -13,12 +13,12 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-from atlas_os import extensions as ext
-from atlas_os.cli import app
-from atlas_os.extensions.base import AtlasExtension
-from atlas_os.extensions.jobs import JobsExtension
-from atlas_os.extensions.trading import TradingExtension
-from atlas_os.extensions.voice import VoiceExtension
+from eidetic_os import extensions as ext
+from eidetic_os.cli import app
+from eidetic_os.extensions.base import EideticExtension
+from eidetic_os.extensions.jobs import JobsExtension
+from eidetic_os.extensions.trading import TradingExtension
+from eidetic_os.extensions.voice import VoiceExtension
 
 runner = CliRunner()
 
@@ -47,7 +47,7 @@ def test_builtin_targets_resolve_to_subclasses() -> None:
         if discovered.source != "built-in":
             continue
         cls = ext._resolve_target(discovered.target)
-        assert issubclass(cls, AtlasExtension)
+        assert issubclass(cls, EideticExtension)
 
 
 # ── Loading ───────────────────────────────────────────────────────────────────
@@ -134,7 +134,7 @@ def test_core_app_works_without_extensions() -> None:
 # ── Fault tolerance ───────────────────────────────────────────────────────────
 def test_bad_extension_is_skipped_not_fatal(monkeypatch: pytest.MonkeyPatch) -> None:
     """A built-in pointing at a missing target is recorded, not raised."""
-    monkeypatch.setitem(ext.BUILTIN_EXTENSIONS, "broken", "atlas_os.nope:Missing")
+    monkeypatch.setitem(ext.BUILTIN_EXTENSIONS, "broken", "eidetic_os.nope:Missing")
     ext._discover.cache_clear()
 
     loaded = ext.load_all_extensions()
@@ -152,19 +152,19 @@ def test_resolve_malformed_target_raises() -> None:
 
 def test_resolve_non_extension_target_raises() -> None:
     with pytest.raises(ext.ExtensionLoadError):
-        ext._resolve_target("atlas_os.cli:app")
+        ext._resolve_target("eidetic_os.cli:app")
 
 
 # ── The base contract ─────────────────────────────────────────────────────────
 def test_base_class_is_abstract() -> None:
     with pytest.raises(TypeError):
-        AtlasExtension()  # type: ignore[abstract]
+        EideticExtension()  # type: ignore[abstract]
 
 
 def test_default_hooks_are_noops() -> None:
     """A minimal extension only implements name/description; the rest default."""
 
-    class Minimal(AtlasExtension):
+    class Minimal(EideticExtension):
         @property
         def name(self) -> str:
             return "minimal"
@@ -182,7 +182,7 @@ def test_default_hooks_are_noops() -> None:
 
 
 @pytest.mark.parametrize("cls", [TradingExtension, VoiceExtension, JobsExtension])
-def test_builtin_metadata_is_well_formed(cls: type[AtlasExtension]) -> None:
+def test_builtin_metadata_is_well_formed(cls: type[EideticExtension]) -> None:
     instance = cls()
     assert instance.name and instance.name.islower()
     assert instance.description

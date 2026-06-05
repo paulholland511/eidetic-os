@@ -8,7 +8,7 @@ stale dated claims, and missing frontmatter — and write or update a single lin
 report note that the RAG pipeline can index.
 
 > Placeholders: `{{VAULT_PATH}}` = your vault path (the `VAULT_PATH` env var),
-> `{{ATLAS_OS}}` = the Atlas OS repo path. All credentials (SMTP, embeddings
+> `{{EIDETIC_OS}}` = the Eidetic OS repo path. All credentials (SMTP, embeddings
 > endpoint) come from environment variables — never inline a secret into this
 > skill or any note it writes.
 
@@ -41,7 +41,7 @@ paths for every issue (never summarise away the specifics):
 - **Frontmatter gaps** — notes missing required keys. Validate against the repo
   schema if present:
   ```bash
-  VAULT_PATH={{VAULT_PATH}} python3 {{ATLAS_OS}}/schemas/enforce_schemas.py --check --json
+  VAULT_PATH={{VAULT_PATH}} python3 {{EIDETIC_OS}}/schemas/enforce_schemas.py --check --json
   ```
   Use the script's JSON output when available; otherwise fall back to checking
   for `title`, `tags`, and `updated`.
@@ -62,7 +62,7 @@ re-runnable artifact:
 - Do NOT edit any other note — only this report file.
 - Re-embed the updated report so it is searchable:
   ```bash
-  ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} atlas embed --incremental
+  EIDETIC_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} eidetic embed --incremental
   ```
   (The embeddings endpoint host/port and model are read from env vars; skip
   embedding gracefully if the endpoint is unreachable rather than failing.)
@@ -74,4 +74,4 @@ re-runnable artifact:
 - Be thorough on specifics, concise on prose. Make the report skimmable in 30
   seconds with full detail available below the fold.
 
-Sign off as Atlas.
+Sign off as Eidetic.

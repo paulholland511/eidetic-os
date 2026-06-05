@@ -25,10 +25,10 @@ import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from _bootstrap import ensure_atlas_os
+from _bootstrap import ensure_eidetic_os
 
-ensure_atlas_os()
-from atlas_os import gitutil, scriptkit  # noqa: E402
+ensure_eidetic_os()
+from eidetic_os import gitutil, scriptkit  # noqa: E402
 
 VAULT = Path(os.path.expanduser(os.environ.get("VAULT_PATH", "."))).resolve()
 
@@ -37,7 +37,7 @@ def run(cmd: list[str]) -> str:
     """Run a git command in the vault, returning stdout.
 
     Converts a missing ``git`` binary, a timeout, or a non-zero exit into a
-    :class:`atlas_os.gitutil.GitError` so the caller surfaces a clean message
+    :class:`eidetic_os.gitutil.GitError` so the caller surfaces a clean message
     instead of a raw ``CalledProcessError`` traceback.
     """
     try:

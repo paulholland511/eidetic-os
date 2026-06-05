@@ -1,11 +1,11 @@
 # Skills Framework
 
-A **skill** is the unit of automation in Atlas OS. It is a directory under
+A **skill** is the unit of automation in Eidetic OS. It is a directory under
 `skills/<slug>/` containing a single `SKILL.md` file: YAML frontmatter followed
 by a Markdown prompt body of step-by-step instructions an agent follows. Skills
 are Claude Cowork prompts — Claude Cowork runs them on a schedule or on demand,
-and each one orchestrates the Atlas Python tooling (`atlas embed`,
-`atlas commit`, `atlas graph`, `atlas health`, `atlas email`, `atlas trading`)
+and each one orchestrates the Eidetic Python tooling (`eidetic embed`,
+`eidetic commit`, `eidetic graph`, `eidetic health`, `eidetic email`, `eidetic trading`)
 together with connected MCP tools (email, web search, files). Because they run
 **unattended**, skills are written to make reasonable choices and carry on
 rather than stopping to ask questions.
@@ -45,7 +45,7 @@ contains:
 - A one-line **objective**.
 - A **placeholders note** listing the `{{PLACEHOLDER}}` tokens the skill uses.
 - **Numbered steps**, each naming the exact tool or script to call (e.g. a
-  `python3 {{ATLAS_OS}}/scripts/...` invocation, an `atlas ...` command, or an
+  `python3 {{EIDETIC_OS}}/scripts/...` invocation, an `eidetic ...` command, or an
   MCP action) and what to do with its output.
 - **Constraints / failure handling** — what *not* to do, and how to degrade
   gracefully when something is unreachable (log and skip rather than corrupt
@@ -60,7 +60,7 @@ hard-coded, so the same `SKILL.md` is portable across installs.
 | Token | Meaning |
 |---|---|
 | `{{VAULT_PATH}}` | Absolute path to the knowledge vault directory. |
-| `{{ATLAS_OS}}` | Absolute path to the Atlas OS repository (where scripts live). |
+| `{{EIDETIC_OS}}` | Absolute path to the Eidetic OS repository (where scripts live). |
 | `{{USER_EMAIL}}` | Recipient address for reports the skill emails. |
 | `{{EMBED_HOST}}` / `{{EMBED_PORT}}` | Host and port of the local embeddings endpoint. |
 | `{{LLM_PORT}}` | Port of the local chat-completions endpoint. |
@@ -104,16 +104,16 @@ cadence per shipped skill and how to register it.
 ### 4. Execution
 
 At the scheduled time (or on demand), Claude Cowork runs the skill's body as a
-prompt. The agent follows the numbered steps, invokes the Atlas tooling and MCP
+prompt. The agent follows the numbered steps, invokes the Eidetic tooling and MCP
 tools they name, and — because skills run unattended — resolves ambiguity by
 making a reasonable choice rather than pausing. Each step that wraps a pipeline
-command goes through the audited Atlas CLI.
+command goes through the audited Eidetic CLI.
 
 ### 5. Audit logging
 
-Every autonomous action Atlas runs appends **one JSON line** to an append-only,
-tamper-evident audit trail at `$ATLAS_AUDIT_PATH`
-(default `<vault>/.atlas/audit.jsonl`). Each entry records:
+Every autonomous action Eidetic runs appends **one JSON line** to an append-only,
+tamper-evident audit trail at `$EIDETIC_AUDIT_PATH`
+(default `<vault>/.eidetic/audit.jsonl`). Each entry records:
 
 - `timestamp` — ISO 8601 UTC
 - `action` — what ran (e.g. `embed`, `commit`, `email`)
@@ -128,9 +128,9 @@ Appends are serialised with an in-process lock plus an OS advisory file lock, an
 the file rotates at 10 MB (`audit.jsonl.1`, `.2`, …). Inspect the trail with:
 
 ```bash
-atlas audit show          # recent entries (filterable by --action / --since / --limit)
-atlas audit tail          # the last 5 entries, compact
-atlas audit export        # dump to CSV or JSON (for compliance reporting)
+eidetic audit show          # recent entries (filterable by --action / --since / --limit)
+eidetic audit tail          # the last 5 entries, compact
+eidetic audit export        # dump to CSV or JSON (for compliance reporting)
 ```
 
 This append-only trail supports ISO 27001 control **A.12.4** (logging &
@@ -140,8 +140,8 @@ monitoring).
 
 ## The skills catalog & agent discovery
 
-So that agents (and you) can see the full menu of automations at a glance, Atlas
-OS maintains a generated catalog. `atlas_os/_skills.py` parses the frontmatter of
+So that agents (and you) can see the full menu of automations at a glance, Eidetic
+OS maintains a generated catalog. `eidetic_os/_skills.py` parses the frontmatter of
 every `skills/*/SKILL.md` and renders a `Skills Catalog.md` note into the vault.
 The note carries `type: reference` frontmatter so the RAG indexer picks it up.
 
@@ -149,11 +149,11 @@ Because the catalog is built from each skill's frontmatter, it never drifts from
 the skills themselves. It is **auto-generated — never hand-edit it.**
 
 ```bash
-atlas skills          # list the catalog in the terminal
-atlas skills --sync   # regenerate <vault>/Skills Catalog.md
+eidetic skills          # list the catalog in the terminal
+eidetic skills --sync   # regenerate <vault>/Skills Catalog.md
 ```
 
-`atlas init` generates the catalog on first setup. Re-run `atlas skills --sync`
+`eidetic init` generates the catalog on first setup. Re-run `eidetic skills --sync`
 after adding, editing, or removing a skill so the catalog and the RAG index stay
 current.
 
@@ -166,7 +166,7 @@ For the rendered catalog of the skills this install ships, see
 
 A **pack** is a curated bundle of related skills that together set up a complete
 workflow, so you can install an entire workflow in one command instead of
-installing each skill one at a time. Packs are defined in `atlas_os/packs.py` —
+installing each skill one at a time. Packs are defined in `eidetic_os/packs.py` —
 a registry mapping a pack name to a description and an ordered list of skill
 slugs. Installing a pack simply runs the per-skill installer
 ([stage 2 of the lifecycle](#2-installation)) for every member, with the same
@@ -182,15 +182,15 @@ The three packs this install ships:
 | `trading` | `daily-trading-report`, `topic-research-brief` | Trading intelligence — daily trading report and on-demand topic research briefs. |
 
 ```bash
-atlas skills packs                  # list the packs with their members and counts
-atlas skills install-pack knowledge # install the whole knowledge workflow at once
-atlas skills install-pack trading --force  # reinstall, overwriting existing copies
+eidetic skills packs                  # list the packs with their members and counts
+eidetic skills install-pack knowledge # install the whole knowledge workflow at once
+eidetic skills install-pack trading --force  # reinstall, overwriting existing copies
 ```
 
 Every slug a pack names must be a real skill under `skills/` —
-`atlas_os.packs.validate_packs()` enforces this, and the test-suite asserts it,
+`eidetic_os.packs.validate_packs()` enforces this, and the test-suite asserts it,
 so a typo in the registry fails CI rather than at install time. To add a pack,
-append an entry to `PACKS` in `atlas_os/packs.py` listing existing skill slugs;
+append an entry to `PACKS` in `eidetic_os/packs.py` listing existing skill slugs;
 to add a skill to a pack, add its slug to that pack's `skills` tuple.
 
 ---
@@ -198,18 +198,18 @@ to add a skill to a pack, add its slug to that pack's `skills` tuple.
 ## The skills marketplace
 
 Packs bundle the skills *this install already ships*. The **marketplace**
-(`atlas_os/marketplace.py`) goes further — it lets skills be *shared, discovered,
+(`eidetic_os/marketplace.py`) goes further — it lets skills be *shared, discovered,
 and installed across installs*. It adds three things on top of the lifecycle:
 
 - **Registries** — a `registry.json` document listing skills with discovery
   metadata (name, version, description, author, tags, dependencies, download
   URL). The built-in registry (`skills/registry.json`) ships with every install
-  and is always searched; `atlas skills registry add <url>` registers more
+  and is always searched; `eidetic skills registry add <url>` registers more
   (a URL or a local path). Configured registries live in
-  `$VAULT_PATH/.atlas/registries.json` (override with `ATLAS_REGISTRIES_PATH`).
-- **Search** — `atlas skills search <query>` matches the query against every
+  `$VAULT_PATH/.eidetic/registries.json` (override with `EIDETIC_REGISTRIES_PATH`).
+- **Search** — `eidetic skills search <query>` matches the query against every
   registry's skill names, descriptions, and tags, de-duplicated by name.
-- **Publish** — `atlas skills publish <path>` validates a skill folder against
+- **Publish** — `eidetic skills publish <path>` validates a skill folder against
   the schema and packages it into a `<name>-<version>.tar.gz` containing a
   generated `manifest.json` plus the skill's files, ready to attach to a
   registry's download URL.
@@ -244,7 +244,7 @@ skills the same way they discover anything else they need:
    opens the corresponding `skills/<slug>/SKILL.md` to read and follow its steps.
 
 This keeps discovery decentralised and self-describing: adding a skill and
-re-running `atlas skills --sync` is all it takes for every agent to be able to
+re-running `eidetic skills --sync` is all it takes for every agent to be able to
 find and invoke it.
 
 ---
@@ -262,11 +262,11 @@ and the placeholder tokens, leaving you to fill in the specifics.
    match (kebab-case).
 3. **Write the description.** One clear line — it is what agents see when
    discovering the skill.
-4. **Fill in the steps.** Name the exact `atlas …` commands, scripts, and MCP
+4. **Fill in the steps.** Name the exact `eidetic …` commands, scripts, and MCP
    tools to call, and use `{{PLACEHOLDER}}` tokens for anything machine- or
    user-specific. Add constraints and graceful-failure handling.
 5. **Add a sign-off** describing the report the skill emits when done.
-6. **Sync the catalog.** Run `atlas skills --sync` so the new skill is
+6. **Sync the catalog.** Run `eidetic skills --sync` so the new skill is
    catalogued and RAG-indexed.
 7. **Install & schedule.** Copy `skills/<slug>/` into `SCHEDULED_DIR`, replace
    the tokens, and register a cadence (see [the lifecycle](#the-skill-lifecycle)
@@ -291,7 +291,7 @@ description: One line describing what this skill automates (used for discovery).
 
 Run <one-line objective of this skill>.
 
-> Placeholders: `{{VAULT_PATH}}` = your vault path, `{{ATLAS_OS}}` = the Atlas OS
+> Placeholders: `{{VAULT_PATH}}` = your vault path, `{{EIDETIC_OS}}` = the Eidetic OS
 > repo path, `{{USER_EMAIL}}` = report recipient.
 
 **Objective:** <what a successful run achieves>.
@@ -299,16 +299,16 @@ Run <one-line objective of this skill>.
 **Steps:**
 
 1. Request access to `{{VAULT_PATH}}`, then gather the inputs this skill needs.
-2. Run the relevant Atlas tooling, for example:
+2. Run the relevant Eidetic tooling, for example:
    ```bash
-   ATLAS_OS={{ATLAS_OS}} atlas health
+   EIDETIC_OS={{EIDETIC_OS}} eidetic health
    ```
    and act on its output. Make a reasonable choice on ambiguity — do not stop to
    ask.
 3. Email the result to `{{USER_EMAIL}}` (SMTP credentials are read from the
    environment as `SMTP_APP_PASSWORD` / `SENDER_EMAIL`, never written here):
    ```bash
-   ATLAS_OS={{ATLAS_OS}} atlas email --to {{USER_EMAIL}} --subject "..." --body-file <report>
+   EIDETIC_OS={{EIDETIC_OS}} eidetic email --to {{USER_EMAIL}} --subject "..." --body-file <report>
    ```
 
 **Constraints:**
@@ -327,7 +327,7 @@ summary.
   fail safe: validate inputs, prefer skip-and-log over destructive fallbacks, and
   state explicit constraints so an autonomous run can't wander into unintended
   changes. Every run is captured in the audit trail
-  ([stage 5 above](#5-audit-logging)) — review `atlas audit show` periodically.
+  ([stage 5 above](#5-audit-logging)) — review `eidetic audit show` periodically.
 - **Never inline credentials.** Secrets are not placeholder tokens and must never
   appear in a `SKILL.md`. Email skills read `SMTP_APP_PASSWORD` and
   `SENDER_EMAIL` from the environment at run time. The same applies to API keys

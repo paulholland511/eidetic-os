@@ -1,4 +1,4 @@
-"""Tests for atlas_os.frontmatter — the pre-commit YAML validation gate."""
+"""Tests for eidetic_os.frontmatter — the pre-commit YAML validation gate."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from atlas_os import frontmatter
+from eidetic_os import frontmatter
 
 
 class TestValidateText:
@@ -103,7 +103,7 @@ class TestValidateBeforeCommit:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         for var in ("GIT_AUTHOR_NAME", "GIT_COMMITTER_NAME"):
-            monkeypatch.setenv(var, "Atlas Test")
+            monkeypatch.setenv(var, "Eidetic Test")
         for var in ("GIT_AUTHOR_EMAIL", "GIT_COMMITTER_EMAIL"):
             monkeypatch.setenv(var, "atlas-test@example.com")
         subprocess.run(["git", "init", "-b", "main", str(tmp_path)],

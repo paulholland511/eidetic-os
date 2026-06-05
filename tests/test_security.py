@@ -2,7 +2,7 @@
 
 The scanner tests feed it known-dangerous and known-safe source and assert the
 severities. The sandbox tests exercise timeout and (where the platform enforces
-it) the memory cap. The integration tests drive ``atlas skills install`` against
+it) the memory cap. The integration tests drive ``eidetic skills install`` against
 a temp skill tree and assert that BLOCK findings refuse the install while WARN
 findings need ``--force``.
 
@@ -19,9 +19,9 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from atlas_os import sandbox, security
-from atlas_os.cli import app
-from atlas_os.security import Severity
+from eidetic_os import sandbox, security
+from eidetic_os.cli import app
+from eidetic_os.security import Severity
 
 runner = CliRunner()
 
@@ -225,10 +225,10 @@ def test_sandbox_missing_script_raises(tmp_path: Path) -> None:
 def test_sandbox_env_excludes_parent_secrets(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("ATLAS_SECRET_TOKEN", "super-secret")
+    monkeypatch.setenv("EIDETIC_SECRET_TOKEN", "super-secret")
     script = _write(
         tmp_path / "leak.py",
-        "import os\nprint('LEAK' if 'ATLAS_SECRET_TOKEN' in os.environ else 'CLEAN')\n",
+        "import os\nprint('LEAK' if 'EIDETIC_SECRET_TOKEN' in os.environ else 'CLEAN')\n",
     )
     result = sandbox.run_sandboxed(script, timeout=10)
     assert "CLEAN" in result.stdout
@@ -271,7 +271,7 @@ def test_sandbox_enforces_memory_limit(tmp_path: Path) -> None:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# Install integration — scan gates `atlas skills install`
+# Install integration — scan gates `eidetic skills install`
 # ══════════════════════════════════════════════════════════════════════════════
 def _make_skill(skills_root: Path, slug: str, *, py_source: str) -> Path:
     """Create a minimal installable skill with a SKILL.md and one .py file."""
@@ -302,14 +302,14 @@ def install_env(
     monkeypatched so ``install_skill`` reads our crafted skills instead of the
     repo's, and the audit log is redirected so ``security report`` is hermetic.
     """
-    from atlas_os import _skills
+    from eidetic_os import _skills
 
     source = tmp_path / "src"
     source.mkdir()
     install_root = tmp_path / "installed"
     monkeypatch.setattr(_skills, "skills_dir", lambda: source)
-    monkeypatch.setenv("ATLAS_SKILLS_DIR", str(install_root))
-    monkeypatch.setenv("ATLAS_AUDIT_PATH", str(tmp_path / "audit.jsonl"))
+    monkeypatch.setenv("EIDETIC_SKILLS_DIR", str(install_root))
+    monkeypatch.setenv("EIDETIC_AUDIT_PATH", str(tmp_path / "audit.jsonl"))
     return source, install_root
 
 
@@ -363,7 +363,7 @@ def test_install_clean_skill_succeeds(install_env: tuple[Path, Path]) -> None:
 
 
 def test_install_attempts_recorded_in_audit(install_env: tuple[Path, Path]) -> None:
-    from atlas_os import audit
+    from eidetic_os import audit
 
     source, _ = install_env
     _make_skill(source, "evil", py_source="os.system('x')\n")  # scanned, never run
@@ -379,7 +379,7 @@ def test_install_attempts_recorded_in_audit(install_env: tuple[Path, Path]) -> N
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# CLI — `atlas security scan` / `atlas security report`
+# CLI — `eidetic security scan` / `eidetic security report`
 # ══════════════════════════════════════════════════════════════════════════════
 def test_security_scan_command_exits_nonzero_on_block(tmp_path: Path) -> None:
     _make_skill(tmp_path, "evil", py_source="import os\nos.system('x')\n")

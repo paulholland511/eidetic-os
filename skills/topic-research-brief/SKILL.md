@@ -5,7 +5,7 @@ description: Multi-round web research on a topic, synthesised into a cited brief
 
 Run several rounds of web research on a topic, cross-check the sources, and write a cited research brief into the vault as a structured wiki note that the RAG pipeline can index.
 
-> Placeholders: `{{RESEARCH_TOPIC}}` = the subject to research, `{{VAULT_PATH}}` = vault path (the `VAULT_PATH` env var), `{{ATLAS_OS}}` = repo path. Any API keys (web-search provider, embeddings/LLM endpoint) come from env vars such as `SEARCH_API_KEY` / `LLM_BASE_URL` — never inline a credential.
+> Placeholders: `{{RESEARCH_TOPIC}}` = the subject to research, `{{VAULT_PATH}}` = vault path (the `VAULT_PATH` env var), `{{EIDETIC_OS}}` = repo path. Any API keys (web-search provider, embeddings/LLM endpoint) come from env vars such as `SEARCH_API_KEY` / `LLM_BASE_URL` — never inline a credential.
 
 **Objective:** Produce a balanced, well-sourced brief on `{{RESEARCH_TOPIC}}` in 2–3 research rounds, save it as a dated note under the vault wiki, and re-index so the new note is searchable.
 
@@ -34,7 +34,7 @@ Run several rounds of web research on a topic, cross-check the sources, and writ
 **Step 3 — Index and confirm:**
 
 1. Re-index the vault so the new note is searchable:
-   - Incremental: `ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} atlas embed` (routes through the CLI so the run is audited; reads `VAULT_PATH` from the env)
+   - Incremental: `EIDETIC_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} eidetic embed` (routes through the CLI so the run is audited; reads `VAULT_PATH` from the env)
 2. Confirm the note exists at the expected path and that the embed run reported it as added/modified.
 3. Output a short run summary: note path, source count, number of rounds, and any claims left flagged as unverified.
 

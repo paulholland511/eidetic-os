@@ -1,6 +1,6 @@
 """Tests for the skills catalog, placeholder substitution, and install command.
 
-These are hermetic: the install tests point ``ATLAS_SKILLS_DIR`` at a temp
+These are hermetic: the install tests point ``EIDETIC_SKILLS_DIR`` at a temp
 directory and never touch the real vault. The source skills are read from the
 repo's ``skills/`` directory (the live checkout), so they exercise the real
 SKILL.md files.
@@ -13,8 +13,8 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from atlas_os import _skills, packs
-from atlas_os.cli import app
+from eidetic_os import _skills, packs
+from eidetic_os.cli import app
 
 runner = CliRunner()
 
@@ -63,18 +63,18 @@ def test_substitute_token_alias_llm_port() -> None:
     assert resolved == {"LLM_PORT": "5555"}
 
 
-def test_substitute_atlas_os_resolves_to_repo_root() -> None:
+def test_substitute_eidetic_os_resolves_to_repo_root() -> None:
     rendered, resolved, unresolved = _skills.substitute_placeholders(
-        "repo={{ATLAS_OS}}", {}
+        "repo={{EIDETIC_OS}}", {}
     )
-    assert "{{ATLAS_OS}}" not in rendered
-    assert "ATLAS_OS" in resolved
+    assert "{{EIDETIC_OS}}" not in rendered
+    assert "EIDETIC_OS" in resolved
     assert unresolved == []
 
 
 # ── skills_install_root ───────────────────────────────────────────────────────
 def test_install_root_prefers_explicit_override(tmp_path: Path) -> None:
-    root = _skills.skills_install_root({"ATLAS_SKILLS_DIR": str(tmp_path)})
+    root = _skills.skills_install_root({"EIDETIC_SKILLS_DIR": str(tmp_path)})
     assert root == tmp_path
 
 
@@ -100,7 +100,7 @@ def test_find_skill_unknown_returns_none() -> None:
 
 # ── install_skill ─────────────────────────────────────────────────────────────
 def test_install_skill_writes_and_substitutes(tmp_path: Path) -> None:
-    env = {"ATLAS_SKILLS_DIR": str(tmp_path), "USER_EMAIL": "me@example.com"}
+    env = {"EIDETIC_SKILLS_DIR": str(tmp_path), "USER_EMAIL": "me@example.com"}
     result = _skills.install_skill("atlas-daily-report-email", env=env)
 
     assert result.dest == tmp_path / "atlas-daily-report-email" / "SKILL.md"
@@ -117,14 +117,14 @@ def test_install_skill_writes_and_substitutes(tmp_path: Path) -> None:
 
 
 def test_install_skill_refuses_overwrite_without_force(tmp_path: Path) -> None:
-    env = {"ATLAS_SKILLS_DIR": str(tmp_path)}
+    env = {"EIDETIC_SKILLS_DIR": str(tmp_path)}
     _skills.install_skill("vault-lint-report", env=env)
     with pytest.raises(_skills.SkillInstallError):
         _skills.install_skill("vault-lint-report", env=env)
 
 
 def test_install_skill_force_overwrites(tmp_path: Path) -> None:
-    env = {"ATLAS_SKILLS_DIR": str(tmp_path)}
+    env = {"EIDETIC_SKILLS_DIR": str(tmp_path)}
     _skills.install_skill("vault-lint-report", env=env)
     result = _skills.install_skill("vault-lint-report", env=env, force=True)
     assert result.overwrote is True
@@ -132,7 +132,7 @@ def test_install_skill_force_overwrites(tmp_path: Path) -> None:
 
 def test_install_skill_unknown_raises(tmp_path: Path) -> None:
     with pytest.raises(_skills.SkillNotFoundError):
-        _skills.install_skill("nope", env={"ATLAS_SKILLS_DIR": str(tmp_path)})
+        _skills.install_skill("nope", env={"EIDETIC_SKILLS_DIR": str(tmp_path)})
 
 
 def test_install_skill_no_target_raises() -> None:
@@ -162,7 +162,7 @@ def test_cli_skills_show_unknown() -> None:
 def test_cli_skills_install(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("ATLAS_SKILLS_DIR", str(tmp_path))
+    monkeypatch.setenv("EIDETIC_SKILLS_DIR", str(tmp_path))
     monkeypatch.setenv("USER_EMAIL", "me@example.com")
     result = runner.invoke(app, ["skills", "install", "atlas-daily-report-email"])
     assert result.exit_code == 0
@@ -171,7 +171,7 @@ def test_cli_skills_install(
 
 
 def test_cli_skills_install_unknown(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("ATLAS_SKILLS_DIR", "/tmp/atlas-skills-test")
+    monkeypatch.setenv("EIDETIC_SKILLS_DIR", "/tmp/atlas-skills-test")
     result = runner.invoke(app, ["skills", "install", "nope"])
     assert result.exit_code == 2
     assert "unknown skill" in result.stdout
@@ -180,7 +180,7 @@ def test_cli_skills_install_unknown(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_cli_skills_install_conflict(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("ATLAS_SKILLS_DIR", str(tmp_path))
+    monkeypatch.setenv("EIDETIC_SKILLS_DIR", str(tmp_path))
     first = runner.invoke(app, ["skills", "install", "vault-lint-report"])
     assert first.exit_code == 0
     second = runner.invoke(app, ["skills", "install", "vault-lint-report"])
@@ -220,7 +220,7 @@ def test_find_pack_unknown_returns_none() -> None:
 
 # ── packs: install_pack ───────────────────────────────────────────────────────
 def test_install_pack_installs_every_member(tmp_path: Path) -> None:
-    env = {"ATLAS_SKILLS_DIR": str(tmp_path)}
+    env = {"EIDETIC_SKILLS_DIR": str(tmp_path)}
     result = packs.install_pack("trading", env=env)
 
     assert result.pack == "trading"
@@ -233,7 +233,7 @@ def test_install_pack_installs_every_member(tmp_path: Path) -> None:
 
 def test_install_pack_unknown_raises() -> None:
     with pytest.raises(packs.PackNotFoundError):
-        packs.install_pack("nope", env={"ATLAS_SKILLS_DIR": "/tmp/x"})
+        packs.install_pack("nope", env={"EIDETIC_SKILLS_DIR": "/tmp/x"})
 
 
 def test_install_pack_no_target_raises() -> None:
@@ -242,7 +242,7 @@ def test_install_pack_no_target_raises() -> None:
 
 
 def test_install_pack_skips_already_installed_without_force(tmp_path: Path) -> None:
-    env = {"ATLAS_SKILLS_DIR": str(tmp_path)}
+    env = {"EIDETIC_SKILLS_DIR": str(tmp_path)}
     packs.install_pack("trading", env=env)
     again = packs.install_pack("trading", env=env)
     assert again.installed == []
@@ -253,7 +253,7 @@ def test_install_pack_skips_already_installed_without_force(tmp_path: Path) -> N
 
 
 def test_install_pack_force_reinstalls(tmp_path: Path) -> None:
-    env = {"ATLAS_SKILLS_DIR": str(tmp_path)}
+    env = {"EIDETIC_SKILLS_DIR": str(tmp_path)}
     packs.install_pack("trading", env=env)
     again = packs.install_pack("trading", env=env, force=True)
     assert again.skipped == []
@@ -272,7 +272,7 @@ def test_cli_skills_packs() -> None:
 def test_cli_skills_install_pack(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("ATLAS_SKILLS_DIR", str(tmp_path))
+    monkeypatch.setenv("EIDETIC_SKILLS_DIR", str(tmp_path))
     result = runner.invoke(app, ["skills", "install-pack", "trading"])
     assert result.exit_code == 0
     assert (tmp_path / "daily-trading-report" / "SKILL.md").is_file()
@@ -281,7 +281,7 @@ def test_cli_skills_install_pack(
 
 
 def test_cli_skills_install_pack_unknown(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("ATLAS_SKILLS_DIR", "/tmp/atlas-skills-test")
+    monkeypatch.setenv("EIDETIC_SKILLS_DIR", "/tmp/atlas-skills-test")
     result = runner.invoke(app, ["skills", "install-pack", "nope"])
     assert result.exit_code == 2
     assert "unknown pack" in result.stdout

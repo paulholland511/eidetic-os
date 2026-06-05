@@ -70,11 +70,11 @@ The vault must be its own git repo. Initialise it:
 ```bash
 cd "$VAULT_PATH" && git init && git add -A && git commit -m "Initialise vault"
 ```
-Keep this repo **separate and private** — it is not the public Atlas OS repo.
+Keep this repo **separate and private** — it is not the public Eidetic OS repo.
 
 **Will it commit secrets from my vault?**
 It respects your vault's `.gitignore`. Add a `.gitignore` inside the vault for
-anything sensitive. The public Atlas OS `.gitignore` does not cover your private
+anything sensitive. The public Eidetic OS `.gitignore` does not cover your private
 vault repo.
 
 ## Email

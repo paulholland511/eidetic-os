@@ -1,10 +1,10 @@
 # Feature: Skills Marketplace / Community Registry
 
-**Source:** [`atlas_os/marketplace.py`](../../atlas_os/marketplace.py),
+**Source:** [`eidetic_os/marketplace.py`](../../eidetic_os/marketplace.py),
 [`skills/registry.json`](../../skills/registry.json) ·
-**CLI:** `atlas skills search` · `atlas skills publish` · `atlas skills registry`
+**CLI:** `eidetic skills search` · `eidetic skills publish` · `eidetic skills registry`
 
-The marketplace turns Atlas OS skills from *files in this repo* into something
+The marketplace turns Eidetic OS skills from *files in this repo* into something
 **shareable across installs** — search a registry, package a skill to share, and
 add community registries to discover skills others have published. It builds on
 the [skills framework](../SKILLS-FRAMEWORK.md): a skill is still a `SKILL.md`
@@ -17,7 +17,7 @@ plumbing around it.
 
 - **Registry** — a JSON document (`registry.json`) listing skills with discovery
   metadata. The built-in registry ships in `skills/registry.json` and is always
-  searched. Add more with `atlas skills registry add <url>`.
+  searched. Add more with `eidetic skills registry add <url>`.
 - **Entry** — one skill in a registry: `name`, `version`, `description`,
   `author`, `tags`, `dependencies`, `download_url`.
 - **Manifest** — the schema-validated metadata generated into a skill's package
@@ -32,14 +32,14 @@ plumbing around it.
 ```json
 {
   "schema_version": 1,
-  "name": "Atlas OS Built-in Skills",
-  "description": "The skills that ship with Atlas OS …",
+  "name": "Eidetic OS Built-in Skills",
+  "description": "The skills that ship with Eidetic OS …",
   "skills": [
     {
       "name": "vault-lint-report",
       "version": "1.0.0",
       "description": "Vault health check — orphans, dead links, stale claims.",
-      "author": "Atlas OS",
+      "author": "Eidetic OS",
       "tags": ["vault", "lint", "maintenance", "health"],
       "dependencies": [],
       "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/vault-lint-report"
@@ -60,9 +60,9 @@ plumbing around it.
 ## Search
 
 ```bash
-atlas skills search trading        # match name / description / tags
-atlas skills search vault
-atlas skills search                # empty query → list everything
+eidetic skills search trading        # match name / description / tags
+eidetic skills search vault
+eidetic skills search                # empty query → list everything
 ```
 
 Search runs across **every** configured registry (the built-in one is always
@@ -74,14 +74,14 @@ the search of the registries that did load.
 
 ## Registries
 
-Configured registries live in `$VAULT_PATH/.atlas/registries.json` (override the
-path with `ATLAS_REGISTRIES_PATH`; falls back to `./.atlas/registries.json`). The
+Configured registries live in `$VAULT_PATH/.eidetic/registries.json` (override the
+path with `EIDETIC_REGISTRIES_PATH`; falls back to `./.eidetic/registries.json`). The
 built-in registry is implicit and never written to the file.
 
 ```bash
-atlas skills registry add https://example.com/skills/registry.json
-atlas skills registry add ./team-registry.json     # a local path works too
-atlas skills registry list                          # show configured registries + counts
+eidetic skills registry add https://example.com/skills/registry.json
+eidetic skills registry add ./team-registry.json     # a local path works too
+eidetic skills registry list                          # show configured registries + counts
 ```
 
 ---
@@ -92,8 +92,8 @@ atlas skills registry list                          # show configured registries
 sharing. Point it at a folder containing a `SKILL.md`:
 
 ```bash
-atlas skills publish ./my-skill                     # → dist/skills/my-skill-1.0.0.tar.gz
-atlas skills publish ./my-skill --output ~/share    # custom output directory
+eidetic skills publish ./my-skill                     # → dist/skills/my-skill-1.0.0.tar.gz
+eidetic skills publish ./my-skill --output ~/share    # custom output directory
 ```
 
 Validation reports **every** problem at once:
@@ -142,6 +142,6 @@ before this one" without the CLI having to special-case it.
 - All registry/packaging logic is pure data + small I/O helpers, so the test
   suite exercises it with no network and no real vault.
 
-See the [CLI reference](../CLI-REFERENCE.md#atlas-skills) for the exact flags and
+See the [CLI reference](../CLI-REFERENCE.md#eidetic-skills) for the exact flags and
 exit codes, and the [Skills Framework](../SKILLS-FRAMEWORK.md#the-skills-marketplace)
 for how the marketplace fits the broader skill lifecycle.

@@ -6,7 +6,7 @@ name: Publish to PyPI
 # project (repo + workflow + environment). See docs/PUBLISHING.md.
 #
 # Release flow:
-#   bump __version__ in atlas_os/__init__.py → commit → git tag v0.4.0
+#   bump __version__ in eidetic_os/__init__.py → commit → git tag v0.4.0
 #   → git push origin v0.4.0 → this workflow runs (test → build → publish).
 #
 # workflow_dispatch lets you dry-run the build/test stages by hand without
@@ -87,7 +87,7 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     environment:
       name: pypi
-      url: https://pypi.org/project/atlas-os/
+      url: https://pypi.org/project/eidetic-os/
     permissions:
       # OIDC: required for Trusted Publishing. No username/password/token.
       id-token: write

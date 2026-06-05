@@ -1,18 +1,18 @@
 ---
 name: weekly-system-health-check
-description: Weekly full system health check — tests all Atlas OS subsystems and emails a report.
+description: Weekly full system health check — tests all Eidetic OS subsystems and emails a report.
 ---
 
-Run a full system health check on your Atlas OS infrastructure and email
+Run a full system health check on your Eidetic OS infrastructure and email
 yourself a report.
 
-> Placeholders: `{{USER_EMAIL}}` = recipient, `{{ATLAS_OS}}` = repo path,
+> Placeholders: `{{USER_EMAIL}}` = recipient, `{{EIDETIC_OS}}` = repo path,
 > `{{VAULT_PATH}}` = vault path. The health-check script reads all hosts/ports
 > from env vars (see `.env.example`).
 
 **Preferred path — run the script:**
 ```bash
-ATLAS_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} atlas health --json
+EIDETIC_TRIGGER=scheduled VAULT_PATH={{VAULT_PATH}} eidetic health --json
 ```
 It probes every subsystem and returns structured JSON. Use that as the basis for
 the email. The subsystems it checks:
@@ -31,9 +31,9 @@ the email. The subsystems it checks:
 
 **Auto-fix what you safely can:**
 - If `.git/index.lock` exists: `git worktree prune && rm -f {{VAULT_PATH}}/.git/index.lock`
-- If the working tree is dirty: commit with `ATLAS_TRIGGER=scheduled atlas commit`
+- If the working tree is dirty: commit with `EIDETIC_TRIGGER=scheduled eidetic commit`
 
-**Email the report** using `ATLAS_TRIGGER=scheduled atlas email --json '...'` (routes through the CLI so the run is audited):
+**Email the report** using `EIDETIC_TRIGGER=scheduled eidetic email --json '...'` (routes through the CLI so the run is audited):
 - To: `{{USER_EMAIL}}`
-- Subject: `🏥 Atlas Weekly Health Check — [date]`
+- Subject: `🏥 Eidetic Weekly Health Check — [date]`
 - Include every subsystem status and any action items.

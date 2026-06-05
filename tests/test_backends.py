@@ -11,8 +11,8 @@ import pytest
 import requests
 from typer.testing import CliRunner
 
-from atlas_os import backends
-from atlas_os.cli import app
+from eidetic_os import backends
+from eidetic_os.cli import app
 
 runner = CliRunner()
 
@@ -47,7 +47,7 @@ def _all_unreachable(url: str, timeout: float | None = None) -> _FakeResponse:
 def _clean_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """Start each test from a known, override-free environment."""
     for var in (
-        "ATLAS_LLM_BACKEND", "ATLAS_LLM_MODEL", "ATLAS_LLM_API_KEY",
+        "EIDETIC_LLM_BACKEND", "EIDETIC_LLM_MODEL", "EIDETIC_LLM_API_KEY",
         "LM_STUDIO_URL", "LM_STUDIO_ENDPOINT", "LM_STUDIO_HOST", "LM_STUDIO_PORT",
         "LM_STUDIO_MODEL", "OLLAMA_URL", "LLAMACPP_URL", "OPENAI_COMPATIBLE_URL",
         "OPENAI_BASE_URL", "OPENAI_API_KEY", "EMBED_API_KEY", "EMBED_MODEL",
@@ -127,7 +127,7 @@ def test_detect_returns_none_when_all_down(monkeypatch: pytest.MonkeyPatch) -> N
 
 # ── Forced backend selection ──────────────────────────────────────────────────
 def test_forced_backend_skips_probing(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("ATLAS_LLM_BACKEND", "ollama")
+    monkeypatch.setenv("EIDETIC_LLM_BACKEND", "ollama")
     # Even though nothing is reachable, the forced backend is returned.
     monkeypatch.setattr(backends.requests, "get", _all_unreachable)
     backend = backends.detect_backend()
@@ -136,12 +136,12 @@ def test_forced_backend_skips_probing(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_forced_backend_alias(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("ATLAS_LLM_BACKEND", "LM-Studio")
+    monkeypatch.setenv("EIDETIC_LLM_BACKEND", "LM-Studio")
     assert backends.forced_backend_name() == "lmstudio"
 
 
 def test_forced_unknown_backend_raises(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("ATLAS_LLM_BACKEND", "bogus")
+    monkeypatch.setenv("EIDETIC_LLM_BACKEND", "bogus")
     with pytest.raises(backends.BackendError):
         backends.forced_backend_name()
 
@@ -156,13 +156,13 @@ def test_get_client_uses_detected_backend(monkeypatch: pytest.MonkeyPatch) -> No
 
 
 def test_get_client_model_override(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("ATLAS_LLM_MODEL", "qwen2.5")
+    monkeypatch.setenv("EIDETIC_LLM_MODEL", "qwen2.5")
     monkeypatch.setattr(backends.requests, "get", _get_returning({"5555"}))
     assert backends.get_client().model == "qwen2.5"
 
 
 def test_get_client_legacy_model_override(monkeypatch: pytest.MonkeyPatch) -> None:
-    """LM_STUDIO_MODEL still supplies the chat model when ATLAS_LLM_MODEL is unset."""
+    """LM_STUDIO_MODEL still supplies the chat model when EIDETIC_LLM_MODEL is unset."""
     monkeypatch.setenv("LM_STUDIO_MODEL", "legacy-model")
     monkeypatch.setattr(backends.requests, "get", _get_returning({"5555"}))
     assert backends.get_client().model == "legacy-model"
@@ -237,7 +237,7 @@ def test_cli_backends_help() -> None:
 
 
 def test_cli_backends_list(monkeypatch: pytest.MonkeyPatch) -> None:
-    from atlas_os import backends as cli_backends
+    from eidetic_os import backends as cli_backends
 
     monkeypatch.setattr(cli_backends.requests, "get", _get_returning({"11434"}))
     result = runner.invoke(app, ["backends"])
@@ -246,7 +246,7 @@ def test_cli_backends_list(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_cli_backends_test_runs_inference(monkeypatch: pytest.MonkeyPatch) -> None:
-    from atlas_os import backends as cli_backends
+    from eidetic_os import backends as cli_backends
 
     monkeypatch.setattr(cli_backends.requests, "get", _get_returning({"5555"}))
 
