@@ -604,6 +604,7 @@ atlas skills [--sync] [--output PATH]
 atlas skills list
 atlas skills show NAME
 atlas skills install NAME [--force]
+atlas skills run NAME
 atlas skills packs
 atlas skills install-pack NAME [--force]
 atlas skills search [QUERY]
@@ -626,7 +627,8 @@ atlas skills registry list
 |---|---|---|---|
 | `list` | | | List every available skill (slug + cadence + description). |
 | `show` | `NAME` | | Print a skill's `SKILL.md` to stdout. |
-| `install` | `NAME` | `--force` | Install a skill into the scheduled-tasks dir, filling in `{{PLACEHOLDER}}` tokens from the environment. `--force` overwrites an existing install. |
+| `install` | `NAME` | `--force` | Install a skill into the scheduled-tasks dir, filling in `{{PLACEHOLDER}}` tokens from the environment. `--force` overwrites an existing install. An MCP-server skill (one with an `mcp_server` manifest block) is detected and its transport reported. |
+| `run` | `NAME` | | Run a skill as an **MCP server** over stdio (launches, serves, exits on EOF). The skill's `SKILL.md` is exposed as an MCP tool, so any MCP host can call it. See [`atlas mcp`](#atlas-mcp). |
 | `packs` | | | List the pre-built skill packs (curated bundles for common workflows), with each pack's skill count and members. |
 | `install-pack` | `NAME` | `--force` | Install every skill in a pack at once, each filled exactly as `install` would. Already-installed members are skipped unless `--force` is passed. |
 | `search` | `[QUERY]` | | Search the configured registries (the **marketplace**) by keyword or tag — matches name, description, and tags. An empty query lists everything. |
@@ -945,6 +947,44 @@ atlas extensions list
 atlas extensions info trading
 atlas extensions info voice
 ```
+
+---
+
+### `atlas mcp`
+
+Run Atlas OS as a **Model Context Protocol** server, or inspect the MCP tools it
+exposes. This lets any MCP host (Claude Code, Cowork, third-party clients) drive
+Atlas OS directly. See [`docs/features/mcp-skills.md`](features/mcp-skills.md)
+for the full guide.
+
+**Usage**
+
+```text
+atlas mcp serve
+atlas mcp list-tools [--json]
+```
+
+**Subcommands**
+
+| Subcommand | Description |
+|---|---|
+| `serve` | Start Atlas OS as an MCP server over stdio. Exposes `search`, `embed`, `doctor`, `skills_list`, and `audit_query` as MCP tools. Blocks, speaking JSON-RPC over stdin/stdout, until the input stream closes. |
+| `list-tools` | Show the MCP tools the server exposes (name, description, arguments). Pass `--json` for the machine-readable tool definitions. |
+
+**Examples**
+
+```bash
+atlas mcp list-tools
+atlas mcp list-tools --json
+
+# Point an MCP host at Atlas OS with the launch command:
+#   command: atlas
+#   args: ["mcp", "serve"]
+atlas mcp serve
+```
+
+To run a single **skill** as its own MCP server (launches, serves, exits on
+EOF), use `atlas skills run <name>` — see [`atlas skills`](#atlas-skills).
 
 ---
 

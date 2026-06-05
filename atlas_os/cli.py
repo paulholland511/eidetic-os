@@ -19,6 +19,8 @@ Subcommands:
 * ``atlas audit``    — inspect the append-only audit trail (show | tail | export)
 * ``atlas dashboard``— launch the local web dashboard (needs the dashboard extra)
 * ``atlas extensions``— list/inspect optional extensions (trading, voice, jobs)
+* ``atlas mcp``      — run Atlas OS as an MCP server; ``list-tools`` to inspect.
+                       ``atlas skills run <name>`` serves one skill over MCP.
 
 Domain-specific functionality (trading briefings, voice/TTS, the job tracker)
 lives in **extensions** (``atlas_os.extensions``), discovered and loaded onto
@@ -547,6 +549,20 @@ def skills_install(
         )
         typer.echo(f"  edit them in {result.dest}")
 
+    # MCP-server skills carry an ``mcp_server`` transport block; surface it so the
+    # user knows the skill is driven over MCP rather than run as a plain prompt.
+    from atlas_os.mcp_skill import mcp_server_config
+
+    config = mcp_server_config(result.slug)
+    if config is not None:
+        transport = config.get("transport", "stdio")
+        _echo_ok(f"MCP skill detected — transport: {transport}")
+        if transport == "stdio":
+            typer.echo(f"  command: {' '.join(str(c) for c in config.get('command', []))}")
+        else:
+            typer.echo(f"  url: {config.get('url', '')}")
+        typer.echo(f"  run it with `atlas skills run {result.slug}` or any MCP host")
+
 
 @skills_app.command("packs")
 def skills_packs() -> None:
@@ -714,6 +730,78 @@ def registry_list() -> None:
             )
         else:
             _echo_warn(f"    unavailable — {load.error}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# skills run — serve a skill as an MCP server
+# ─────────────────────────────────────────────────────────────────────────────
+@skills_app.command("run")
+def skills_run(
+    name: str = typer.Argument(..., help="Skill slug to serve as an MCP server."),
+) -> None:
+    """Run a skill as an MCP server over stdio (launches, serves, exits on EOF).
+
+    The skill's ``SKILL.md`` is exposed as an MCP tool: an MCP host calls the
+    tool and receives the skill's rendered instructions. This makes any bundled
+    skill usable from Claude Code, Cowork, or any other MCP client. Blocks,
+    reading JSON-RPC from stdin and writing to stdout, until the stream closes.
+    """
+    from atlas_os.mcp_skill import serve_skill
+
+    if _skills.find_skill(name) is None:
+        _echo_fail(f"unknown skill {name!r} — run `atlas skills list`")
+        raise typer.Exit(code=2)
+    serve_skill(name)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# mcp — Atlas OS as a Model Context Protocol server
+# ─────────────────────────────────────────────────────────────────────────────
+mcp_app = typer.Typer(
+    no_args_is_help=True,
+    help="Run Atlas OS as an MCP server, or inspect its MCP tools.",
+)
+app.add_typer(mcp_app, name="mcp")
+
+
+@mcp_app.command("serve")
+def mcp_serve() -> None:
+    """Start Atlas OS as an MCP server over stdio.
+
+    Exposes Atlas capabilities as MCP tools (search, embed, doctor, skills_list,
+    audit_query) so any MCP host can drive Atlas OS directly. Blocks, speaking
+    JSON-RPC over stdin/stdout, until the input stream closes. Point a host at
+    it with the command ``atlas mcp serve``.
+    """
+    from atlas_os.mcp_server import serve_stdio
+
+    serve_stdio()
+
+
+@mcp_app.command("list-tools")
+def mcp_list_tools(
+    as_json: bool = typer.Option(False, "--json", help="Emit the tool list as JSON."),
+) -> None:
+    """Show the MCP tools the Atlas OS server exposes (name, description, schema)."""
+    from atlas_os.mcp_server import build_atlas_server
+
+    tools = build_atlas_server().tools
+    if as_json:
+        typer.echo(json.dumps([t.definition() for t in tools], indent=2))
+        return
+
+    typer.secho(f"\nAtlas OS MCP tools ({len(tools)}):\n", bold=True)
+    for tool in tools:
+        typer.secho(f"  {tool.name}", fg=typer.colors.CYAN)
+        typer.echo(f"    {tool.description}")
+        required = tool.input_schema.get("required") or []
+        props = tool.input_schema.get("properties") or {}
+        if props:
+            shown = ", ".join(
+                f"{k}{'*' if k in required else ''}" for k in props
+            )
+            typer.echo(f"    args: {shown}   (* = required)")
+    typer.echo("\nStart the server with `atlas mcp serve` and point any MCP host at it.")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

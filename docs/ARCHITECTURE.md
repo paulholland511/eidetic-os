@@ -175,6 +175,36 @@ commands onto the app, so extension subcommands are present whenever `atlas` run
 See [`features/extensions.md`](features/extensions.md) for the full guide,
 including how to write your own.
 
+### 13. MCP layer (`atlas_os/mcp_server.py`, `mcp_client.py`, `mcp_skill.py`)
+Atlas OS speaks the **Model Context Protocol** in both directions, so it
+interoperates with any MCP host (Claude Code, Cowork, third-party clients) and
+can consume any MCP server as a skill. No third-party SDK and no new
+dependencies — the transport is JSON-RPC 2.0 over the standard library (stdio via
+`subprocess`, HTTP/SSE via the already-present `requests`).
+
+- **Server core** — [`mcp_server.py`](../atlas_os/mcp_server.py) holds a tiny,
+  reusable `MCPServer` (handshake, `tools/list`, `tools/call`, lightweight
+  argument validation, tool-error reporting) plus `build_atlas_server()`, which
+  exposes Atlas capabilities as MCP tools: `search`, `embed`, `doctor`,
+  `skills_list`, `audit_query`. `atlas mcp serve` runs it over stdio.
+- **Client** — [`mcp_client.py`](../atlas_os/mcp_client.py) is a synchronous
+  `MCPClient` over a `Transport` abstraction (`StdioTransport` launches a
+  subprocess; `HttpTransport` POSTs JSON-RPC and accepts JSON or SSE replies). It
+  drives the `initialize → notifications/initialized → tools/list → tools/call`
+  sequence. `transport_from_manifest()` builds the right transport from a skill's
+  `mcp_server` block.
+- **Skill wrapper** — [`mcp_skill.py`](../atlas_os/mcp_skill.py) projects every
+  existing `SKILL.md` into an MCP tool **unmodified** (the backwards-compat
+  guarantee): calling the tool returns the skill's rendered instructions (with
+  `{{PLACEHOLDER}}` tokens filled). `build_skill_server()` auto-generates the
+  server shim; `atlas skills run <name>` serves one skill over stdio.
+- **Marketplace integration** — a skill manifest may carry an `mcp_server`
+  transport block (`{transport: stdio, command: [...]}` or
+  `{transport: http|sse, url: ...}`), validated at publish time. `atlas skills
+  install` detects it and reports how the skill is driven.
+
+See [`features/mcp-skills.md`](features/mcp-skills.md) for the full guide.
+
 ## Design principles
 
 - **Local-first.** Notes and embeddings never leave the machine by default.

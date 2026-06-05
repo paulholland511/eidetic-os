@@ -29,6 +29,7 @@ import re
 import tarfile
 from dataclasses import dataclass, field
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -410,10 +411,19 @@ class SkillManifest:
     tags: tuple[str, ...] = ()
     dependencies: tuple[str, ...] = ()
     schema_version: int = SCHEMA_VERSION
+    # Optional MCP-server descriptor. Present when the skill is itself an MCP
+    # server (see ``_mcp_server_problems``); a frozen mapping so the manifest
+    # stays immutable. ``None`` means "a plain prompt skill".
+    mcp_server: MappingProxyType[str, Any] | None = None
+
+    @property
+    def is_mcp_server(self) -> bool:
+        """True if this skill declares an ``mcp_server`` transport block."""
+        return self.mcp_server is not None
 
     def to_dict(self) -> dict[str, Any]:
         """Serialise to the ``manifest.json`` object (stable key order)."""
-        return {
+        data: dict[str, Any] = {
             "schema_version": self.schema_version,
             "name": self.name,
             "version": self.version,
@@ -422,6 +432,9 @@ class SkillManifest:
             "tags": list(self.tags),
             "dependencies": list(self.dependencies),
         }
+        if self.mcp_server is not None:
+            data["mcp_server"] = dict(self.mcp_server)
+        return data
 
     def to_registry_entry(self, download_url: str = "") -> RegistryEntry:
         """Project this manifest into a registry entry."""
@@ -471,11 +484,48 @@ def _frontmatter_problems(meta: dict[str, object]) -> list[str]:
         ):
             problems.append(f"{list_field!r} must be a list of strings")
 
+    problems.extend(_mcp_server_problems(meta.get("mcp_server")))
+
+    return problems
+
+
+# Valid transports a skill's ``mcp_server`` manifest block may declare.
+_MCP_TRANSPORTS: frozenset[str] = frozenset({"stdio", "http", "sse"})
+
+
+def _mcp_server_problems(value: object) -> list[str]:
+    """Validate an optional ``mcp_server`` manifest block (empty list = ok/absent).
+
+    A skill declares itself an MCP server by carrying an ``mcp_server`` object in
+    its SKILL.md frontmatter: ``{transport: stdio, command: [...]}`` for a local
+    subprocess, or ``{transport: http|sse, url: "..."}`` for a remote server.
+    """
+    if value is None:
+        return []
+    if not isinstance(value, dict):
+        return ["'mcp_server' must be an object"]
+
+    problems: list[str] = []
+    transport = value.get("transport", "stdio")
+    if transport not in _MCP_TRANSPORTS:
+        problems.append(
+            f"mcp_server.transport {transport!r} must be one of {sorted(_MCP_TRANSPORTS)}"
+        )
+    elif transport == "stdio":
+        command = value.get("command")
+        if not (isinstance(command, list) and command and all(isinstance(c, str) for c in command)):  # pyright: ignore[reportUnknownVariableType]
+            problems.append("mcp_server.command must be a non-empty list of strings for stdio transport")
+    else:  # http / sse
+        url = value.get("url")
+        if not (isinstance(url, str) and url.strip()):
+            problems.append(f"mcp_server.url is required for {transport} transport")
     return problems
 
 
 def manifest_from_frontmatter(meta: dict[str, object]) -> SkillManifest:
     """Build a :class:`SkillManifest` from validated frontmatter (no checks here)."""
+    raw_mcp = meta.get("mcp_server")
+    mcp_server = MappingProxyType(dict(raw_mcp)) if isinstance(raw_mcp, dict) else None
     return SkillManifest(
         name=str(meta["name"]).strip(),
         version=str(meta.get("version") or "0.1.0").strip(),
@@ -483,6 +533,7 @@ def manifest_from_frontmatter(meta: dict[str, object]) -> SkillManifest:
         author=str(meta.get("author") or "unknown").strip(),
         tags=_str_tuple(meta.get("tags")),
         dependencies=_str_tuple(meta.get("dependencies")),
+        mcp_server=mcp_server,
     )
 
 
