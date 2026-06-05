@@ -21,6 +21,7 @@ from pathlib import Path
 import yaml
 
 from atlas_os._paths import repo_root, skills_dir
+from atlas_os.security import SecurityReport, is_safe, scan_skill
 
 # Suggested cadences, keyed by skill name. Mirrors docs/SCHEDULED-TASKS.md.
 # A skill missing here simply shows "—"; nothing breaks.
@@ -156,6 +157,40 @@ class SkillInstallError(RuntimeError):
     """Raised when a skill cannot be installed (no target dir, exists, …)."""
 
 
+class SkillBlockedError(SkillInstallError):
+    """Raised when a skill has ``BLOCK``-level security findings.
+
+    A blocked skill ships code that executes arbitrary commands; it is *never*
+    installed, and ``force`` does not override this. The offending
+    :class:`~atlas_os.security.SecurityReport` is attached for display.
+    """
+
+    def __init__(self, slug: str, report: SecurityReport) -> None:
+        super().__init__(
+            f"{slug}: refusing to install — {len(report.blocks)} blocking "
+            f"security finding(s); the skill executes arbitrary code"
+        )
+        self.slug = slug
+        self.report = report
+
+
+class SkillWarningError(SkillInstallError):
+    """Raised when a skill has ``WARN``-level findings and ``force`` is False.
+
+    The capabilities are legitimate but worth a human's review; re-run with
+    ``force=True`` to accept them. The :class:`~atlas_os.security.SecurityReport`
+    is attached for display.
+    """
+
+    def __init__(self, slug: str, report: SecurityReport) -> None:
+        super().__init__(
+            f"{slug}: {len(report.warnings)} security warning(s) — pass --force "
+            f"to install anyway"
+        )
+        self.slug = slug
+        self.report = report
+
+
 @dataclass(frozen=True)
 class InstallResult:
     """Outcome of installing a skill — what was written and what's left to do."""
@@ -166,6 +201,7 @@ class InstallResult:
     resolved: dict[str, str]  # token → value substituted
     unresolved: list[str]  # tokens with no env value, left as {{TOKEN}}
     overwrote: bool
+    report: SecurityReport | None = None  # security scan of the skill source
 
 
 def _resolve_token(token: str, env: dict[str, str]) -> str | None:
@@ -219,14 +255,25 @@ def skills_install_root(env: dict[str, str] | None = None) -> Path | None:
 
 
 def install_skill(
-    slug: str, *, env: dict[str, str] | None = None, force: bool = False
+    slug: str,
+    *,
+    env: dict[str, str] | None = None,
+    force: bool = False,
+    scan: bool = True,
 ) -> InstallResult:
     """Install a skill into the scheduled-tasks directory, filling placeholders.
 
     Copies ``skills/<slug>/SKILL.md`` to ``<install root>/<slug>/SKILL.md``,
-    substituting ``{{PLACEHOLDER}}`` tokens from the environment. Raises
-    ``SkillNotFoundError`` for an unknown skill and ``SkillInstallError`` when
-    there's no install root or the target exists (and ``force`` is False).
+    substituting ``{{PLACEHOLDER}}`` tokens from the environment.
+
+    Before anything is written the skill's source directory is scanned for
+    dangerous code (see :mod:`atlas_os.security`), unless ``scan=False``. A
+    ``BLOCK``-level finding raises :class:`SkillBlockedError` (never installable,
+    even with ``force``); a ``WARN``-level finding raises
+    :class:`SkillWarningError` unless ``force`` is set.
+
+    Raises ``SkillNotFoundError`` for an unknown skill and ``SkillInstallError``
+    when there's no install root or the target exists (and ``force`` is False).
     """
     environ = os.environ if env is None else env
     skill = find_skill(slug)
@@ -236,6 +283,14 @@ def install_skill(
     source = skill_source(skill.slug)
     if not source.is_file():
         raise SkillNotFoundError(slug)
+
+    report: SecurityReport | None = None
+    if scan:
+        report = scan_skill(source.parent)
+        if not is_safe(report):
+            raise SkillBlockedError(skill.slug, report)
+        if report.warnings and not force:
+            raise SkillWarningError(skill.slug, report)
 
     root = skills_install_root(environ)
     if root is None:
@@ -263,4 +318,5 @@ def install_skill(
         resolved=resolved,
         unresolved=unresolved,
         overwrote=overwrote,
+        report=report,
     )

@@ -15,6 +15,7 @@ setup and the command reference, see [`docs/SETUP.md`](../SETUP.md) and
 | Scheduled tasks & skills catalog | [skills-and-automation.md](skills-and-automation.md) | `skills/`, `atlas_os/_skills.py` | `atlas skills` |
 | Skills marketplace / registry | [skills-marketplace.md](skills-marketplace.md) | `atlas_os/marketplace.py`, `skills/registry.json` | `atlas skills search`, `publish`, `registry` |
 | MCP skills (Model Context Protocol) | [mcp-skills.md](mcp-skills.md) | `atlas_os/mcp_server.py`, `mcp_client.py`, `mcp_skill.py` | `atlas mcp serve`, `atlas mcp list-tools`, `atlas skills run` |
+| Skill security (scan + sandbox) | [security.md](security.md) | `atlas_os/security.py`, `atlas_os/sandbox.py` | `atlas security scan`, `atlas security report` |
 | Email reports | [email-reports.md](email-reports.md) | `scripts/send_email.py` | `atlas email` |
 | Extension architecture | [extensions.md](extensions.md) | `atlas_os/extensions/` | `atlas extensions` |
 | Trading research SDK *(optional extension)* | [trading-sdk.md](trading-sdk.md) | `atlas_os/extensions/trading/`, `scripts/trading_briefing.py` | `atlas trading` |

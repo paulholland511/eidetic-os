@@ -205,6 +205,38 @@ dependencies — the transport is JSON-RPC 2.0 over the standard library (stdio 
 
 See [`features/mcp-skills.md`](features/mcp-skills.md) for the full guide.
 
+### 14. Skill security (`atlas_os/security.py`, `atlas_os/sandbox.py`)
+A skill from a registry is untrusted code, and Atlas OS treats it that way with
+two independent layers.
+
+- **Static analysis** — [`security.py`](../atlas_os/security.py) parses every
+  `.py` file a skill ships with the standard-library `ast` module (it never runs
+  the code, so scanning a hostile skill is itself safe) and flags dangerous
+  patterns at one of three severities: `BLOCK` (arbitrary code/command execution
+  — `os.system`, `subprocess(..., shell=True)`, `eval`/`exec`/`__import__`, a
+  file that won't parse), `WARN` (`os.environ`, raw `socket`, `open(...,'w')`,
+  subprocess without a shell), and `INFO` (HTTP-client imports). It resolves
+  import aliases, so `from subprocess import run as r; r(..., shell=True)` is
+  still caught. `scan_skill()` returns a frozen `SecurityReport`; `is_safe()` is
+  true only when there are no `BLOCK` findings.
+- **The install gate** — `install_skill` scans a skill's source before copying
+  anything. A `BLOCK` finding raises `SkillBlockedError` and the skill is never
+  installed (not even with `--force`); a `WARN` finding raises
+  `SkillWarningError` unless `--force` is given. Every attempt is recorded in the
+  audit trail under the `skill_install` action.
+- **Runtime sandbox** — [`sandbox.py`](../atlas_os/sandbox.py) runs a vetted
+  skill's code in a fresh, isolated child process (`python -I`) under a wall-clock
+  timeout (whole process group killed), CPU and address-space `setrlimit` caps, a
+  minimal environment that excludes the parent's secrets, and network denied by
+  default. Memory and network enforcement are kernel-backed on Linux and
+  best-effort on macOS — the code and docs say so rather than implying a
+  guarantee that isn't there.
+- **CLI** — `atlas security scan <path>` runs the analysis by hand (non-zero exit
+  on any `BLOCK`, so it doubles as a CI gate); `atlas security report` summarises
+  the install audit (allowed / blocked / flagged).
+
+See [`features/security.md`](features/security.md) for the full guide.
+
 ## Design principles
 
 - **Local-first.** Notes and embeddings never leave the machine by default.

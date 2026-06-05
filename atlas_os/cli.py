@@ -57,10 +57,11 @@ from dotenv import load_dotenv
 from atlas_os import __version__, audit
 from atlas_os import backends as llm_backends
 from atlas_os import fileio, gitutil
-from atlas_os import _skills, marketplace, packs
+from atlas_os import _skills, marketplace, packs, security
 from atlas_os._paths import repo_root, schemas_dir, scripts_dir, templates_dir
 from atlas_os._probe import Endpoint, detect_endpoints
 from atlas_os._skills import default_catalog_path, load_skills, render_catalog
+from atlas_os.security import Severity
 
 # ── Auto-load .env (repo root first, then cwd, which wins) ────────────────────
 _root = repo_root()
@@ -89,6 +90,36 @@ def _echo_warn(msg: str) -> None:
 
 def _echo_fail(msg: str) -> None:
     typer.secho(f"  ✗ {msg}", fg=typer.colors.RED)
+
+
+_SEVERITY_COLOR: dict[Severity, str] = {
+    Severity.BLOCK: typer.colors.RED,
+    Severity.WARN: typer.colors.YELLOW,
+    Severity.INFO: typer.colors.BLUE,
+}
+
+
+def _print_security_report(report: security.SecurityReport, label: str) -> None:
+    """Render a :class:`SecurityReport` grouped by severity, most-severe first."""
+    counts = report.counts
+    typer.secho(
+        f"\nSecurity scan of {label} — "
+        f"{counts['BLOCK']} block · {counts['WARN']} warn · {counts['INFO']} info "
+        f"({len(report.scanned_files)} file(s) scanned)\n",
+        bold=True,
+    )
+    if not report.findings:
+        _echo_ok("no dangerous patterns found")
+        return
+    for severity in Severity:
+        findings = report.with_severity(severity)
+        if not findings:
+            continue
+        colour = _SEVERITY_COLOR[severity]
+        for finding in findings:
+            badge = typer.style(f"{severity.value:<5}", fg=colour, bold=True)
+            loc = finding.location(relative_to=report.skill_path)
+            typer.echo(f"  {badge} {loc}  {finding.message}")
 
 
 def _version_callback(value: bool) -> None:
@@ -527,18 +558,60 @@ def skills_install(
     The skill's SKILL.md is copied to ``$ATLAS_SKILLS_DIR/<name>/`` (or
     ``$VAULT_PATH/.claude/skills/<name>/`` by default) with its
     ``{{PLACEHOLDER}}`` tokens substituted from your environment / .env.
+
+    Before installing, the skill's source is scanned for dangerous code. A
+    ``BLOCK`` finding refuses the install outright; ``WARN`` findings require
+    ``--force``. Every attempt is recorded in the audit trail.
     """
+    trigger = os.environ.get("ATLAS_TRIGGER", "cli")
     try:
         result = _skills.install_skill(name, force=force)
     except _skills.SkillNotFoundError:
         _echo_fail(f"unknown skill {name!r} — run `atlas skills list`")
         raise typer.Exit(code=2) from None
+    except _skills.SkillBlockedError as exc:
+        _print_security_report(exc.report, name)
+        audit.log_action(
+            "skill_install", trigger, "error",
+            changes=[f"{len(exc.report.blocks)} blocking finding(s)"],
+            context=name, error="blocked by security scan",
+        )
+        _echo_fail(
+            f"refused to install {name!r} — {len(exc.report.blocks)} blocking "
+            "security finding(s). This skill is not installable."
+        )
+        raise typer.Exit(code=1) from exc
+    except _skills.SkillWarningError as exc:
+        _print_security_report(exc.report, name)
+        audit.log_action(
+            "skill_install", trigger, "skipped",
+            changes=[f"{len(exc.report.warnings)} warning(s)"],
+            context=name, error="security warnings; --force required",
+        )
+        _echo_warn(
+            f"{len(exc.report.warnings)} security warning(s) — re-run with "
+            "--force to install anyway."
+        )
+        raise typer.Exit(code=1) from exc
     except _skills.SkillInstallError as exc:
         _echo_fail(str(exc))
+        audit.log_action(
+            "skill_install", trigger, "error", context=name, error=str(exc)
+        )
         raise typer.Exit(code=1) from exc
+
+    accepted = len(result.report.warnings) if result.report else 0
+    audit.log_action(
+        "skill_install", trigger, "success",
+        changes=[f"installed {result.slug}"]
+        + ([f"{accepted} accepted warning(s)"] if accepted else []),
+        context=str(result.dest),
+    )
 
     verb = "reinstalled" if result.overwrote else "installed"
     _echo_ok(f"{verb} {result.slug} → {result.dest}")
+    if accepted:
+        _echo_warn(f"installed with {accepted} accepted security warning(s) (--force)")
     if result.resolved:
         filled = ", ".join(sorted(result.resolved))
         typer.echo(f"  filled {len(result.resolved)} placeholder(s): {filled}")
@@ -1206,6 +1279,94 @@ def audit_export(
         _echo_ok(f"exported {len(entries)} entr(y/ies) → {output}")
     else:
         typer.echo(text)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# security — scan skills for dangerous code and review the install audit
+# ─────────────────────────────────────────────────────────────────────────────
+security_app = typer.Typer(
+    no_args_is_help=True,
+    help="Scan community skills for dangerous code and review the security audit.",
+)
+app.add_typer(security_app, name="security")
+
+
+@security_app.command("scan")
+def security_scan(
+    path: Path = typer.Argument(
+        ..., help="Skill directory or .py file to scan."
+    ),
+) -> None:
+    """Statically scan a skill for dangerous code patterns (AST analysis).
+
+    Parses every ``.py`` file under ``path`` and reports findings by severity.
+    Exits non-zero if any ``BLOCK``-level finding is present, so it doubles as a
+    CI gate for a skill repository.
+    """
+    if not path.exists():
+        _echo_fail(f"no such path: {path}")
+        raise typer.Exit(code=2)
+
+    report = security.scan_skill(path)
+    _print_security_report(report, str(path))
+
+    if not security.is_safe(report):
+        typer.echo()
+        _echo_fail("BLOCK-level findings present — this skill is not safe to install")
+        raise typer.Exit(code=1)
+
+
+@security_app.command("report")
+def security_report(
+    since: str = typer.Option(
+        None, "--since", help="Only attempts since e.g. 24h, 7d, or 2026-06-01."
+    ),
+    limit: int = typer.Option(
+        10, "--limit", "-n", help="How many recent attempts to list."
+    ),
+) -> None:
+    """Summarise the skill-install security audit: allowed, blocked, flagged.
+
+    Reads the ``skill_install`` entries from the audit trail and shows how many
+    installs succeeded, were blocked by a BLOCK finding, or were skipped pending
+    ``--force``, plus the most recent attempts.
+    """
+    try:
+        entries = audit.read_audit(action="skill_install", since=since, limit=-1)
+    except ValueError as exc:
+        _echo_fail(f"bad --since value: {exc}")
+        raise typer.Exit(code=2) from exc
+
+    if not entries:
+        typer.echo("No skill-install attempts recorded yet.")
+        return
+
+    installed = sum(1 for e in entries if e.get("status") == "success")
+    blocked = sum(
+        1
+        for e in entries
+        if e.get("status") == "error" and e.get("error") == "blocked by security scan"
+    )
+    flagged = sum(1 for e in entries if e.get("status") == "skipped")
+    errored = sum(1 for e in entries if e.get("status") == "error") - blocked
+
+    typer.secho("\nSkill-install security report\n", bold=True)
+    _echo_ok(f"installed:  {installed}")
+    _echo_fail(f"blocked:    {blocked}  (BLOCK-level findings)")
+    _echo_warn(f"flagged:    {flagged}  (WARN-level; needed --force)")
+    if errored:
+        _echo_fail(f"other errs: {errored}")
+    typer.echo(f"  total attempts: {len(entries)}")
+
+    recent = entries[-limit:]
+    typer.secho(f"\nMost recent {len(recent)} attempt(s):\n", bold=True)
+    for entry in recent:
+        status = str(entry.get("status", ""))
+        colour = _STATUS_COLOR.get(status, typer.colors.WHITE)
+        mark = typer.style(f"{status:<7}", fg=colour, bold=True)
+        ts = str(entry.get("timestamp", ""))[:19]
+        context = str(entry.get("context", ""))
+        typer.echo(f"  {ts}  {mark} {context}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

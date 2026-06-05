@@ -29,6 +29,7 @@ environment variables described here are the public interface of Atlas OS. See
   - [`atlas skills`](#atlas-skills)
   - [`atlas backends`](#atlas-backends)
   - [`atlas audit`](#atlas-audit)
+  - [`atlas security`](#atlas-security)
   - [`atlas schemas`](#atlas-schemas)
   - [`atlas session`](#atlas-session)
   - [`atlas extensions`](#atlas-extensions)
@@ -104,6 +105,7 @@ atlas-os 0.3.0
 | [`atlas skills`](#atlas-skills) | List, show, and install the agent skills, individually or as packs. |
 | [`atlas backends`](#atlas-backends) | Show detected LLM backends; `test` runs an inference. |
 | [`atlas audit`](#atlas-audit) | Inspect the append-only audit trail. |
+| [`atlas security`](#atlas-security) | Scan skills for dangerous code; review the install security audit. |
 | [`atlas dashboard`](#atlas-dashboard) | Launch the local web dashboard *(needs the `dashboard` extra)*. |
 | [`atlas schemas`](#atlas-schemas) | Enforce per-folder frontmatter schemas. |
 | [`atlas session`](#atlas-session) | Save Cowork chat transcripts to the vault. |
@@ -627,7 +629,7 @@ atlas skills registry list
 |---|---|---|---|
 | `list` | | | List every available skill (slug + cadence + description). |
 | `show` | `NAME` | | Print a skill's `SKILL.md` to stdout. |
-| `install` | `NAME` | `--force` | Install a skill into the scheduled-tasks dir, filling in `{{PLACEHOLDER}}` tokens from the environment. `--force` overwrites an existing install. An MCP-server skill (one with an `mcp_server` manifest block) is detected and its transport reported. |
+| `install` | `NAME` | `--force` | Install a skill into the scheduled-tasks dir, filling in `{{PLACEHOLDER}}` tokens from the environment. The skill's source is **security-scanned first** (see [`atlas security`](#atlas-security)): a `BLOCK` finding refuses the install outright, `WARN` findings require `--force`. `--force` also overwrites an existing install. An MCP-server skill (one with an `mcp_server` manifest block) is detected and its transport reported. |
 | `run` | `NAME` | | Run a skill as an **MCP server** over stdio (launches, serves, exits on EOF). The skill's `SKILL.md` is exposed as an MCP tool, so any MCP host can call it. See [`atlas mcp`](#atlas-mcp). |
 | `packs` | | | List the pre-built skill packs (curated bundles for common workflows), with each pack's skill count and members. |
 | `install-pack` | `NAME` | `--force` | Install every skill in a pack at once, each filled exactly as `install` would. Already-installed members are skipped unless `--force` is passed. |
@@ -659,9 +661,10 @@ from the environment / `.env` (e.g. `SCHEDULED_DIR`, email vars). The registry
 config file is resolved from `ATLAS_REGISTRIES_PATH` → `$VAULT_PATH/.atlas/registries.json`
 → `./.atlas/registries.json`.
 
-**Exit codes** — `0` success; `1` install error, validation failure on
-`publish`, registry error, or `VAULT_PATH` missing for `--sync`; `2` unknown
-skill name, unknown pack name, or missing `SKILL.md`.
+**Exit codes** — `0` success; `1` install error (including a security `BLOCK`,
+or `WARN` findings without `--force`), validation failure on `publish`, registry
+error, or `VAULT_PATH` missing for `--sync`; `2` unknown skill name, unknown pack
+name, or missing `SKILL.md`.
 
 **Examples**
 
@@ -778,6 +781,45 @@ atlas audit show -n 50
 atlas audit tail
 atlas audit export --format csv -o audit-report.csv
 atlas audit export --format json --since 30d
+```
+
+---
+
+### `atlas security`
+
+Scan community skills for dangerous code and review the install security audit.
+See [`docs/features/security.md`](features/security.md) for the full guide.
+
+**Usage**
+
+```text
+atlas security scan PATH
+atlas security report [--since WINDOW] [--limit N]
+```
+
+**Subcommands**
+
+| Subcommand | Argument | Flags | Description |
+|---|---|---|---|
+| `scan` | `PATH` | | Statically analyse every `.py` file under a skill directory (or one `.py` file) with the `ast` module and report findings by severity — `BLOCK` (arbitrary code/command execution), `WARN` (env/socket/file-write/subprocess), `INFO` (HTTP imports). |
+| `report` | | `--since WINDOW`, `--limit N` | Summarise the `skill_install` audit history: how many installs were allowed, blocked by a `BLOCK` finding, or flagged (needed `--force`), plus the most recent attempts. |
+
+**Severities** — `BLOCK` makes a skill un-installable (not even with `--force`);
+`WARN` requires `--force` to install; `INFO` is advisory. The install gate in
+[`atlas skills install`](#atlas-skills) uses exactly these rules, and a complementary
+runtime sandbox (`atlas_os/sandbox.py`) caps CPU/memory/time/network when a
+skill's code is actually executed.
+
+**Exit codes** — `scan`: `0` if no `BLOCK` findings, `1` if any `BLOCK` finding,
+`2` if `PATH` does not exist. `report`: `0` success, `2` on a bad `--since` value.
+
+**Examples**
+
+```bash
+atlas security scan ./my-skill/          # scan a skill directory
+atlas security scan ./my-skill/code.py   # scan a single file
+atlas security report                     # summarise install attempts
+atlas security report --since 30d -n 20
 ```
 
 ---
