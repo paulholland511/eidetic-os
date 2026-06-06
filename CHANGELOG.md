@@ -4,7 +4,21 @@ All notable changes to Eidetic OS are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] — v5.0.0
+## [5.0.0] — 2026-06-06
+
+**v5.0.0** — the enterprise-hardening release. The
+**[v5.0.0 milestone](https://github.com/paulholland511/eidetic-os/milestone/5)**
+turns Eidetic OS from a trustworthy personal system into one you can run
+unattended and audit after the fact: code is **verified before it runs**, the
+audit trail is **cryptographically tamper-evident**, memory behaves like a
+**tiered working-set + cache + cold-store**, and vector search can run against a
+**shared, server-backed index** for multi-user deployments. All four milestone
+issues ([#29](https://github.com/paulholland511/eidetic-os/issues/29)–[#32](https://github.com/paulholland511/eidetic-os/issues/32))
+shipped:
+- **Structured verification gates** ([#29](https://github.com/paulholland511/eidetic-os/issues/29)) — a GROUND-style 5-tier pipeline (syntax → imports → tests → runtime → diff).
+- **Cryptographic audit signatures** ([#30](https://github.com/paulholland511/eidetic-os/issues/30)) — Ed25519 signing with a SHA-256 hash chain for a tamper-evident audit trail.
+- **Tiered memory architecture** ([#31](https://github.com/paulholland511/eidetic-os/issues/31)) — Core / Recall / Archival tiers with auto-tiering and compaction.
+- **Valkey Search vector backend** ([#32](https://github.com/paulholland511/eidetic-os/issues/32)) — a shared, server-backed HNSW index for multi-user deployments.
 
 ### Added
 - **Tiered memory architecture — Core / Recall / Archival** ([#31](https://github.com/paulholland511/eidetic-os/issues/31)) —

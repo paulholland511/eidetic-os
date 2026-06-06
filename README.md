@@ -1632,6 +1632,33 @@ shipped:
   sharpens like the real thing. *Shipped — see
   [Memory decay & relevance](#memory-decay--relevance-eidetic-memory) (`eidetic memory`).*
 
+### ✅ v5.0.0 — enterprise hardening (shipped)
+
+The **[v5.0.0 milestone](https://github.com/paulholland511/eidetic-os/milestone/5)**
+is **complete** — the release that makes Eidetic OS safe to run unattended and
+auditable after the fact. Every item below shipped:
+
+- ✅ **Structured verification gates** ([#29](https://github.com/paulholland511/eidetic-os/issues/29)) —
+  a GROUND-style **5-tier pipeline** (syntax · imports · tests · runtime · diff)
+  that vets code or a skill **before** it runs autonomously, halting at the first
+  blocking failure. *Shipped — see
+  [Verification gates](#verification-gates-eidetic-verify) (`eidetic verify`).*
+- ✅ **Cryptographic audit signatures** ([#30](https://github.com/paulholland511/eidetic-os/issues/30)) —
+  **Ed25519** signing plus a **SHA-256 hash chain** make the append-only audit
+  trail tamper-evident and independently verifiable (the evidence SOC 2 and DORA
+  expect). *Shipped — see
+  [Cryptographic signatures](#cryptographic-signatures-eidetic-audit-verify) (`eidetic audit verify`).*
+- ✅ **Tiered memory architecture** ([#31](https://github.com/paulholland511/eidetic-os/issues/31)) —
+  a Letta/MemGPT-inspired **Core / Recall / Archival** hierarchy with auto-tiering
+  from relevance score, size-limited compaction, and manual promote/demote, so
+  memory behaves like a working-set + cache + cold-store. *Shipped — see
+  [Tiered memory](#tiered-memory--core--recall--archival-eidetic-memory-tiers) (`eidetic memory tiers`).*
+- ✅ **Valkey Search vector backend** ([#32](https://github.com/paulholland511/eidetic-os/issues/32)) —
+  a fourth pluggable backend on **Valkey Search**, a *shared, server-backed* HNSW
+  index so many machines and processes query the same index for multi-user
+  deployments. Select with `VECTOR_BACKEND=valkey`
+  (`pip install 'eidetic-os[valkey]'`). *Shipped.*
+
 Further out:
 
 - ✅ **PyPI release** — [Eidetic OS is on PyPI](https://pypi.org/project/eidetic-os/):
