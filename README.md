@@ -588,6 +588,9 @@ underlying script.
 | `eidetic facts list` | List stored facts, newest first | `--category`, `--limit`, `--all`, `--json` |
 | `eidetic facts search` | Semantic search over active facts | `--limit`, `--json` |
 | `eidetic facts stats` | Fact-store statistics (totals, per-category, top sources) | `--json` |
+| `eidetic channels list` | List configured channels and known adapters (webhook/slack/telegram) | — |
+| `eidetic channels start` | Start a channel adapter, routing inbound messages through memory | — |
+| `eidetic channels test` | Send a test message through a channel | `--message` |
 | `eidetic audit show` | Show recent audit-trail entries | `--limit`, `--action`, `--since` |
 | `eidetic audit tail` | Last 5 audit entries, compact | — |
 | `eidetic audit export` | Export the audit log for compliance | `--format csv\|json`, `--output`, `--action`, `--since` |
@@ -608,6 +611,7 @@ eidetic audit export --format csv -o audit-report.csv
 eidetic facts extract sessions/session-log-2026-06-06-trading.md   # distil + store facts
 eidetic facts list --category decision       # browse decisions
 eidetic facts search "risk management"       # semantic recall over facts
+eidetic channels start webhook               # serve a memory query endpoint over HTTP
 ```
 
 Every command auto-loads `.env` and **validates its required env vars up front**,
@@ -855,6 +859,44 @@ A fact is a single self-contained statement — *"Paul prefers `uv` over pip"*,
 Because facts are deduplicated and contradiction-resolved, the store converges
 on a compact set of *current beliefs* you can inject into context, rather than an
 ever-growing pile of transcript.
+
+---
+
+## Channels — Slack, Telegram & webhook (`eidetic channels`)
+
+Channel adapters turn any messaging surface into a **query interface over your
+memory**: an inbound message is routed through the fact store / RAG search and the
+answer is sent back (see [`eidetic_os/channels/`](eidetic_os/channels/)).
+
+```bash
+eidetic channels list             # configured channels + available adapters
+eidetic channels start webhook    # serve a local HTTP endpoint, no extra deps
+eidetic channels test webhook     # send a test message
+```
+
+Three adapters ship behind a common `Channel` contract (`connect` / `send` /
+`on_message` / `disconnect`):
+
+- **webhook** — dependency-free. Runs a tiny local HTTP server; POST
+  `{"message": "…"}` and get `{"reply": "…"}` back. Wire in any script, Shortcut,
+  or service.
+- **slack** — Web API + Socket Mode (`pip install 'eidetic-os[slack]'`).
+- **telegram** — Bot API, long-polling (`pip install 'eidetic-os[telegram]'`).
+
+Configure them in `.eidetic/channels.yaml` (a per-channel mapping), e.g.:
+
+```yaml
+webhook:
+  host: 127.0.0.1
+  port: 8765
+slack:
+  bot_token: xoxb-…
+  app_token: xapp-…
+  channel: "#general"
+```
+
+The optional SDKs are imported lazily, so listing channels and running the
+webhook never require Slack or Telegram to be installed.
 
 ---
 
@@ -1372,8 +1414,9 @@ work — making memory *active* rather than a passive log:
   taking `eidetic init` from "fill in the .env" to a genuinely conversational
   onboarding. *Shipped — see [`eidetic_os/setup_wizard.py`](eidetic_os/setup_wizard.py).*
 - 💬 **Channel adapters** ([#26](https://github.com/paulholland511/atlas-os/issues/26)) —
-  headless messaging over **Slack and Telegram** using a Letta-style channel
-  schema, so you can talk to Eidetic (and receive its briefings) from your phone.
+  headless messaging over **Slack, Telegram, and a dependency-free webhook**, so
+  you can query your memory (and receive briefings) from anywhere. *Shipped — see
+  [Channels](#channels--slack-telegram--webhook-eidetic-channels) (`eidetic channels`).*
 - ⏳ **Memory decay & relevance scoring** ([#27](https://github.com/paulholland511/atlas-os/issues/27)) —
   a **time-weighted relevance model** for memory blocks, so recent and
   frequently-retrieved knowledge ranks above stale notes — recall that fades and

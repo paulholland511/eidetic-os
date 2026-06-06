@@ -34,6 +34,14 @@ dependencies = [
 
 [project.optional-dependencies]
 pdf = ["pdfplumber>=0.10"]
+# ── Channel adapters (Feature #26) ─────────────────────────────────────────
+# Bridge Eidetic OS to messaging surfaces. The webhook adapter is dependency-free
+# (always available); Slack and Telegram pull in their official SDKs. Install one
+# with e.g. `pip install 'eidetic-os[slack]'`, configure it in
+# `.eidetic/channels.yaml`, then `eidetic channels start <name>`.
+slack = ["slack-sdk>=3.0"]
+telegram = ["python-telegram-bot>=20.0"]
+channels = ["slack-sdk>=3.0", "python-telegram-bot>=20.0"]
 # ── Extension extras ───────────────────────────────────────────────────────
 # Domain-specific extensions (eidetic_os/extensions/) ship with the package and are
 # discovered via the [project.entry-points] below, but their heavier third-party
@@ -62,6 +70,7 @@ dashboard = ["flask>=3.0"]
 all = [
   "pdfplumber>=0.10", "yfinance>=0.2", "sqlite-vec>=0.1.6", "numpy>=1.24",
   "flask>=3.0", "lancedb>=0.5", "chromadb>=0.5",
+  "slack-sdk>=3.0", "python-telegram-bot>=20.0",
 ]
 
 # NOTE: the project was renamed Atlas OS → Eidetic OS in the v4.0 cycle. The

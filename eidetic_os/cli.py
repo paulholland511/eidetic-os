@@ -1932,6 +1932,112 @@ def facts_stats(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# channels — Slack / Telegram / webhook adapters (Feature #26)
+# ─────────────────────────────────────────────────────────────────────────────
+channels_app = typer.Typer(
+    no_args_is_help=True,
+    help="List, start, and test messaging channel adapters (Slack/Telegram/webhook).",
+)
+app.add_typer(channels_app, name="channels")
+
+
+@channels_app.command("list")
+def channels_list() -> None:
+    """Show configured channels (from ``.eidetic/channels.yaml``) and known adapters."""
+    from eidetic_os import channels
+
+    configured = channels.configured_channels()
+    available = channels.available_channels()
+
+    typer.secho("\nChannels\n", bold=True)
+    typer.secho("  configured", bold=True)
+    if configured:
+        for name, settings in configured.items():
+            known = "" if name in available else typer.style(
+                "  (unknown adapter)", fg=typer.colors.RED
+            )
+            keys = ", ".join(sorted(settings)) or "no settings"
+            typer.secho(f"    {name}", fg=typer.colors.CYAN, nl=False)
+            typer.echo(f"  · {keys}{known}")
+    else:
+        _echo_warn(
+            f"none configured — add sections to {channels.channels_config_path()}"
+        )
+
+    typer.secho("\n  available adapters", bold=True)
+    for name in available:
+        typer.echo(f"    • {name}")
+    typer.echo("\nStart one with `eidetic channels start <name>`.")
+
+
+@channels_app.command("test")
+def channels_test(
+    name: str = typer.Argument(..., help="Channel to test (e.g. webhook, slack)."),
+    message: str = typer.Option(
+        "Eidetic OS channel test ✅", "--message", "-m", help="Message to send."
+    ),
+) -> None:
+    """Construct a channel, connect, send one test message, and disconnect."""
+    import asyncio
+
+    from eidetic_os import channels
+
+    async def _run() -> None:
+        channel = channels.create_channel(name)
+        await channel.connect()
+        try:
+            await channel.send(message)
+        finally:
+            await channel.disconnect()
+
+    try:
+        asyncio.run(_run())
+    except channels.ChannelError as exc:
+        _echo_fail(str(exc))
+        raise typer.Exit(code=1) from exc
+    _echo_ok(f"sent test message via {name!r}")
+
+
+@channels_app.command("start")
+def channels_start(
+    name: str = typer.Argument(..., help="Channel to start (e.g. webhook, slack)."),
+) -> None:
+    """Start a channel adapter: route inbound messages through memory until Ctrl-C.
+
+    Wires the default RAG/fact router as the message handler, connects the
+    channel, and blocks. For the webhook adapter this serves the local HTTP
+    endpoint; for Slack/Telegram it listens for inbound messages (needs the
+    relevant optional dependency and tokens).
+    """
+    import asyncio
+
+    from eidetic_os import channels
+
+    async def _run() -> None:
+        channel = channels.create_channel(name)
+        await channel.on_message(channels.make_rag_router())
+        await channel.connect()
+        port = getattr(channel, "bound_port", None)
+        where = f" on port {port}" if port else ""
+        _echo_ok(f"channel {name!r} started{where} — routing messages through memory")
+        typer.echo("      press Ctrl-C to stop.")
+        try:
+            while True:
+                await asyncio.sleep(0.5)
+        finally:
+            await channel.disconnect()
+
+    try:
+        asyncio.run(_run())
+    except KeyboardInterrupt:
+        typer.echo("")
+        _echo_ok(f"channel {name!r} stopped")
+    except channels.ChannelError as exc:
+        _echo_fail(str(exc))
+        raise typer.Exit(code=1) from exc
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # backends — pluggable LLM backend detection
 # ─────────────────────────────────────────────────────────────────────────────
 def _backends_list() -> None:

@@ -114,6 +114,23 @@ issues [#22](https://github.com/paulholland511/atlas-os/issues/22)–[#27](https
     `.eidetic/config.yaml` (resolved env → `$VAULT_PATH` → cwd), and full coverage
     in [`tests/test_setup_wizard.py`](tests/test_setup_wizard.py) — vault detection,
     mocked-HTTP backend probing, config generation, and the scripted end-to-end run.
+- **Channel adapters — Slack / Telegram / webhook** ([#26](https://github.com/paulholland511/atlas-os/issues/26)) —
+  a new [`eidetic_os/channels/`](eidetic_os/channels/) framework that bridges Eidetic
+  OS to messaging surfaces, turning any channel into a query interface over your
+  memory. Highlights:
+  - An abstract `Channel` base (`connect` / `send` / `on_message` / `disconnect`)
+    with a registry, plus three adapters: a **dependency-free webhook** (a local
+    HTTP server — POST `{"message": …}`, get `{"reply": …}`), **Slack**
+    (`slack-sdk`, Web API + Socket Mode), and **Telegram** (`python-telegram-bot`,
+    Bot API). The optional SDKs are imported lazily with clear install hints.
+  - Inbound messages are routed through the **fact store / RAG search** by
+    `make_rag_router` and answered as a plain bulleted list; handlers may be sync
+    or async. Configurable via **`.eidetic/channels.yaml`** (a per-channel mapping).
+  - New CLI group: `eidetic channels list`, `eidetic channels start <name>`, and
+    `eidetic channels test <name>`. New optional extras `slack`, `telegram`, and
+    `channels`. Full coverage in [`tests/test_channels.py`](tests/test_channels.py) —
+    the ABC contract, the webhook end-to-end over a real loopback server, routing,
+    config loading, and the missing-dependency guards.
 
 ### Changed
 - **Rebranded from Atlas OS to Eidetic OS.** The project's first three major
