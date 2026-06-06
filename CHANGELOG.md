@@ -7,6 +7,35 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased] — v5.0.0
 
 ### Added
+- **Tiered memory architecture — Core / Recall / Archival** ([#31](https://github.com/paulholland511/eidetic-os/issues/31)) —
+  a new [`eidetic_os/memory_tiers.py`](eidetic_os/memory_tiers.py) module that
+  layers a Letta/MemGPT-inspired **memory hierarchy** on top of the flat fact
+  store, so memory behaves like a working-set + cache + cold-store rather than a
+  single pool:
+  - Three tiers — **Core** (the small, always-injected hot set), **Recall** (the
+    warm on-demand cache), and **Archival** (unbounded cold storage). A fact's
+    tier is a new `tier` column on the `facts` table (default `recall`), added by
+    the store's additive migration so existing databases upgrade in place.
+  - `TieredMemory.auto_tier()` assigns each active fact a tier straight from its
+    #27 relevance score (`> 0.7` → Core, `0.3–0.7` → Recall, `< 0.3` → Archival);
+    `compact()` runs that pass and then enforces the tier **size limits**,
+    demoting the *coldest* overflow (Core → Recall → Archival) so the hot set
+    stays small and keeps only the most relevant facts.
+  - `promote()` / `demote()` walk a fact one tier hotter/colder for manual
+    control; `get_core()` returns the context-injection set, and
+    `get_recall(query)` / `get_archival(query)` run tier-scoped semantic search.
+  - New CLI commands under `eidetic memory`: `tiers` (show the distribution with
+    per-tier counts and sizes), `compact` (rebalance manually), and
+    `promote` / `demote <fact_id>` — all with `--json` where it makes sense.
+  - The [sleeptime consolidation daemon](README.md#sleeptime-consolidation-eidetic-consolidate)
+    calls `compact()` on every pass (right after the decay pass), so tiers stay
+    balanced as a background side effect; failures are swallowed so a tiering
+    hiccup can never derail a consolidation run.
+  - Full test coverage in [`tests/test_memory_tiers.py`](tests/test_memory_tiers.py) —
+    the score→tier mapping and its boundaries, auto-tiering, promote/demote walks
+    and caps, limit-enforcing compaction (including Core overflow counting against
+    the Recall ceiling), stats, the column migration on a legacy store, and
+    tier-scoped search.
 - **Structured verification gates** ([#29](https://github.com/paulholland511/eidetic-os/issues/29)) —
   a new [`eidetic_os/verify.py`](eidetic_os/verify.py) module implementing a
   GROUND-style (Nucleus MCP-inspired) **5-tier verification pipeline** that vets
@@ -74,6 +103,32 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
     integrity (re-order / insert / delete), unsigned-entry detection, retroactive
     signing, the live `log_action` path, the CLI surface, and graceful fallback
     when `cryptography` is absent.
+- **Valkey Search vector backend** ([#32](https://github.com/paulholland511/eidetic-os/issues/32)) —
+  a fourth pluggable `VectorBackend`
+  ([`eidetic_os/vector_backends/valkey_backend.py`](eidetic_os/vector_backends/valkey_backend.py))
+  built on **Valkey Search** (the RediSearch-fork module), selectable with
+  `VECTOR_BACKEND=valkey`. Unlike the embedded SQLite / LanceDB / Chroma engines,
+  this is a *shared, server-backed* index: many machines and processes embed into
+  and query the **same** in-memory KNN index instead of each carrying its own
+  on-disk file.
+  - Each chunk is a Valkey `HASH` under a per-RAG-dir key prefix (namespaced by a
+    hash of the resolved directory, so two vaults on one server never collide);
+    the embedding is packed as little-endian `FLOAT32` bytes and indexed by a
+    single `FT.CREATE` HNSW index with `DISTANCE_METRIC COSINE`, so distances
+    invert cleanly to the `0.0–1.0` similarity score every backend returns.
+  - `tags` is stored as JSON and folder/doc_type/tag filtering is applied in
+    Python (over-fetch + any-of), keeping filter semantics identical across all
+    backends. Re-embedding a file overwrites its chunks in place (HASH keyed by a
+    deterministic chunk id), and `export_chunks` round-trips into `insert` for
+    `eidetic migrate-vectors`.
+  - The client is imported lazily (only when `VECTOR_BACKEND=valkey` is selected);
+    the server URL comes from `VALKEY_URL` / `REDIS_URL` (default
+    `redis://localhost:6379`). New optional extra: `pip install 'eidetic-os[valkey]'`
+    (the `redis` client is accepted as a drop-in fallback).
+  - Full coverage in [`tests/test_valkey_backend.py`](tests/test_valkey_backend.py)
+    via an in-memory fake Valkey with real cosine-KNN math — the same interface
+    battery (ranking, filtering, idempotent upsert, export round-trip) plus
+    per-RAG-dir namespacing, env selection, and the missing-dependency install hint.
 
 ## [4.0.0] — 2026-06-06
 

@@ -12,8 +12,8 @@ This module introduces a thin abstraction so the engine becomes a *choice*:
   (insert, search, delete-by-file, count, files, clear) plus
   :meth:`~VectorBackend.export_chunks` for backend-to-backend migration.
 * :func:`get_backend` — a factory that reads ``VECTOR_BACKEND`` from the
-  environment (``sqlite`` | ``lancedb`` | ``chroma``, default ``sqlite``) and
-  returns the matching backend rooted at a RAG directory.
+  environment (``sqlite`` | ``lancedb`` | ``chroma`` | ``valkey``, default
+  ``sqlite``) and returns the matching backend rooted at a RAG directory.
 
 The default, :class:`~eidetic_os.vector_backends.sqlite_backend.SQLiteBackend`,
 wraps the existing :class:`~eidetic_os.vectordb.VectorStore`, so nothing changes
@@ -43,7 +43,8 @@ from typing import Any, Final
 SQLITE: Final = "sqlite"
 LANCEDB: Final = "lancedb"
 CHROMA: Final = "chroma"
-BACKEND_NAMES: Final = (SQLITE, LANCEDB, CHROMA)
+VALKEY: Final = "valkey"
+BACKEND_NAMES: Final = (SQLITE, LANCEDB, CHROMA, VALKEY)
 
 # The env var that selects the backend, and the default when it is unset.
 BACKEND_ENV_VAR: Final = "VECTOR_BACKEND"
@@ -180,6 +181,9 @@ def get_backend(
     if chosen == LANCEDB:
         from eidetic_os.vector_backends.lancedb_backend import LanceDBBackend
         return LanceDBBackend.open(rag)
+    if chosen == VALKEY:
+        from eidetic_os.vector_backends.valkey_backend import ValkeyBackend
+        return ValkeyBackend.open(rag)
     from eidetic_os.vector_backends.chroma_backend import ChromaBackend
     return ChromaBackend.open(rag)
 

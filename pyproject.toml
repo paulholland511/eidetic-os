@@ -68,12 +68,16 @@ vector = ["sqlite-vec>=0.1.6", "numpy>=1.24"]
 lancedb = ["lancedb>=0.5"]
 # ChromaDB: a popular embedding database with a persistent local client.
 chroma = ["chromadb>=0.5"]
+# Valkey Search: a shared, server-backed in-memory KNN index (the Valkey Search
+# module — RediSearch fork) for indexes shared across machines. The `redis`
+# client works as a drop-in fallback if you already have it installed.
+valkey = ["valkey>=6.0"]
 # The local web dashboard (`eidetic dashboard`). Flask + Jinja2 only — no JS build
 # step, no client-side framework. Kept optional so the core install stays slim.
 dashboard = ["flask>=3.0"]
 all = [
   "pdfplumber>=0.10", "yfinance>=0.2", "sqlite-vec>=0.1.6", "numpy>=1.24",
-  "flask>=3.0", "lancedb>=0.5", "chromadb>=0.5",
+  "flask>=3.0", "lancedb>=0.5", "chromadb>=0.5", "valkey>=6.0",
   "slack-sdk>=3.0", "python-telegram-bot>=20.0",
 ]
 

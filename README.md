@@ -58,7 +58,7 @@ Everything below is **in the box today** — not roadmap, not "coming soon":
 - 🛡️ **Skill security gate** — AST scan (BLOCK / WARN / INFO) plus a sandboxed runtime before community skills run (`eidetic security scan`)
 - ✅ **Verification gates** — a GROUND-style 5-tier pipeline (syntax · imports · tests · runtime · diff) that vets code before autonomous execution, halting at the first blocking failure (`eidetic verify`)
 - 🔒 **Hardened git sync** — favour-local merges that never clobber your edits, frontmatter validation, and file locking (`eidetic sync`, `eidetic validate`)
-- 🗄️ **Pluggable vector storage** — `sqlite-vec` by default, swap in LanceDB or ChromaDB via `VECTOR_BACKEND` (`eidetic migrate-vectors --to`)
+- 🗄️ **Pluggable vector storage** — `sqlite-vec` by default, swap in LanceDB, ChromaDB, or server-backed **Valkey Search** via `VECTOR_BACKEND` (`eidetic migrate-vectors --to`)
 
 ---
 
@@ -598,6 +598,10 @@ underlying script.
 | `eidetic memory score` | Run a time-weighted relevance-scoring pass over the fact store; decay + deactivate stale facts | `--json` |
 | `eidetic memory hot` | Show the most relevant (hottest) active facts | `--limit`, `--json` |
 | `eidetic memory stale` | Show facts approaching deactivation (relevance below threshold) | `--threshold`, `--limit`, `--json` |
+| `eidetic memory tiers` | Show the tier distribution (Core / Recall / Archival) | `--json` |
+| `eidetic memory compact` | Rebalance tiers: re-tier by relevance, then enforce size limits | `--json` |
+| `eidetic memory promote` | Manually move a fact one tier hotter (archival→recall→core) | — |
+| `eidetic memory demote` | Manually move a fact one tier colder (core→recall→archival) | — |
 | `eidetic channels list` | List configured channels and known adapters (webhook/slack/telegram) | — |
 | `eidetic channels start` | Start a channel adapter, routing inbound messages through memory | — |
 | `eidetic channels test` | Send a test message through a channel | `--message` |
@@ -916,6 +920,47 @@ memory:
 
 ---
 
+## Tiered memory — Core / Recall / Archival (`eidetic memory tiers`)
+
+Relevance tells you *how live* a fact is; **tiers turn that into a memory
+hierarchy**. Inspired by Letta/MemGPT, every fact lives in one of three tiers
+(see [`eidetic_os/memory_tiers.py`](eidetic_os/memory_tiers.py)):
+
+- **Core** — the hot working set, small and always injected into context. The
+  things the assistant should *just know*.
+- **Recall** — the warm cache of recent / moderately-relevant facts, searched on
+  demand rather than always loaded.
+- **Archival** — unbounded cold storage; everything that decayed out of the
+  working set, reachable by explicit search.
+
+Tiers are assigned straight from the #27 relevance score:
+
+```
+score  > 0.7          → Core
+0.3 <= score <= 0.7   → Recall
+score  < 0.3          → Archival
+```
+
+`eidetic memory compact` applies that mapping and then enforces the tier **size
+limits** — when Core exceeds `core_limit` (default 50) the coldest overflow is
+demoted to Recall, and any Recall overflow beyond `recall_limit` (default 500)
+spills down to the unbounded Archival tier. The hot set therefore stays small and
+keeps only the most relevant facts.
+
+```bash
+eidetic memory tiers          # current distribution (counts + sizes per tier)
+eidetic memory compact        # re-tier by relevance, then enforce the limits
+eidetic memory promote <id>   # manually bump a fact one tier hotter
+eidetic memory demote <id>    # manually push a fact one tier colder
+```
+
+Like the decay pass, compaction runs automatically on every
+[sleeptime consolidation](#sleeptime-consolidation-eidetic-consolidate), so the
+tiers stay balanced as a background side effect. The tier is stored on each fact
+(the `tier` column), so it survives across sessions.
+
+---
+
 ## Channels — Slack, Telegram & webhook (`eidetic channels`)
 
 Channel adapters turn any messaging surface into a **query interface over your
@@ -976,6 +1021,27 @@ NumPy-accelerated cosine scan otherwise. Embeds write **incrementally** (per
 file, per batch), so a full run **checkpoints** and an interrupted embed resumes
 rather than starting over — and never corrupts the index with a half-written
 rewrite.
+
+**Pluggable vector backends (`VECTOR_BACKEND`).** The SQLite store is the
+zero-config default, but the engine is a *choice* — set `VECTOR_BACKEND` and the
+embed pipeline and search transparently use it (move an existing index across
+with `eidetic migrate-vectors --to <backend>`):
+
+- `sqlite` *(default)* — embedded, dependency-free, fast for a personal vault.
+- `lancedb` — columnar, on-disk, zero-copy scans + rich metadata filtering
+  (`pip install 'eidetic-os[lancedb]'`).
+- `chroma` — a popular embedding database with a persistent local client
+  (`pip install 'eidetic-os[chroma]'`).
+- `valkey` — **Valkey Search** (the RediSearch-fork module): a *shared,
+  server-backed* in-memory KNN index, so many machines/processes embed into and
+  query the **same** index instead of each carrying its own file. Install with
+  `pip install 'eidetic-os[valkey]'` (the `redis` client works as a drop-in
+  fallback) and point it at your server with `VALKEY_URL` (or `REDIS_URL`,
+  default `redis://localhost:6379`).
+
+Every backend implements the same `VectorBackend` interface
+([`eidetic_os/vector_backend.py`](eidetic_os/vector_backend.py)) and returns
+identical `0.0–1.0` cosine scores, so they are drop-in interchangeable.
 
 **Advanced retrieval ([`eidetic_os/rag.py`](eidetic_os/rag.py)).** The pipeline uses
 production-grade IR at every stage:
