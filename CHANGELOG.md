@@ -131,6 +131,27 @@ issues [#22](https://github.com/paulholland511/atlas-os/issues/22)–[#27](https
     `channels`. Full coverage in [`tests/test_channels.py`](tests/test_channels.py) —
     the ABC contract, the webhook end-to-end over a real loopback server, routing,
     config loading, and the missing-dependency guards.
+- **Memory decay & relevance scoring** ([#27](https://github.com/paulholland511/atlas-os/issues/27)) —
+  a new [`eidetic_os/memory_scoring.py`](eidetic_os/memory_scoring.py) module adding a
+  time-weighted **relevance** signal on top of confidence. Highlights:
+  - A `MemoryScorer` implementing a forgetting curve with reinforcement,
+    `P(M) = e^(-λt)·(1 + βf)` (t = days since last access, f = access count), with
+    `score`, `decay_all` (rescore every active fact, deactivate those below the
+    threshold), `boost` (reset the decay timer and rescore), and `get_hot` /
+    `get_stale` queries.
+  - **FactStore integration** — a new `relevance_score` column (added by an
+    idempotent `ALTER TABLE` migration for existing stores), and
+    `get_facts_for_context()` now ranks by relevance (falling back to the
+    confidence·access salience proxy between scoring passes). The **sleeptime
+    consolidation daemon** ([#23](https://github.com/paulholland511/atlas-os/issues/23))
+    runs a decay pass on every consolidation, as a best-effort, audited side effect.
+  - **Configurable** via the `memory:` section of `.eidetic/config.yaml`
+    (`decay_lambda: 0.01` ≈ a 69-day half-life, `reinforcement_beta: 0.5`,
+    `deactivation_threshold: 0.05`). New CLI: `eidetic memory score`,
+    `eidetic memory hot`, and `eidetic memory stale`. Full coverage in
+    [`tests/test_memory_scoring.py`](tests/test_memory_scoring.py) — the formula with
+    known inputs, decay/deactivation, boost, hot/stale, the column migration, and
+    config-parameter loading.
 
 ### Changed
 - **Rebranded from Atlas OS to Eidetic OS.** The project's first three major

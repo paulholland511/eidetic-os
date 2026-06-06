@@ -1932,6 +1932,105 @@ def facts_stats(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# memory — time-weighted relevance scoring over the fact store (Feature #27)
+# ─────────────────────────────────────────────────────────────────────────────
+memory_app = typer.Typer(
+    no_args_is_help=True,
+    help="Score, rank, and decay stored facts by time-weighted relevance.",
+)
+app.add_typer(memory_app, name="memory")
+
+
+def _fmt_scored_fact(fact: facts_engine.StoredFact) -> str:
+    """One-line rendering of a fact with its relevance score for `memory hot`/`stale`."""
+    cat = typer.style(f"{fact.category:<10}", fg=typer.colors.CYAN)
+    rel = typer.style(f"{fact.relevance_score:6.3f}", fg=typer.colors.GREEN)
+    accessed = str(fact.last_accessed)[:10]
+    return f"  [{fact.id}] {rel} {cat} ×{fact.access_count:<3} {accessed}  {fact.fact}"
+
+
+@memory_app.command("score")
+def memory_score(
+    as_json: bool = typer.Option(False, "--json", help="Emit the pass summary as JSON."),
+) -> None:
+    """Run a relevance-scoring pass over every active fact.
+
+    Recomputes ``P(M) = e^(-λt)·(1+βf)`` for each fact from its last-access time
+    and access count, persists the score, and deactivates anything that has
+    decayed below the deactivation threshold. Parameters come from the ``memory:``
+    section of ``.eidetic/config.yaml`` (or the documented defaults).
+    """
+    from eidetic_os.memory_scoring import MemoryScorer
+
+    with facts_engine.open_store(with_embedder=False) as store:
+        summary = MemoryScorer(store).decay_all()
+
+    if as_json:
+        typer.echo(json.dumps(summary.__dict__, indent=2))
+        return
+    typer.secho("\nMemory scoring pass\n", bold=True)
+    if not summary.scored:
+        _echo_warn("no active facts to score — run `eidetic facts extract <file>`")
+        return
+    _echo_ok(f"{summary.scored} fact(s) rescored")
+    if summary.deactivated:
+        _echo_warn(f"{summary.deactivated} fact(s) deactivated (below threshold)")
+    if summary.hottest is not None and summary.coldest is not None:
+        typer.echo(
+            f"      relevance range: {summary.coldest:.3f} … {summary.hottest:.3f}"
+        )
+
+
+@memory_app.command("hot")
+def memory_hot(
+    limit: int = typer.Option(20, "--limit", "-n", help="Max facts to show."),
+    as_json: bool = typer.Option(False, "--json", help="Emit facts as JSON."),
+) -> None:
+    """Show the hottest (most relevant) active facts, highest score first."""
+    from eidetic_os.memory_scoring import MemoryScorer
+
+    with facts_engine.open_store(with_embedder=False) as store:
+        rows = MemoryScorer(store).get_hot(limit=limit)
+    if as_json:
+        typer.echo(json.dumps([f.__dict__ for f in rows], indent=2))
+        return
+    if not rows:
+        _echo_warn("no facts stored yet — run `eidetic facts extract <file>`")
+        return
+    typer.secho(f"\n{len(rows)} hottest fact(s)\n", bold=True)
+    for fact in rows:
+        typer.echo(_fmt_scored_fact(fact))
+
+
+@memory_app.command("stale")
+def memory_stale(
+    threshold: float = typer.Option(
+        0.1, "--threshold", "-t", help="Relevance below which a fact counts as stale."
+    ),
+    limit: int = typer.Option(50, "--limit", "-n", help="Max facts to show."),
+    as_json: bool = typer.Option(False, "--json", help="Emit facts as JSON."),
+) -> None:
+    """Show active facts approaching deactivation (relevance below ``--threshold``)."""
+    from eidetic_os.memory_scoring import MemoryScorer
+
+    with facts_engine.open_store(with_embedder=False) as store:
+        rows = MemoryScorer(store).get_stale(threshold, limit=limit)
+    if as_json:
+        typer.echo(json.dumps([f.__dict__ for f in rows], indent=2))
+        return
+    if not rows:
+        _echo_ok(f"no stale facts below relevance {threshold:g}")
+        return
+    typer.secho(
+        f"\n{len(rows)} fact(s) below relevance {threshold:g} "
+        "(run `eidetic memory score` to apply decay)\n",
+        bold=True,
+    )
+    for fact in rows:
+        typer.echo(_fmt_scored_fact(fact))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # channels — Slack / Telegram / webhook adapters (Feature #26)
 # ─────────────────────────────────────────────────────────────────────────────
 channels_app = typer.Typer(

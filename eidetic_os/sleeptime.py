@@ -659,8 +659,53 @@ class ConsolidationDaemon:
             )
             return None
 
+    def _decay_facts(self) -> None:
+        """Refresh fact relevance scores as a side effect of consolidation (#27).
+
+        Best-effort and fully optional: opens the conventional fact store at this
+        vault, runs a :class:`~eidetic_os.memory_scoring.MemoryScorer.decay_all`
+        pass, and records the outcome in the audit trail. Any failure — the facts
+        module absent, the store missing, a bad config — is swallowed so a decay
+        hiccup can never derail a consolidation run.
+        """
+        try:
+            from eidetic_os.facts import FactStore
+            from eidetic_os.memory_scoring import MemoryScorer
+        except Exception:  # noqa: BLE001 - facts/scoring not present → skip silently
+            return
+        db_path = self.vault_path / ".eidetic" / "facts.db"
+        if not db_path.exists():
+            return
+        try:
+            store = FactStore(db_path)
+        except Exception:  # noqa: BLE001 - unreadable store → skip
+            return
+        try:
+            summary = MemoryScorer(store).decay_all(now=self._now())
+        except Exception as exc:  # noqa: BLE001 - a bad pass must not break consolidation
+            audit.log_action(
+                "memory-decay", os.environ.get("EIDETIC_TRIGGER", "scheduled"),
+                "error", context=f"decay {db_path}",
+                error=f"{type(exc).__name__}: {exc}",
+            )
+            return
+        finally:
+            store.close()
+        if summary.scored:
+            audit.log_action(
+                "memory-decay", os.environ.get("EIDETIC_TRIGGER", "scheduled"),
+                "success",
+                changes=[
+                    f"{summary.scored} fact(s) rescored",
+                    f"{summary.deactivated} deactivated",
+                ],
+                context=f"decay {db_path}",
+            )
+
     def _run_locked(self, trigger: str) -> ConsolidatedNote | None:
         started = self._now()
+        # Refresh fact relevance every pass, independent of new session content.
+        self._decay_facts()
         sessions = self.scan_recent_sessions()
         if not sessions:
             # Still advance the watermark so an empty pass isn't repeated forever.

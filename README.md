@@ -588,6 +588,9 @@ underlying script.
 | `eidetic facts list` | List stored facts, newest first | `--category`, `--limit`, `--all`, `--json` |
 | `eidetic facts search` | Semantic search over active facts | `--limit`, `--json` |
 | `eidetic facts stats` | Fact-store statistics (totals, per-category, top sources) | `--json` |
+| `eidetic memory score` | Run a time-weighted relevance-scoring pass over the fact store; decay + deactivate stale facts | `--json` |
+| `eidetic memory hot` | Show the most relevant (hottest) active facts | `--limit`, `--json` |
+| `eidetic memory stale` | Show facts approaching deactivation (relevance below threshold) | `--threshold`, `--limit`, `--json` |
 | `eidetic channels list` | List configured channels and known adapters (webhook/slack/telegram) | — |
 | `eidetic channels start` | Start a channel adapter, routing inbound messages through memory | — |
 | `eidetic channels test` | Send a test message through a channel | `--message` |
@@ -611,6 +614,8 @@ eidetic audit export --format csv -o audit-report.csv
 eidetic facts extract sessions/session-log-2026-06-06-trading.md   # distil + store facts
 eidetic facts list --category decision       # browse decisions
 eidetic facts search "risk management"       # semantic recall over facts
+eidetic memory score                         # apply time-decay + reinforcement to all facts
+eidetic memory hot -n 10                      # the 10 most relevant facts right now
 eidetic channels start webhook               # serve a memory query endpoint over HTTP
 ```
 
@@ -859,6 +864,43 @@ A fact is a single self-contained statement — *"Paul prefers `uv` over pip"*,
 Because facts are deduplicated and contradiction-resolved, the store converges
 on a compact set of *current beliefs* you can inject into context, rather than an
 ever-growing pile of transcript.
+
+---
+
+## Memory decay & relevance (`eidetic memory`)
+
+Confidence captures *how sure* a fact is; **relevance captures how live it is right
+now**. Eidetic OS scores every fact with a forgetting curve that also rewards use
+(see [`eidetic_os/memory_scoring.py`](eidetic_os/memory_scoring.py)):
+
+```
+P(M) = e^(-λt) · (1 + βf)
+```
+
+where **t** is days since the fact was last accessed, **f** is how many times it
+has been accessed, **λ** is the decay rate, and **β** the reinforcement
+coefficient. A fact used moments ago scores `1 + βf` and decays exponentially as
+it's left untouched; every access both resets **t** and raises **f**, so the
+facts you actually rely on stay hot far longer than bare decay would allow.
+
+```bash
+eidetic memory score      # rescore every fact; deactivate anything below the threshold
+eidetic memory hot        # the most relevant facts right now
+eidetic memory stale      # facts approaching deactivation, review before they're forgotten
+```
+
+`get_facts_for_context()` ranks by this relevance score, and the
+[sleeptime consolidation daemon](#sleeptime-consolidation-eidetic-consolidate) runs
+a decay pass on every consolidation — so the scores stay fresh as a background
+side effect. The three knobs are tunable in the `memory:` section of
+`.eidetic/config.yaml`:
+
+```yaml
+memory:
+  decay_lambda: 0.01            # ≈ a 69-day half-life
+  reinforcement_beta: 0.5
+  deactivation_threshold: 0.05  # below this, a fact is forgotten
+```
 
 ---
 
@@ -1417,10 +1459,11 @@ work — making memory *active* rather than a passive log:
   headless messaging over **Slack, Telegram, and a dependency-free webhook**, so
   you can query your memory (and receive briefings) from anywhere. *Shipped — see
   [Channels](#channels--slack-telegram--webhook-eidetic-channels) (`eidetic channels`).*
-- ⏳ **Memory decay & relevance scoring** ([#27](https://github.com/paulholland511/atlas-os/issues/27)) —
-  a **time-weighted relevance model** for memory blocks, so recent and
-  frequently-retrieved knowledge ranks above stale notes — recall that fades and
-  sharpens like the real thing.
+- ✅ **Memory decay & relevance scoring** ([#27](https://github.com/paulholland511/atlas-os/issues/27)) —
+  a **time-weighted relevance model** (`P(M) = e^(-λt)·(1 + βf)`) so recent and
+  frequently-retrieved facts rank above stale ones — recall that fades and
+  sharpens like the real thing. *Shipped — see
+  [Memory decay & relevance](#memory-decay--relevance-eidetic-memory) (`eidetic memory`).*
 
 Further out:
 

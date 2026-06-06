@@ -165,6 +165,9 @@ class StoredFact:
     confidence: float
     category: str
     active: bool
+    # Time-weighted relevance (Feature #27), recomputed by the memory scorer.
+    # Defaults to 1.0 for a freshly inserted fact (fully relevant, never decayed).
+    relevance_score: float = 1.0
 
 
 # ── LLM extraction ────────────────────────────────────────────────────────────
@@ -507,22 +510,41 @@ class FactStore:
         self._conn.executescript(
             """
             CREATE TABLE IF NOT EXISTS facts (
-                id            INTEGER PRIMARY KEY,
-                fact          TEXT NOT NULL,
-                source        TEXT DEFAULT '',
-                created_at    TIMESTAMP NOT NULL,
-                last_accessed TIMESTAMP NOT NULL,
-                access_count  INTEGER NOT NULL DEFAULT 0,
-                confidence    REAL NOT NULL DEFAULT 0.6,
-                category      TEXT NOT NULL DEFAULT 'other',
-                embedding     BLOB,
-                active        INTEGER NOT NULL DEFAULT 1
+                id              INTEGER PRIMARY KEY,
+                fact            TEXT NOT NULL,
+                source          TEXT DEFAULT '',
+                created_at      TIMESTAMP NOT NULL,
+                last_accessed   TIMESTAMP NOT NULL,
+                access_count    INTEGER NOT NULL DEFAULT 0,
+                confidence      REAL NOT NULL DEFAULT 0.6,
+                category        TEXT NOT NULL DEFAULT 'other',
+                embedding       BLOB,
+                active          INTEGER NOT NULL DEFAULT 1,
+                relevance_score REAL NOT NULL DEFAULT 1.0
             );
             CREATE INDEX IF NOT EXISTS idx_facts_active ON facts(active);
             CREATE INDEX IF NOT EXISTS idx_facts_category ON facts(category);
             """
         )
+        self._migrate()
         self._conn.commit()
+
+    def _migrate(self) -> None:
+        """Additive migrations for stores created before a column existed.
+
+        ``CREATE TABLE IF NOT EXISTS`` is a no-op against an existing table, so a
+        store written by an earlier Eidetic OS lacks columns added later. Each
+        migration is an idempotent ``ALTER TABLE … ADD COLUMN`` guarded by a
+        check of ``PRAGMA table_info`` — safe to run on every open.
+        """
+        existing = {
+            str(row["name"])
+            for row in self._conn.execute("PRAGMA table_info(facts)").fetchall()
+        }
+        if "relevance_score" not in existing:  # Feature #27
+            self._conn.execute(
+                "ALTER TABLE facts ADD COLUMN relevance_score REAL NOT NULL DEFAULT 1.0"
+            )
 
     # ── embedding helper ──────────────────────────────────────────────────────
     def _embed_one(self, text: str) -> list[float] | None:
@@ -711,6 +733,7 @@ class FactStore:
             confidence=float(row["confidence"]),
             category=row["category"],
             active=bool(row["active"]),
+            relevance_score=float(row["relevance_score"]),
         )
 
     def count(self, *, active_only: bool = True) -> int:
@@ -788,9 +811,11 @@ class FactStore:
     ) -> list[StoredFact]:
         """Most relevant active facts for context injection.
 
-        Ranked by a simple salience proxy — confidence weighted by how often the
-        fact has been accessed — so confident, frequently-used facts surface
-        first. Optionally restricted to ``categories``.
+        Ranked by the time-weighted ``relevance_score`` the memory scorer
+        maintains (Feature #27), falling back to a salience proxy — confidence
+        weighted by access count — so confident, frequently-used facts still
+        surface first *between* scoring passes (when relevance scores tie at
+        their 1.0 default). Optionally restricted to ``categories``.
         """
         clauses = ["active = 1"]
         params: list[Any] = []
@@ -801,8 +826,58 @@ class FactStore:
         params.append(limit)
         rows = self._conn.execute(
             f"SELECT * FROM facts WHERE {' AND '.join(clauses)} "
-            f"ORDER BY confidence * (1 + access_count) DESC, id DESC LIMIT ?",
+            "ORDER BY relevance_score DESC, confidence * (1 + access_count) DESC, "
+            "id DESC LIMIT ?",
             params,
+        ).fetchall()
+        return [self._row_to_fact(r) for r in rows]
+
+    # ── relevance scoring support (Feature #27) ────────────────────────────────
+    def set_relevance(
+        self, fact_id: int, score: float, *, deactivate: bool = False
+    ) -> None:
+        """Persist a fact's recomputed ``relevance_score``; optionally forget it.
+
+        The memory scorer (:mod:`eidetic_os.memory_scoring`) calls this after
+        computing the time-weighted score; ``deactivate=True`` soft-deletes a
+        fact that has decayed below the deactivation threshold in the same write.
+        """
+        if deactivate:
+            self._conn.execute(
+                "UPDATE facts SET relevance_score = ?, active = 0 WHERE id = ?",
+                (score, fact_id),
+            )
+        else:
+            self._conn.execute(
+                "UPDATE facts SET relevance_score = ? WHERE id = ?",
+                (score, fact_id),
+            )
+        self._conn.commit()
+
+    def active_facts(self) -> list[StoredFact]:
+        """Every active fact, oldest first — the input to a scoring pass."""
+        rows = self._conn.execute(
+            "SELECT * FROM facts WHERE active = 1 ORDER BY id"
+        ).fetchall()
+        return [self._row_to_fact(r) for r in rows]
+
+    def hot_facts(self, limit: int = 20) -> list[StoredFact]:
+        """The most relevant active facts, highest ``relevance_score`` first."""
+        rows = self._conn.execute(
+            "SELECT * FROM facts WHERE active = 1 "
+            "ORDER BY relevance_score DESC, id DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+        return [self._row_to_fact(r) for r in rows]
+
+    def stale_facts(
+        self, threshold: float = 0.1, *, limit: int = 100
+    ) -> list[StoredFact]:
+        """Active facts whose relevance has fallen below ``threshold``, lowest first."""
+        rows = self._conn.execute(
+            "SELECT * FROM facts WHERE active = 1 AND relevance_score < ? "
+            "ORDER BY relevance_score ASC, id ASC LIMIT ?",
+            (threshold, limit),
         ).fetchall()
         return [self._row_to_fact(r) for r in rows]
 
