@@ -4,11 +4,14 @@ All notable changes to Eidetic OS are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [4.0.0] — 2026-06-06
 
-Work toward **v4.0.0** — the rebrand-and-remember release. Tracked by the
-**[v4.0.0 milestone](https://github.com/paulholland511/atlas-os/milestone/4)** and
-issues [#22](https://github.com/paulholland511/atlas-os/issues/22)–[#27](https://github.com/paulholland511/atlas-os/issues/27).
+**v4.0.0** — the rebrand-and-remember release. The **[v4.0.0 milestone](https://github.com/paulholland511/atlas-os/milestone/4)**
+is **complete**: the new **Eidetic** identity plus a leap from "store everything"
+to **understand and consolidate everything** — memory that is *active* rather than
+a passive log. All six milestone issues
+([#22](https://github.com/paulholland511/atlas-os/issues/22)–[#27](https://github.com/paulholland511/atlas-os/issues/27))
+shipped, alongside a full rebrand migration sweep.
 
 ### Added
 - **Mem0-style fact-extraction engine** ([#22](https://github.com/paulholland511/atlas-os/issues/22)) —
@@ -815,7 +818,9 @@ moves session capture to a twice-daily default.
 - Documentation: setup, architecture, rebuild runbook, scheduled tasks, data
   classification; `SECURITY.md`, `CONTRIBUTING.md`, MIT `LICENSE`.
 
-[Unreleased]: https://github.com/paulholland511/atlas-os/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/paulholland511/atlas-os/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/paulholland511/atlas-os/compare/v3.0.0...v4.0.0
+[3.0.0]: https://github.com/paulholland511/atlas-os/compare/v2.0.0...v3.0.0
 [2.0.0]: https://github.com/paulholland511/atlas-os/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/paulholland511/atlas-os/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/paulholland511/atlas-os/compare/v1.0.0...v1.1.0

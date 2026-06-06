@@ -1431,12 +1431,13 @@ code, bullet-proof git sync, and a scalable, pluggable vector store all shipped:
   ChromaDB options, selectable via `VECTOR_BACKEND`, with an
   `eidetic migrate-vectors` tool. *Shipped.*
 
-### 🚧 v4.0 — Eidetic OS (the memory release)
+### ✅ v4.0.0 — Eidetic OS (the memory release, shipped)
 
 The **[v4.0.0 milestone](https://github.com/paulholland511/atlas-os/milestone/4)**
-is the rebrand-and-remember release: the new **Eidetic** identity plus a leap from
-"store everything" to **understand and consolidate everything**. The headline
-work — making memory *active* rather than a passive log:
+is **complete** — the rebrand-and-remember release: the new **Eidetic** identity
+plus a leap from "store everything" to **understand and consolidate everything**.
+The headline work — making memory *active* rather than a passive log — all
+shipped:
 
 - ✅ **Mem0-style fact extraction** ([#22](https://github.com/paulholland511/atlas-os/issues/22)) —
   distil discrete, atomic facts from raw session transcripts and **deduplicate
@@ -1450,10 +1451,12 @@ work — making memory *active* rather than a passive log:
   (during idle/"sleep" time), merging related notes and summarising stale
   threads the way human memory consolidates overnight. *Shipped — see
   [`eidetic consolidate`](#sleeptime-consolidation-eidetic-consolidate).*
-- 🧩 **Native Obsidian plugin** ([#24](https://github.com/paulholland511/atlas-os/issues/24)) —
+- ✅ **Native Obsidian plugin** ([#24](https://github.com/paulholland511/atlas-os/issues/24)) —
   search, manage, and **visualise the memory index from inside Obsidian** itself:
-  hybrid RAG search, the knowledge graph, and memory blocks as a first-class
-  panel, no terminal required.
+  hybrid RAG search, fact browsing, and fact extraction from a note as
+  command-palette actions, backed by a localhost-only REST server
+  (`eidetic serve`), no terminal required. *Shipped — see
+  [`obsidian-plugin/`](obsidian-plugin/) and [`eidetic_os/plugin_server.py`](eidetic_os/plugin_server.py).*
 - 🧙 **Interactive setup wizard 2.0** ([#25](https://github.com/paulholland511/atlas-os/issues/25)) —
   a guided, Rich-powered CLI interview that **auto-detects your vault and models**,
   maps endpoints, lets you pick an embedding model, and **captures a profile**,
