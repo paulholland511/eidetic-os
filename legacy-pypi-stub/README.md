@@ -27,7 +27,7 @@ to their `EIDETIC_*` equivalents, printing a deprecation notice for each.
 ## Why the rename?
 
 The project was renamed Atlas OS → Eidetic OS in the v4.0 cycle. See the
-[main project README](https://github.com/paulholland511/atlas-os#why-we-renamed)
+[main project README](https://github.com/paulholland511/eidetic-os#why-we-renamed)
 for the full story.
 
 ## This stub

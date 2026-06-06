@@ -15,7 +15,7 @@
         "automation"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/afternoon-job-tracker-update"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/afternoon-job-tracker-update"
     },
     {
       "name": "afternoon-session-capture",
@@ -28,7 +28,7 @@
         "automation"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/afternoon-session-capture"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/afternoon-session-capture"
     },
     {
       "name": "atlas-daily-report-email",
@@ -42,7 +42,7 @@
         "health"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/atlas-daily-report-email"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/atlas-daily-report-email"
     },
     {
       "name": "daily-job-tracker-update",
@@ -56,7 +56,7 @@
         "automation"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/daily-job-tracker-update"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/daily-job-tracker-update"
     },
     {
       "name": "daily-session-capture",
@@ -69,7 +69,7 @@
         "automation"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/daily-session-capture"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/daily-session-capture"
     },
     {
       "name": "daily-trading-report",
@@ -83,7 +83,7 @@
         "llm"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/daily-trading-report"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/daily-trading-report"
     },
     {
       "name": "friday-it-newsletter",
@@ -97,7 +97,7 @@
         "weekly"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/friday-it-newsletter"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/friday-it-newsletter"
     },
     {
       "name": "generate-vault-report-doc",
@@ -112,7 +112,7 @@
         "vault"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/generate-vault-report-doc"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/generate-vault-report-doc"
     },
     {
       "name": "inbox-triage-digest",
@@ -126,7 +126,7 @@
         "productivity"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/inbox-triage-digest"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/inbox-triage-digest"
     },
     {
       "name": "morning-session-capture",
@@ -139,7 +139,7 @@
         "automation"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/morning-session-capture"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/morning-session-capture"
     },
     {
       "name": "nightly-obsidian-index",
@@ -153,7 +153,7 @@
         "nightly"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/nightly-obsidian-index"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/nightly-obsidian-index"
     },
     {
       "name": "nightly-rag-incremental",
@@ -167,7 +167,7 @@
         "nightly"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/nightly-rag-incremental"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/nightly-rag-incremental"
     },
     {
       "name": "spreadsheet-analysis",
@@ -181,7 +181,7 @@
         "report"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/spreadsheet-analysis"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/spreadsheet-analysis"
     },
     {
       "name": "topic-research-brief",
@@ -195,7 +195,7 @@
         "brief"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/topic-research-brief"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/topic-research-brief"
     },
     {
       "name": "vault-lint-report",
@@ -209,7 +209,7 @@
         "health"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/vault-lint-report"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/vault-lint-report"
     },
     {
       "name": "weekly-digest-report",
@@ -224,7 +224,7 @@
         "vault"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/weekly-digest-report"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/weekly-digest-report"
     },
     {
       "name": "weekly-rag-full-reembed",
@@ -238,7 +238,7 @@
         "weekly"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/weekly-rag-full-reembed"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/weekly-rag-full-reembed"
     },
     {
       "name": "weekly-system-health-check",
@@ -252,7 +252,7 @@
         "weekly"
       ],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/weekly-system-health-check"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/weekly-system-health-check"
     }
   ]
 }

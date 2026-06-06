@@ -99,8 +99,8 @@ pipx install eidetic-os
 trading SDK and dashboard):**
 
 ```bash
-git clone https://github.com/paulholland511/atlas-os.git
-cd atlas-os
+git clone https://github.com/paulholland511/eidetic-os.git
+cd eidetic-os
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt   # core deps, pinned
 pip install -e .                  # the `eidetic` command, editable
@@ -985,7 +985,7 @@ You now have an autonomous, local-first knowledge system. Where to go from here:
 - **Something broke?** — [`FAQ.md`](FAQ.md) for troubleshooting, or
   [`REBUILD.md`](REBUILD.md) for a clean reinstall.
 - **Community & issues** — file bugs, request features, or ask questions at
-  [github.com/paulholland511/atlas-os/issues](https://github.com/paulholland511/atlas-os/issues).
+  [github.com/paulholland511/eidetic-os/issues](https://github.com/paulholland511/eidetic-os/issues).
 
 Welcome to your second brain. Now go write some notes — Eidetic OS will take care
 of the rest.

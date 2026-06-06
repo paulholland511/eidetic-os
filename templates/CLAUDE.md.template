@@ -15,7 +15,7 @@ local RAG search index, scheduled automations, and an optional dashboard.
 ## Key Directories
 
 - `[~/Documents/Obsidian/MyVault]` — the knowledge vault (notes, wiki, memory)
-- `[~/code/atlas-os]` — the Eidetic OS repo (scripts, skills, schemas, docs)
+- `[~/code/eidetic-os]` — the Eidetic OS repo (scripts, skills, schemas, docs)
 - `[~/Documents/Claude/Scheduled]` — scheduled-task skills (one folder per task)
 - `[~/.local/bin]` — small wrapper scripts (search, reindex, TTS, etc.)
 

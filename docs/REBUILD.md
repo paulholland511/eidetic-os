@@ -28,8 +28,8 @@ git --version
 
 ```bash
 # Install the package (gives you the `eidetic` command):
-uv tool install "eidetic-os[all] @ git+https://github.com/paulholland511/atlas-os"
-#   or from a clone:  git clone … && cd atlas-os && pip install -e ".[all]"
+uv tool install "eidetic-os[all] @ git+https://github.com/paulholland511/eidetic-os"
+#   or from a clone:  git clone … && cd eidetic-os && pip install -e ".[all]"
 
 eidetic init        # detect LLM, write .env, scaffold/refresh the vault skeleton
 ```

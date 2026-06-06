@@ -29,7 +29,7 @@ The problem I kept hitting: Claude is brilliant but forgets everything between s
 
 The whole thing is local-first by default — notes, embeddings, and the knowledge graph never leave my machine unless I explicitly wire up an external endpoint. No telemetry. The "database" is a folder of markdown, the "API" is small inspectable Python scripts, and history is plain git. All diffable, portable, yours.
 
-**GitHub (MIT, demo GIF in the README):** https://github.com/paulholland511/atlas-os
+**GitHub (MIT, demo GIF in the README):** https://github.com/paulholland511/eidetic-os
 
 `pip install eidetic-os` (or `pipx` / `uv tool install`).
 

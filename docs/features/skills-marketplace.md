@@ -42,7 +42,7 @@ plumbing around it.
       "author": "Eidetic OS",
       "tags": ["vault", "lint", "maintenance", "health"],
       "dependencies": [],
-      "download_url": "https://github.com/paulholland511/atlas-os/tree/main/skills/vault-lint-report"
+      "download_url": "https://github.com/paulholland511/eidetic-os/tree/main/skills/vault-lint-report"
     }
   ]
 }

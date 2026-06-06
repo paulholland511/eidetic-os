@@ -26,7 +26,7 @@ eidetic search "kelly" --mode keyword          # BM25 only, no LLM needed
 
 Everything is **local-first** — the embeddings and graph live in a git-ignored `.rag/` folder and never leave your machine. The vault is the source of truth; everything derived is reproducible. No telemetry, no cloud, MIT licensed.
 
-**GitHub:** https://github.com/paulholland511/atlas-os
+**GitHub:** https://github.com/paulholland511/eidetic-os
 
 You need a local embeddings model (LM Studio or Ollama with `nomic-embed-text` works out of the box). Without one, all the vault management still works — only the semantic search needs the endpoint.
 

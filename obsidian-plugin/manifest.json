@@ -5,6 +5,6 @@
   "minAppVersion": "1.0.0",
   "description": "Search your Eidetic OS memory index, browse extracted facts, and view knowledge-graph connections from inside Obsidian. Talks to your local Eidetic OS API server.",
   "author": "Paul Holland",
-  "authorUrl": "https://github.com/paulholland511/atlas-os",
+  "authorUrl": "https://github.com/paulholland511/eidetic-os",
   "isDesktopOnly": false
 }

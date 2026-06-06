@@ -24,6 +24,6 @@ It's open source under MIT — on GitHub and PyPI (`pip install eidetic-os`). I'
 
 The future of personal productivity isn't a smarter chatbot. It's a system that remembers everything you've done and keeps working while you sleep.
 
-🔗 https://github.com/paulholland511/atlas-os
+🔗 https://github.com/paulholland511/eidetic-os
 
 #AI #OpenSource #Productivity #LocalFirst #KnowledgeManagement #Python #RAG #PrivacyByDesign

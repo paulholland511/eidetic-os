@@ -2,7 +2,7 @@
 
 **Title:** Show HN: Eidetic OS – Open-source personal AI operating system (Python, local LLMs)
 
-**URL:** https://github.com/paulholland511/atlas-os
+**URL:** https://github.com/paulholland511/eidetic-os
 
 ---
 

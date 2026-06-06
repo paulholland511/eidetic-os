@@ -75,14 +75,13 @@ all = [
 ]
 
 # NOTE: the project was renamed Atlas OS → Eidetic OS in the v4.0 cycle. The
-# GitHub repository slug is still `paulholland511/atlas-os` (the repo is renamed
-# separately), so these URLs intentionally keep the old path for now. Update them
-# to `eidetic-os` once the repository itself is renamed.
+# GitHub repository was also renamed to `paulholland511/eidetic-os`; the old
+# `paulholland511/atlas-os` path still redirects there.
 [project.urls]
-Homepage = "https://github.com/paulholland511/atlas-os"
-Documentation = "https://github.com/paulholland511/atlas-os/tree/main/docs"
-Repository = "https://github.com/paulholland511/atlas-os"
-Changelog = "https://github.com/paulholland511/atlas-os/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/paulholland511/eidetic-os"
+Documentation = "https://github.com/paulholland511/eidetic-os/tree/main/docs"
+Repository = "https://github.com/paulholland511/eidetic-os"
+Changelog = "https://github.com/paulholland511/eidetic-os/blob/main/CHANGELOG.md"
 
 [project.scripts]
 eidetic = "eidetic_os.cli:app"

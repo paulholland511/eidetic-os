@@ -28,8 +28,8 @@ Replace any match with an environment variable or a placeholder.
 Eidetic OS targets **Python 3.11+** (3.13 preferred). From a fresh checkout:
 
 ```bash
-git clone https://github.com/paulholland511/atlas-os.git
-cd atlas-os
+git clone https://github.com/paulholland511/eidetic-os.git
+cd eidetic-os
 
 # Create and activate a virtual environment (uv shown; venv/conda are fine too)
 python -m venv .venv && source .venv/bin/activate

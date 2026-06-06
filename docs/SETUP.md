@@ -59,9 +59,9 @@ features are currently live. Full variable reference:
 The fastest path. Installs a global `eidetic` command and walks you through setup.
 
 ```bash
-uv tool install "git+https://github.com/paulholland511/atlas-os"
-#   or:  pipx install "git+https://github.com/paulholland511/atlas-os"
-#   trading/PDF extras:  uv tool install "eidetic-os[trading,pdf] @ git+https://github.com/paulholland511/atlas-os"
+uv tool install "git+https://github.com/paulholland511/eidetic-os"
+#   or:  pipx install "git+https://github.com/paulholland511/eidetic-os"
+#   trading/PDF extras:  uv tool install "eidetic-os[trading,pdf] @ git+https://github.com/paulholland511/eidetic-os"
 
 eidetic init        # detect your LLM, write .env, scaffold the vault, init git
 eidetic doctor      # verify
@@ -81,8 +81,8 @@ below.
 ### 1. Clone
 
 ```bash
-git clone https://github.com/paulholland511/atlas-os.git ~/code/atlas-os
-cd ~/code/atlas-os
+git clone https://github.com/paulholland511/eidetic-os.git ~/code/eidetic-os
+cd ~/code/eidetic-os
 ```
 
 ### 2. Python environment

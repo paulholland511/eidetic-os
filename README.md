@@ -22,12 +22,12 @@
 your AI never forgets. (Formerly **Atlas OS** — [why we
 renamed](#why-the-name-atlas-os--eidetic-os).)*
 
-[![CI](https://img.shields.io/github/actions/workflow/status/paulholland511/atlas-os/ci.yml?branch=main&label=CI)](https://github.com/paulholland511/atlas-os/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/paulholland511/eidetic-os/ci.yml?branch=main&label=CI)](https://github.com/paulholland511/eidetic-os/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/badge/PyPI-v4.0.0-blue.svg)](https://pypi.org/project/eidetic-os/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
-[![GitHub stars](https://img.shields.io/github/stars/paulholland511/atlas-os?style=flat)](https://github.com/paulholland511/atlas-os/stargazers)
-[![Last commit](https://img.shields.io/github/last-commit/paulholland511/atlas-os)](https://github.com/paulholland511/atlas-os/commits/main)
+[![GitHub stars](https://img.shields.io/github/stars/paulholland511/eidetic-os?style=flat)](https://github.com/paulholland511/eidetic-os/stargazers)
+[![Last commit](https://img.shields.io/github/last-commit/paulholland511/eidetic-os)](https://github.com/paulholland511/eidetic-os/commits/main)
 [![Local-first](https://img.shields.io/badge/privacy-local--first-success.svg)](docs/DATA-CLASSIFICATION.md)
 [![No telemetry](https://img.shields.io/badge/telemetry-none-brightgreen.svg)](SECURITY.md)
 [![Docs](https://img.shields.io/badge/docs-complete-informational.svg)](docs/README.md)
@@ -131,7 +131,7 @@ scaffold a vault, and run your first task:
 ![Installing Eidetic OS](install.gif)
 
 ```bash
-git clone https://github.com/paulholland511/atlas-os.git && cd atlas-os
+git clone https://github.com/paulholland511/eidetic-os.git && cd eidetic-os
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt && pip install -e .
 ```
@@ -281,8 +281,9 @@ This project shipped its first three major versions as **Atlas OS**. As of
 
 Nothing about the architecture changed in the rename — only the brand. The Python
 package is now `eidetic-os`, the CLI command is `eidetic`, and imports are
-`eidetic_os.*`. (The GitHub repository URL stays `paulholland511/atlas-os` until
-the repo is renamed separately.) Legacy state is migrated for you automatically:
+`eidetic_os.*`. (The GitHub repository is now `paulholland511/eidetic-os`; the old
+`paulholland511/atlas-os` URL still redirects there.) Legacy state is migrated for
+you automatically:
 on first run Eidetic OS copies an existing `.atlas/` directory to `.eidetic/` and
 maps any `ATLAS_*` environment variables to their `EIDETIC_*` equivalents,
 printing a deprecation notice for each. The old PyPI package `atlas-os` still
@@ -427,7 +428,7 @@ pip install eidetic-os
 > **Automated releases.** Each `v*` tag builds, tests, and publishes to PyPI via
 > GitHub Actions + [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/)
 > (OIDC, no stored token). To track `main` ahead of a release, install from git:
-> `uv tool install "git+https://github.com/paulholland511/atlas-os"`. See
+> `uv tool install "git+https://github.com/paulholland511/eidetic-os"`. See
 > [`docs/PUBLISHING.md`](docs/PUBLISHING.md) for the release runbook.
 
 **With optional extras** (trading needs `yfinance`, PDF embedding needs
@@ -441,8 +442,8 @@ uv tool install "eidetic-os[dashboard,trading,pdf]"
 ### From a source checkout (for development)
 
 ```bash
-git clone https://github.com/paulholland511/atlas-os.git ~/code/atlas-os
-cd ~/code/atlas-os
+git clone https://github.com/paulholland511/eidetic-os.git ~/code/eidetic-os
+cd ~/code/eidetic-os
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e .                 # installs the `eidetic` CLI + core deps
 pip install -e ".[trading,pdf]"  # optional extras
@@ -459,8 +460,8 @@ pip install -e ".[trading,pdf]"  # optional extras
 ### No install at all (run the scripts directly)
 
 ```bash
-git clone https://github.com/paulholland511/atlas-os.git ~/code/atlas-os
-cd ~/code/atlas-os
+git clone https://github.com/paulholland511/eidetic-os.git ~/code/eidetic-os
+cd ~/code/eidetic-os
 python3 -m venv .venv && source .venv/bin/activate
 pip install requests pyyaml pdfplumber
 cp .env.example .env && $EDITOR .env     # at minimum set VAULT_PATH
@@ -1374,25 +1375,25 @@ More: [`docs/FAQ.md`](docs/FAQ.md). For a clean rebuild:
 
 ## Roadmap
 
-The **[v2.0.0 milestone](https://github.com/paulholland511/atlas-os/milestone/2)**
+The **[v2.0.0 milestone](https://github.com/paulholland511/eidetic-os/milestone/2)**
 is **complete** — every item below shipped in v2.0.0 (contributions still welcome
 for what's next):
 
-- ✅ **SQLite vector store** ([#10](https://github.com/paulholland511/atlas-os/issues/10)) —
+- ✅ **SQLite vector store** ([#10](https://github.com/paulholland511/eidetic-os/issues/10)) —
   production-scale RAG: `vectors.db` with `sqlite-vec` KNN, incremental
   insert/delete, and a graceful brute-force fallback. *Shipped.*
-- ✅ **Advanced RAG pipeline** ([#11](https://github.com/paulholland511/atlas-os/issues/11)) —
+- ✅ **Advanced RAG pipeline** ([#11](https://github.com/paulholland511/eidetic-os/issues/11)) —
   semantic chunking, hybrid BM25 + vector search, TF-IDF reranking, embedding
   cache, metadata filtering, and the `eidetic search` command. *Shipped.*
-- ✅ **Open-source lightweight dashboard** ([#12](https://github.com/paulholland511/atlas-os/issues/12)) —
+- ✅ **Open-source lightweight dashboard** ([#12](https://github.com/paulholland511/eidetic-os/issues/12)) —
   a local-first Flask web UI: system health, audit trail, scheduled-task status,
   skill management, vector-store stats, and RAG search. Launch with
   `eidetic dashboard` (`pip install 'eidetic-os[dashboard]'`). *Shipped.*
-- ✅ **Skills marketplace / registry** ([#13](https://github.com/paulholland511/atlas-os/issues/13)) —
+- ✅ **Skills marketplace / registry** ([#13](https://github.com/paulholland511/eidetic-os/issues/13)) —
   share, discover, and install community skills: a JSON registry, `eidetic skills
   search`, schema-validated `eidetic skills publish` packaging, custom registries,
   and manifest dependency resolution. *Shipped.*
-- ✅ **Visual knowledge graph viewer** ([#14](https://github.com/paulholland511/atlas-os/issues/14)) —
+- ✅ **Visual knowledge graph viewer** ([#14](https://github.com/paulholland511/eidetic-os/issues/14)) —
   a D3.js force-directed view of how your notes connect, in the dashboard at
   `/graph` (or `eidetic graph --open`): nodes coloured by type, zoom/pan, search,
   per-type filters, and a click-through panel of each note's links and backlinks.
@@ -1400,32 +1401,32 @@ for what's next):
 
 ### ✅ v3.0.0 — the architecture refactor (shipped)
 
-The **[v3.0.0 milestone](https://github.com/paulholland511/atlas-os/milestone/3)**
+The **[v3.0.0 milestone](https://github.com/paulholland511/eidetic-os/milestone/3)**
 is **complete** — a lean core, MCP-native skills, a security gate for community
 code, bullet-proof git sync, and a scalable, pluggable vector store all shipped:
 
-- ✅ **Extension architecture** ([#15](https://github.com/paulholland511/atlas-os/issues/15)) —
+- ✅ **Extension architecture** ([#15](https://github.com/paulholland511/eidetic-os/issues/15)) —
   decoupled the lean core (vault, git sync, RAG, CLI, dashboard, audit trail)
   from the domain verticals. Trading/voice/jobs move to `extensions/`, installed
   via extras (`pip install 'eidetic-os[trading]'`) and discovered through
   setuptools entry points with a clean `register_commands()` /
   `register_skills()` / `register_schedules()` API. *Shipped.*
-- ✅ **MCP skills** ([#16](https://github.com/paulholland511/atlas-os/issues/16)) —
+- ✅ **MCP skills** ([#16](https://github.com/paulholland511/eidetic-os/issues/16)) —
   the skill framework speaks the **Model Context Protocol**: the runtime is an
   MCP client, each skill an MCP server (stdio for local, SSE/HTTP for remote),
   existing `SKILL.md` skills auto-wrapped in a shim, and skills usable from
   Claude Code, Cowork, and any MCP host. *Shipped.*
-- ✅ **Security hardening** ([#17](https://github.com/paulholland511/atlas-os/issues/17)) —
+- ✅ **Security hardening** ([#17](https://github.com/paulholland511/eidetic-os/issues/17)) —
   AST static analysis at `eidetic skills install` (BLOCK / WARN / INFO), a
   restricted runtime sandbox (timeout, memory limit, no network by default),
   and full audit-trail logging for community skills via `eidetic security report`.
   *Shipped.*
-- ✅ **Git sync hardening** ([#18](https://github.com/paulholland511/atlas-os/issues/18)) —
+- ✅ **Git sync hardening** ([#18](https://github.com/paulholland511/eidetic-os/issues/18)) —
   favour-local merges that abort true conflicts untouched, frontmatter
   validation before every automated commit, advisory file locking, and stale
   `.git/*.lock` cleanup, so automated git never corrupts your vault. Surfaced via
   `eidetic sync`, `eidetic validate`, and `eidetic doctor`. *Shipped.*
-- ✅ **Scalable vector storage** ([#19](https://github.com/paulholland511/atlas-os/issues/19)) —
+- ✅ **Scalable vector storage** ([#19](https://github.com/paulholland511/eidetic-os/issues/19)) —
   a pluggable `VectorBackend` interface with `sqlite-vec` as the zero-config
   default plus **LanceDB** (zero-copy disk queries, metadata filtering) and
   ChromaDB options, selectable via `VECTOR_BACKEND`, with an
@@ -1433,40 +1434,40 @@ code, bullet-proof git sync, and a scalable, pluggable vector store all shipped:
 
 ### ✅ v4.0.0 — Eidetic OS (the memory release, shipped)
 
-The **[v4.0.0 milestone](https://github.com/paulholland511/atlas-os/milestone/4)**
+The **[v4.0.0 milestone](https://github.com/paulholland511/eidetic-os/milestone/4)**
 is **complete** — the rebrand-and-remember release: the new **Eidetic** identity
 plus a leap from "store everything" to **understand and consolidate everything**.
 The headline work — making memory *active* rather than a passive log — all
 shipped:
 
-- ✅ **Mem0-style fact extraction** ([#22](https://github.com/paulholland511/atlas-os/issues/22)) —
+- ✅ **Mem0-style fact extraction** ([#22](https://github.com/paulholland511/eidetic-os/issues/22)) —
   distil discrete, atomic facts from raw session transcripts and **deduplicate
   them against existing memory** (insert / bump / supersede / merge) instead of
   appending whole conversations, so the vault stores knowledge, not noise. LLM
   extraction with a heuristic offline fallback, plus a `FactStore` with semantic
   dedup, contradiction handling, and time-decay. See
   [Fact memory](#fact-memory-eidetic-facts) (`eidetic facts`). *Shipped.*
-- 😴 **Sleeptime consolidation daemon** ([#23](https://github.com/paulholland511/atlas-os/issues/23)) —
+- 😴 **Sleeptime consolidation daemon** ([#23](https://github.com/paulholland511/eidetic-os/issues/23)) —
   a background process that compresses and **synthesises dialogue logs offline**
   (during idle/"sleep" time), merging related notes and summarising stale
   threads the way human memory consolidates overnight. *Shipped — see
   [`eidetic consolidate`](#sleeptime-consolidation-eidetic-consolidate).*
-- ✅ **Native Obsidian plugin** ([#24](https://github.com/paulholland511/atlas-os/issues/24)) —
+- ✅ **Native Obsidian plugin** ([#24](https://github.com/paulholland511/eidetic-os/issues/24)) —
   search, manage, and **visualise the memory index from inside Obsidian** itself:
   hybrid RAG search, fact browsing, and fact extraction from a note as
   command-palette actions, backed by a localhost-only REST server
   (`eidetic serve`), no terminal required. *Shipped — see
   [`obsidian-plugin/`](obsidian-plugin/) and [`eidetic_os/plugin_server.py`](eidetic_os/plugin_server.py).*
-- 🧙 **Interactive setup wizard 2.0** ([#25](https://github.com/paulholland511/atlas-os/issues/25)) —
+- 🧙 **Interactive setup wizard 2.0** ([#25](https://github.com/paulholland511/eidetic-os/issues/25)) —
   a guided, Rich-powered CLI interview that **auto-detects your vault and models**,
   maps endpoints, lets you pick an embedding model, and **captures a profile**,
   taking `eidetic init` from "fill in the .env" to a genuinely conversational
   onboarding. *Shipped — see [`eidetic_os/setup_wizard.py`](eidetic_os/setup_wizard.py).*
-- 💬 **Channel adapters** ([#26](https://github.com/paulholland511/atlas-os/issues/26)) —
+- 💬 **Channel adapters** ([#26](https://github.com/paulholland511/eidetic-os/issues/26)) —
   headless messaging over **Slack, Telegram, and a dependency-free webhook**, so
   you can query your memory (and receive briefings) from anywhere. *Shipped — see
   [Channels](#channels--slack-telegram--webhook-eidetic-channels) (`eidetic channels`).*
-- ✅ **Memory decay & relevance scoring** ([#27](https://github.com/paulholland511/atlas-os/issues/27)) —
+- ✅ **Memory decay & relevance scoring** ([#27](https://github.com/paulholland511/eidetic-os/issues/27)) —
   a **time-weighted relevance model** (`P(M) = e^(-λt)·(1 + βf)`) so recent and
   frequently-retrieved facts rank above stale ones — recall that fades and
   sharpens like the real thing. *Shipped — see
@@ -1478,7 +1479,7 @@ Further out:
   `pipx install eidetic-os` (or `uv tool install eidetic-os` / `pip install eidetic-os`),
   published automatically on every `v*` tag via Trusted Publishing
   ([`docs/PUBLISHING.md`](docs/PUBLISHING.md)). *Shipped.*
-- **Nix flake** — `nix run github:paulholland511/atlas-os` for a hermetic install.
+- **Nix flake** — `nix run github:paulholland511/eidetic-os` for a hermetic install.
 
 Recently shipped: the SQLite vector store and the advanced RAG pipeline (above),
 the `eidetic dashboard` web UI, the skills marketplace (`eidetic skills search` /

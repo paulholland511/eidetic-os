@@ -6,15 +6,15 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [4.0.0] — 2026-06-06
 
-**v4.0.0** — the rebrand-and-remember release. The **[v4.0.0 milestone](https://github.com/paulholland511/atlas-os/milestone/4)**
+**v4.0.0** — the rebrand-and-remember release. The **[v4.0.0 milestone](https://github.com/paulholland511/eidetic-os/milestone/4)**
 is **complete**: the new **Eidetic** identity plus a leap from "store everything"
 to **understand and consolidate everything** — memory that is *active* rather than
 a passive log. All six milestone issues
-([#22](https://github.com/paulholland511/atlas-os/issues/22)–[#27](https://github.com/paulholland511/atlas-os/issues/27))
+([#22](https://github.com/paulholland511/eidetic-os/issues/22)–[#27](https://github.com/paulholland511/eidetic-os/issues/27))
 shipped, alongside a full rebrand migration sweep.
 
 ### Added
-- **Mem0-style fact-extraction engine** ([#22](https://github.com/paulholland511/atlas-os/issues/22)) —
+- **Mem0-style fact-extraction engine** ([#22](https://github.com/paulholland511/eidetic-os/issues/22)) —
   a new [`eidetic_os/facts.py`](eidetic_os/facts.py) module that distils discrete,
   atomic facts from conversations and **deduplicates them against existing
   memory**, replacing the append-whole-transcript approach that caused context
@@ -35,15 +35,15 @@ shipped, alongside a full rebrand migration sweep.
     statement.
   - `query_facts` / `get_facts_for_context` for semantic recall and context
     injection, and `decay_scores` applying half-life confidence decay since last
-    access (the hook the sleeptime daemon, [#23](https://github.com/paulholland511/atlas-os/issues/23),
-    and relevance scoring, [#27](https://github.com/paulholland511/atlas-os/issues/27), will drive).
+    access (the hook the sleeptime daemon, [#23](https://github.com/paulholland511/eidetic-os/issues/23),
+    and relevance scoring, [#27](https://github.com/paulholland511/eidetic-os/issues/27), will drive).
   - New CLI command group: `eidetic facts extract <file>`, `eidetic facts list`,
     `eidetic facts search <query>`, and `eidetic facts stats`. The store lives at
     `$VAULT_PATH/.eidetic/facts.db` (override with `EIDETIC_FACTS_PATH`).
   - Full test coverage in [`tests/test_facts.py`](tests/test_facts.py) — CRUD,
     heuristic + LLM-parsing extraction, all four dedup paths, query/search,
     context selection, and decay.
-- **Sleeptime memory consolidation daemon** ([#23](https://github.com/paulholland511/atlas-os/issues/23)) —
+- **Sleeptime memory consolidation daemon** ([#23](https://github.com/paulholland511/eidetic-os/issues/23)) —
   a new [`eidetic_os/sleeptime.py`](eidetic_os/sleeptime.py) module that compresses
   recent session logs into a single synthesised note while you're offline,
   reducing the context bloat from dozens of near-duplicate session captures.
@@ -72,7 +72,7 @@ shipped, alongside a full rebrand migration sweep.
   - Full test coverage in [`tests/test_sleeptime.py`](tests/test_sleeptime.py) —
     noise stripping, all extractors, contradiction detection, watermark tracking,
     end-to-end passes, status, and the daemon lifecycle.
-- **Native Obsidian plugin + API server** ([#24](https://github.com/paulholland511/atlas-os/issues/24)) —
+- **Native Obsidian plugin + API server** ([#24](https://github.com/paulholland511/eidetic-os/issues/24)) —
   search memory, browse facts, and extract facts from a note **without leaving
   Obsidian**, backed by a small local REST server over the existing RAG/facts
   modules. Highlights:
@@ -95,7 +95,7 @@ shipped, alongside a full rebrand migration sweep.
     every endpoint's JSON shape, offline keyword search, fact listing/filtering/
     search, extraction (preview + store), stats (with and without an index), and
     the CORS headers.
-- **Interactive setup wizard** ([#25](https://github.com/paulholland511/atlas-os/issues/25)) —
+- **Interactive setup wizard** ([#25](https://github.com/paulholland511/eidetic-os/issues/25)) —
   a new [`eidetic_os/setup_wizard.py`](eidetic_os/setup_wizard.py) module that turns
   `eidetic init` into a guided, **Rich-powered** interview (with a plain-text
   fallback when Rich is unavailable). Highlights:
@@ -117,7 +117,7 @@ shipped, alongside a full rebrand migration sweep.
     `.eidetic/config.yaml` (resolved env → `$VAULT_PATH` → cwd), and full coverage
     in [`tests/test_setup_wizard.py`](tests/test_setup_wizard.py) — vault detection,
     mocked-HTTP backend probing, config generation, and the scripted end-to-end run.
-- **Channel adapters — Slack / Telegram / webhook** ([#26](https://github.com/paulholland511/atlas-os/issues/26)) —
+- **Channel adapters — Slack / Telegram / webhook** ([#26](https://github.com/paulholland511/eidetic-os/issues/26)) —
   a new [`eidetic_os/channels/`](eidetic_os/channels/) framework that bridges Eidetic
   OS to messaging surfaces, turning any channel into a query interface over your
   memory. Highlights:
@@ -134,7 +134,7 @@ shipped, alongside a full rebrand migration sweep.
     `channels`. Full coverage in [`tests/test_channels.py`](tests/test_channels.py) —
     the ABC contract, the webhook end-to-end over a real loopback server, routing,
     config loading, and the missing-dependency guards.
-- **Memory decay & relevance scoring** ([#27](https://github.com/paulholland511/atlas-os/issues/27)) —
+- **Memory decay & relevance scoring** ([#27](https://github.com/paulholland511/eidetic-os/issues/27)) —
   a new [`eidetic_os/memory_scoring.py`](eidetic_os/memory_scoring.py) module adding a
   time-weighted **relevance** signal on top of confidence. Highlights:
   - A `MemoryScorer` implementing a forgetting curve with reinforcement,
@@ -146,7 +146,7 @@ shipped, alongside a full rebrand migration sweep.
     idempotent `ALTER TABLE` migration for existing stores), and
     `get_facts_for_context()` now ranks by relevance (falling back to the
     confidence·access salience proxy between scoring passes). The **sleeptime
-    consolidation daemon** ([#23](https://github.com/paulholland511/atlas-os/issues/23))
+    consolidation daemon** ([#23](https://github.com/paulholland511/eidetic-os/issues/23))
     runs a decay pass on every consolidation, as a best-effort, audited side effect.
   - **Configurable** via the `memory:` section of `.eidetic/config.yaml`
     (`decay_lambda: 0.01` ≈ a 69-day half-life, `reinforcement_beta: 0.5`,
@@ -181,40 +181,40 @@ shipped, alongside a full rebrand migration sweep.
   Khoj / gAIOS) and a published **v4.0 roadmap**.
 
 ### Roadmap (v4.0.0)
-- Mem0-style fact extraction with dedup against existing memory ([#22](https://github.com/paulholland511/atlas-os/issues/22)).
-- Sleeptime memory-consolidation daemon ([#23](https://github.com/paulholland511/atlas-os/issues/23)).
-- Interactive setup wizard 2.0 — model detection, endpoint mapping, style profiling ([#25](https://github.com/paulholland511/atlas-os/issues/25)).
-- Channel adapters for Slack / Telegram ([#26](https://github.com/paulholland511/atlas-os/issues/26)).
-- Memory decay & time-weighted relevance scoring ([#27](https://github.com/paulholland511/atlas-os/issues/27)).
+- Mem0-style fact extraction with dedup against existing memory ([#22](https://github.com/paulholland511/eidetic-os/issues/22)).
+- Sleeptime memory-consolidation daemon ([#23](https://github.com/paulholland511/eidetic-os/issues/23)).
+- Interactive setup wizard 2.0 — model detection, endpoint mapping, style profiling ([#25](https://github.com/paulholland511/eidetic-os/issues/25)).
+- Channel adapters for Slack / Telegram ([#26](https://github.com/paulholland511/eidetic-os/issues/26)).
+- Memory decay & time-weighted relevance scoring ([#27](https://github.com/paulholland511/eidetic-os/issues/27)).
 
 ## [3.0.0] — 2026-06-05
 
-The **[v3.0.0 milestone](https://github.com/paulholland511/atlas-os/milestone/3)**
+The **[v3.0.0 milestone](https://github.com/paulholland511/eidetic-os/milestone/3)**
 is an architecture-led release — Eidetic OS refactored from a monolithic toolkit
 into a lean, extensible, MCP-native, hardened platform. Tracked by issues
-[#15](https://github.com/paulholland511/atlas-os/issues/15)–[#19](https://github.com/paulholland511/atlas-os/issues/19).
+[#15](https://github.com/paulholland511/eidetic-os/issues/15)–[#19](https://github.com/paulholland511/eidetic-os/issues/19).
 
 ### Added
-- **Extension architecture** ([#15](https://github.com/paulholland511/atlas-os/issues/15)).
+- **Extension architecture** ([#15](https://github.com/paulholland511/eidetic-os/issues/15)).
   The lean core (vault parsing, git sync, RAG indexer, CLI, dashboard, audit
   trail) is decoupled from the domain verticals. `trading/`, `voice_automation/`,
   and `job_search/` move into `extensions/` as opt-in extras
   (`pip install 'eidetic-os[trading]'`), discovered via setuptools entry points
   with a documented `register_commands()` / `register_skills()` /
   `register_schedules()` API. `pip install eidetic-os` installs core only.
-- **MCP skills** ([#16](https://github.com/paulholland511/atlas-os/issues/16)).
+- **MCP skills** ([#16](https://github.com/paulholland511/eidetic-os/issues/16)).
   The skill framework speaks the **Model Context Protocol**: the `eidetic_os`
   runtime is an MCP client, each skill an MCP server with schema-validated tool
   definitions (stdio for local skills, SSE/HTTP for remote). Existing `SKILL.md`
   skills are auto-wrapped in an MCP shim, so skills are consumable from Claude
   Code, Cowork, and any third-party MCP host.
-- **Security hardening** ([#17](https://github.com/paulholland511/atlas-os/issues/17)).
+- **Security hardening** ([#17](https://github.com/paulholland511/eidetic-os/issues/17)).
   Code validation and sandboxing for community skills: AST static analysis at
   `eidetic skills install` with BLOCK / WARN / INFO severities (BLOCK is not
   `--force`-overridable), a restricted runtime sandbox (timeout, memory limit,
   no network by default), and audit-trail logging of every install and run,
   surfaced via `eidetic security report`.
-- **Git sync hardening** ([#18](https://github.com/paulholland511/atlas-os/issues/18)).
+- **Git sync hardening** ([#18](https://github.com/paulholland511/eidetic-os/issues/18)).
   Conflict resolution and data integrity so automated git never corrupts the
   vault: `git_sync.safe_sync` uses a favour-local merge that never overwrites a
   concurrent human edit and aborts true conflicts (tree untouched) rather than
@@ -222,7 +222,7 @@ into a lean, extensible, MCP-native, hardened platform. Tracked by issues
   YAML and required keys; `filelock` adds advisory, stale-self-healing per-file
   locks; and crash-orphaned `.git/*.lock` files are cleared. Surfaced via
   `eidetic sync`, `eidetic validate`, and a Sync category in `eidetic doctor`.
-- **Scalable vector storage — pluggable backends** ([#19](https://github.com/paulholland511/atlas-os/issues/19)).
+- **Scalable vector storage — pluggable backends** ([#19](https://github.com/paulholland511/eidetic-os/issues/19)).
   A small `VectorBackend` interface (`insert` / `search` / `delete_by_file` /
   `count` / `files` / `clear` / `export_chunks`) now sits in front of the RAG
   store (`eidetic_os/vector_backend.py`, `eidetic_os/vector_backends/`). **SQLite**
@@ -242,21 +242,21 @@ into a lean, extensible, MCP-native, hardened platform. Tracked by issues
 
 ## [2.0.0] — 2026-06-04
 
-The **[v2.0.0 milestone](https://github.com/paulholland511/atlas-os/milestone/2)**
+The **[v2.0.0 milestone](https://github.com/paulholland511/eidetic-os/milestone/2)**
 release — Eidetic OS goes from a CLI-and-scripts toolkit to a complete platform.
-It completes every milestone issue ([#10](https://github.com/paulholland511/atlas-os/issues/10)–[#14](https://github.com/paulholland511/atlas-os/issues/14)):
-the **SQLite vector store** ([#10](https://github.com/paulholland511/atlas-os/issues/10))
-and the **advanced RAG pipeline** ([#11](https://github.com/paulholland511/atlas-os/issues/11))
+It completes every milestone issue ([#10](https://github.com/paulholland511/eidetic-os/issues/10)–[#14](https://github.com/paulholland511/eidetic-os/issues/14)):
+the **SQLite vector store** ([#10](https://github.com/paulholland511/eidetic-os/issues/10))
+and the **advanced RAG pipeline** ([#11](https://github.com/paulholland511/eidetic-os/issues/11))
 graduated to shipped in [1.2.0](#120--2026-06-04); this release adds the
-**open-source web dashboard** ([#12](https://github.com/paulholland511/atlas-os/issues/12)),
-the **skills marketplace** ([#13](https://github.com/paulholland511/atlas-os/issues/13)),
-and the **visual knowledge graph viewer** ([#14](https://github.com/paulholland511/atlas-os/issues/14)),
+**open-source web dashboard** ([#12](https://github.com/paulholland511/eidetic-os/issues/12)),
+the **skills marketplace** ([#13](https://github.com/paulholland511/eidetic-os/issues/13)),
+and the **visual knowledge graph viewer** ([#14](https://github.com/paulholland511/eidetic-os/issues/14)),
 then polishes the dashboard UI and ships a set of terminal demo GIFs. No breaking
 changes — the v1.0 stability contract (command names, flags, env vars, exit codes,
 documented JSON shapes) is unchanged; the major bump marks the platform milestone.
 
 ### Added
-- **Visual knowledge graph viewer** ([#14](https://github.com/paulholland511/atlas-os/issues/14)).
+- **Visual knowledge graph viewer** ([#14](https://github.com/paulholland511/eidetic-os/issues/14)).
   A D3.js force-directed view of how vault notes connect via `[[wikilinks]]`,
   served by the dashboard and openable straight from the CLI:
   - **`/graph` page** — a new template,
@@ -279,7 +279,7 @@ documented JSON shapes) is unchanged; the major bump marks the platform mileston
   - Tests: [`tests/test_graph.py`](tests/test_graph.py) covers node classification,
     wikilink resolution (aliases, headings, nested paths), edge dedup, orphans,
     the node cap, and both routes.
-- **Skills marketplace / community registry** ([#13](https://github.com/paulholland511/atlas-os/issues/13)).
+- **Skills marketplace / community registry** ([#13](https://github.com/paulholland511/eidetic-os/issues/13)).
   A new module, [`eidetic_os/marketplace.py`](eidetic_os/marketplace.py), turns skills
   from files in this repo into something shareable across installs:
   - **Registries** — a JSON document (`registry.json`) listing skills with
@@ -303,7 +303,7 @@ documented JSON shapes) is unchanged; the major bump marks the platform mileston
     the test-suite asserts it. New tests in
     [`tests/test_marketplace.py`](tests/test_marketplace.py); docs in
     [`docs/features/skills-marketplace.md`](docs/features/skills-marketplace.md).
-- **Open-source web dashboard** ([#12](https://github.com/paulholland511/atlas-os/issues/12)).
+- **Open-source web dashboard** ([#12](https://github.com/paulholland511/eidetic-os/issues/12)).
   A lightweight, local-first web UI over everything you already run from the
   command line, in a new package, [`eidetic_os/dashboard/`](eidetic_os/dashboard/):
   - **`eidetic dashboard`** — serves the app at `http://127.0.0.1:8501`
@@ -341,9 +341,9 @@ documented JSON shapes) is unchanged; the major bump marks the platform mileston
 
 ## [1.2.0] — 2026-06-04
 
-This release graduates two **[v2.0.0 milestone](https://github.com/paulholland511/atlas-os/milestone/2)**
-features to shipped — the SQLite vector store ([#10](https://github.com/paulholland511/atlas-os/issues/10))
-and the advanced RAG pipeline ([#11](https://github.com/paulholland511/atlas-os/issues/11)) — and
+This release graduates two **[v2.0.0 milestone](https://github.com/paulholland511/eidetic-os/milestone/2)**
+features to shipped — the SQLite vector store ([#10](https://github.com/paulholland511/eidetic-os/issues/10))
+and the advanced RAG pipeline ([#11](https://github.com/paulholland511/eidetic-os/issues/11)) — and
 moves session capture to a twice-daily default.
 
 ### Changed
@@ -818,13 +818,13 @@ moves session capture to a twice-daily default.
 - Documentation: setup, architecture, rebuild runbook, scheduled tasks, data
   classification; `SECURITY.md`, `CONTRIBUTING.md`, MIT `LICENSE`.
 
-[Unreleased]: https://github.com/paulholland511/atlas-os/compare/v4.0.0...HEAD
-[4.0.0]: https://github.com/paulholland511/atlas-os/compare/v3.0.0...v4.0.0
-[3.0.0]: https://github.com/paulholland511/atlas-os/compare/v2.0.0...v3.0.0
-[2.0.0]: https://github.com/paulholland511/atlas-os/compare/v1.2.0...v2.0.0
-[1.2.0]: https://github.com/paulholland511/atlas-os/compare/v1.1.0...v1.2.0
-[1.1.0]: https://github.com/paulholland511/atlas-os/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/paulholland511/atlas-os/compare/v0.3.0...v1.0.0
-[0.3.0]: https://github.com/paulholland511/atlas-os/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/paulholland511/atlas-os/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/paulholland511/atlas-os/releases/tag/v0.1.0
+[Unreleased]: https://github.com/paulholland511/eidetic-os/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/paulholland511/eidetic-os/compare/v3.0.0...v4.0.0
+[3.0.0]: https://github.com/paulholland511/eidetic-os/compare/v2.0.0...v3.0.0
+[2.0.0]: https://github.com/paulholland511/eidetic-os/compare/v1.2.0...v2.0.0
+[1.2.0]: https://github.com/paulholland511/eidetic-os/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/paulholland511/eidetic-os/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/paulholland511/eidetic-os/compare/v0.3.0...v1.0.0
+[0.3.0]: https://github.com/paulholland511/eidetic-os/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/paulholland511/eidetic-os/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/paulholland511/eidetic-os/releases/tag/v0.1.0

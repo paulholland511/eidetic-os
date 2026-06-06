@@ -92,6 +92,6 @@ It's MIT licensed, has 400+ tests and CI, and is on PyPI:
 pip install eidetic-os      # or pipx / uv tool install
 ```
 
-**GitHub:** https://github.com/paulholland511/atlas-os
+**GitHub:** https://github.com/paulholland511/eidetic-os
 
 Next up is an extension architecture that splits a lean core from the domain verticals, making the skill framework speak **MCP** (each skill an MCP server), and a sandboxed security gate that runs AST static analysis on community skills before install. Contributions and feedback very welcome — especially on the retrieval design.

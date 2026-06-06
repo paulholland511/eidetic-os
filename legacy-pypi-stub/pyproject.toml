@@ -34,7 +34,7 @@ classifiers = [
 dependencies = ["eidetic-os>=4.0.0"]
 
 [project.urls]
-Homepage = "https://github.com/paulholland511/atlas-os"
+Homepage = "https://github.com/paulholland511/eidetic-os"
 "Renamed package" = "https://pypi.org/project/eidetic-os/"
 
 [tool.hatch.build.targets.wheel]

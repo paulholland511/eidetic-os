@@ -30,8 +30,8 @@ Python tooling below works standalone without it.
 ## 2. Clone the repo (30 sec)
 
 ```bash
-git clone https://github.com/paulholland511/atlas-os.git
-cd atlas-os
+git clone https://github.com/paulholland511/eidetic-os.git
+cd eidetic-os
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt    # core deps, pinned
 pip install -e .                   # the `eidetic` command

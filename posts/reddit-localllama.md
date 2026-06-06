@@ -24,6 +24,6 @@ eidetic embed --full        # build the vector store
 eidetic search "kelly criterion" --mode vector
 ```
 
-**GitHub (MIT):** https://github.com/paulholland511/atlas-os
+**GitHub (MIT):** https://github.com/paulholland511/eidetic-os
 
 v3.0 is adding a pluggable `VectorBackend` interface — sqlite-vec stays the zero-config default, with LanceDB (zero-copy disk queries) and ChromaDB as options, plus documented benchmarks at 1K/10K/100K chunks. Interested in what backends/embedding models people here are running for vault-scale RAG.
