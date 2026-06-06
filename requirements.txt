@@ -14,6 +14,7 @@
 requests==2.34.2          # HTTP — embeddings, chat, SMTP probes, trading APIs
 pyyaml==6.0.3             # frontmatter parsing / schema enforcement
 typer==0.26.6             # the `eidetic` CLI
+click==8.4.1              # prompts/echo in setup_wizard (also a typer dep)
 python-dotenv==1.2.2      # auto-load .env
 
 # ── Trading research SDK (optional — `pip install ".[trading]"`) ─────────────
