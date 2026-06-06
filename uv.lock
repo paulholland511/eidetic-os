@@ -647,6 +647,8 @@ wheels = [
 name = "eidetic-os"
 source = { editable = "." }
 dependencies = [
+    { name = "click" },
+    { name = "cryptography" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
     { name = "requests" },
@@ -699,6 +701,8 @@ vector = [
 requires-dist = [
     { name = "chromadb", marker = "extra == 'all'", specifier = ">=0.5" },
     { name = "chromadb", marker = "extra == 'chroma'", specifier = ">=0.5" },
+    { name = "click", specifier = ">=8.0" },
+    { name = "cryptography", specifier = ">=42.0" },
     { name = "flask", marker = "extra == 'all'", specifier = ">=3.0" },
     { name = "flask", marker = "extra == 'dashboard'", specifier = ">=3.0" },
     { name = "lancedb", marker = "extra == 'all'", specifier = ">=0.5" },

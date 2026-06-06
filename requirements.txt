@@ -16,6 +16,7 @@ pyyaml==6.0.3             # frontmatter parsing / schema enforcement
 typer==0.26.6             # the `eidetic` CLI
 click==8.4.1              # prompts/echo in setup_wizard (also a typer dep)
 python-dotenv==1.2.2      # auto-load .env
+cryptography==48.0.0      # Ed25519 signing for the tamper-evident audit trail
 
 # ── Trading research SDK (optional — `pip install ".[trading]"`) ─────────────
 yfinance==1.4.1           # market data for trading_briefing.py / trading/

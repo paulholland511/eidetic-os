@@ -105,6 +105,20 @@ def _rotate_if_needed(path: Path, incoming_bytes: int) -> None:
     path.rename(path.with_suffix(path.suffix + ".1"))
 
 
+def _sign_entry(entry: dict[str, Any], path: Path) -> dict[str, Any]:
+    """Cryptographically sign ``entry`` for append, if signing is available.
+
+    Imported lazily to avoid a circular import (``audit_crypto`` depends on this
+    module's :func:`audit_path`) and to keep ``cryptography`` strictly optional —
+    any failure leaves the entry unsigned rather than breaking the audit write.
+    """
+    try:
+        from eidetic_os import audit_crypto
+    except Exception:  # pragma: no cover - audit_crypto import must never break logging
+        return entry
+    return audit_crypto.sign_for_append(entry, path)
+
+
 def log_action(
     action: str,
     trigger: str,
@@ -135,13 +149,15 @@ def log_action(
         "context": context,
         "error": error,
     }
-    line = json.dumps(entry, ensure_ascii=False) + "\n"
-    payload = line.encode("utf-8")
-
     path = audit_path()
     try:
         with _LOCK:
             path.parent.mkdir(parents=True, exist_ok=True)
+            # Sign the entry (chaining onto the existing trail) before writing.
+            # Done under the lock so the prev_hash we read is the true tail. If
+            # signing is unavailable the entry is returned unchanged (unsigned).
+            entry = _sign_entry(entry, path)
+            payload = (json.dumps(entry, ensure_ascii=False) + "\n").encode("utf-8")
             _rotate_if_needed(path, len(payload))
             with path.open("ab") as handle:
                 if fcntl is not None:
