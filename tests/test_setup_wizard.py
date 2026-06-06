@@ -11,7 +11,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-import requests
 
 from eidetic_os import config, setup_wizard
 from eidetic_os._probe import Endpoint
