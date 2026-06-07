@@ -193,10 +193,44 @@ def test_routes_render(client, dash_env: Path, path: str) -> None:  # noqa: ANN0
     assert b"Eidetic OS" in resp.data
 
 
-def test_index_redirects_to_health(client) -> None:  # noqa: ANN001
+def test_index_serves_spa_or_redirects(client) -> None:  # noqa: ANN001
+    # The front door serves the bundled React control centre when it has been
+    # built (static/dashboard.html), and otherwise falls back to redirecting to
+    # the classic server-rendered health page — so the dashboard works either way.
     resp = client.get("/")
-    assert resp.status_code == 302
-    assert "/health" in resp.headers["Location"]
+    if resp.status_code == 200:
+        # The bundler minifies attribute quotes away, so accept id=root or id="root".
+        assert b"id=root" in resp.data or b'id="root"' in resp.data
+    else:
+        assert resp.status_code == 302
+        assert "/health" in resp.headers["Location"]
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/api/overview",
+        "/api/memory",
+        "/api/security",
+        "/api/pipelines",
+        "/api/settings",
+        "/api/skills",
+        "/api/vectors",
+    ],
+)
+def test_api_endpoints_return_json(client, dash_env: Path, path: str) -> None:  # noqa: ANN001
+    resp = client.get(path)
+    assert resp.status_code == 200
+    assert resp.is_json
+    assert isinstance(resp.get_json(), dict)
+
+
+def test_api_search_empty_query(client, dash_env: Path) -> None:  # noqa: ANN001
+    resp = client.get("/api/search")
+    assert resp.status_code == 200
+    body = resp.get_json()
+    assert body["ok"] is True
+    assert body["results"] == []
 
 
 def test_audit_route_with_filters(client, dash_env: Path) -> None:  # noqa: ANN001

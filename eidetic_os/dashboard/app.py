@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from eidetic_os import __version__
-from eidetic_os.dashboard import data
+from eidetic_os.dashboard import data, data_ext
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -75,6 +75,7 @@ def create_app() -> Flask:
             redirect,
             render_template,
             request,
+            send_from_directory,
             url_for,
         )
     except ImportError as exc:  # pragma: no cover - exercised via the CLI path
@@ -102,10 +103,81 @@ def create_app() -> Flask:
             "vault_path": os.path.expanduser(vault) if vault else None,
         }
 
-    # ── routes ─────────────────────────────────────────────────────────────────
+    # ── the React control centre (single-page app) ─────────────────────────────
+    # The bundled SPA (``static/dashboard.html``) is the front door. It is fully
+    # self-contained (JS/CSS inlined) and talks to the ``/api/*`` JSON endpoints
+    # below. If the bundle hasn't been built yet we fall back to the classic
+    # server-rendered health page so the dashboard still works from source.
     @app.route("/")
     def index():  # noqa: ANN202 - Flask view
+        bundle = os.path.join(app.static_folder or "", "dashboard.html")
+        if os.path.isfile(bundle):
+            return send_from_directory(app.static_folder, "dashboard.html")
         return redirect(url_for("health"))
+
+    # ── JSON API consumed by the SPA ───────────────────────────────────────────
+    @app.route("/api/overview")
+    def api_overview():  # noqa: ANN202
+        return jsonify(data_ext.overview())
+
+    @app.route("/api/health")
+    def api_health():  # noqa: ANN202
+        return jsonify(data.health_report())
+
+    @app.route("/api/memory")
+    def api_memory():  # noqa: ANN202
+        query = request.args.get("q", default="", type=str)
+        category = request.args.get("category", default="", type=str)
+        limit = request.args.get("limit", default=60, type=int) or 60
+        return jsonify(data_ext.memory(query=query, category=category, limit=limit))
+
+    @app.route("/api/security")
+    def api_security():  # noqa: ANN202
+        return jsonify(data_ext.security())
+
+    @app.route("/api/pipelines")
+    def api_pipelines():  # noqa: ANN202
+        return jsonify(data_ext.pipelines())
+
+    @app.route("/api/settings")
+    def api_settings():  # noqa: ANN202
+        return jsonify(data_ext.settings())
+
+    @app.route("/api/backends")
+    def api_backends():  # noqa: ANN202
+        timeout = request.args.get("timeout", default=1.5, type=float) or 1.5
+        return jsonify(data_ext.backends_status(timeout=timeout))
+
+    @app.route("/api/skills")
+    def api_skills():  # noqa: ANN202
+        return jsonify(data.skills_overview())
+
+    @app.route("/api/vectors")
+    def api_vectors():  # noqa: ANN202
+        return jsonify(data.vector_stats())
+
+    @app.route("/api/search")
+    def api_search():  # noqa: ANN202
+        query = request.args.get("q", default="", type=str)
+        mode = request.args.get("mode", default="hybrid", type=str)
+        top_k = request.args.get("top_k", default=8, type=int) or 8
+        if not query.strip():
+            return jsonify({"ok": True, "query": "", "results": []})
+        return jsonify(data.run_search(query, top_k=top_k, mode=mode))
+
+    @app.route("/api/audit")
+    def api_audit():  # noqa: ANN202
+        page = request.args.get("page", default=1, type=int) or 1
+        action = request.args.get("action", default="", type=str)
+        since = request.args.get("since", default="", type=str)
+        result = data.audit_page(action=action, since=since, page=page, per_page=40)
+        return jsonify({
+            "entries": result.entries,
+            "page": result.page,
+            "pages": result.pages,
+            "total": result.total,
+            "actions": result.actions,
+        })
 
     @app.route("/health")
     def health():  # noqa: ANN202
